@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mémos Data Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE  sobre : l'étagère des mémos du bootcamp
+   IDEA   le classeur de fiches, un onglet par domaine
+   PICTURE la grille des domaines, chacun avec ses notions clés
+   COLOUR blanc / nuit bleutée, le bleu des mémos
+   TYPE   Inter, JetBrains Mono pour les noms de fonctions
+   LAYOUT bandeau bleu, puis grille de fiches ; une colonne sur téléphone */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e1320);--bg2:light-dark(#f4f7fb,#151c2c);--ink:light-dark(#14181f,#e6eaf2);--mute:light-dark(#5a6475,#9aa6ba);--line:light-dark(#dde3ec,#273149);--blue:light-dark(#2457c5,#7aa7ff);--blue2:light-dark(#e8f0fb,#1a2a48)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,4vw)}
+.top{background:linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);color:#fff;padding:22px 0 40px}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:26px;font-size:15px;opacity:.95}
+.btn{font:inherit;font-size:14px;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:8px;padding:8px 12px;min-height:40px;cursor:pointer}
+.btn:hover{background:rgba(255,255,255,.12)}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance;max-width:16ch}
+.sub{margin:0;max-width:60ch;opacity:.92;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:30px 0 20px}
+.dom{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--bg);color:var(--ink);text-decoration:none;min-height:190px}
+a.dom:hover,a.dom:focus-visible{border-color:var(--blue);background:var(--blue2);outline:none}
+.dom h2{font-size:21px;margin:0 0 6px;line-height:1.2}
+.dom p{margin:0 0 12px;color:var(--mute);font-size:15px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.tags code{font:13px "JetBrains Mono",ui-monospace,monospace;background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+.st{display:inline-block;font-size:13px;font-weight:600;border-radius:999px;padding:2px 10px;margin-bottom:10px;align-self:flex-start}
+.ok{background:var(--blue);color:var(--bg)}
+.soon{border:1px solid var(--line);color:var(--mute)}
+.dom.off{background:var(--bg2);border-style:dashed}
+.legend{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);font-size:14px}
+.legend p{margin:6px 0;max-width:80ch}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><button class="btn" id="theme" type="button">Mode sombre</button></div>
+    <h1>Mes mémos Data Analyst</h1>
+    <p class="sub">Une page par domaine : le code prêt à copier, ce qu'il fait et pourquoi. Construit à partir de mes cours, pour retrouver une méthode en quelques secondes.</p>
+  </div>
+</header>
+<main class="wrap">
+  <div class="grid" id="grid"></div>
+</main>
+<footer class="wrap legend">
+  <p>Chaque mémo a une recherche (touche <code>/</code>), un sommaire cliquable et un bouton Copier sur chaque bloc de code.</p>
+  <p>Sources : les cours et supports du parcours Data Analyst. Ce qui n'en vient pas est marqué « Complément ».</p>
+</footer>
+<script>
+{
+const DOMAINS = [
+  {t:"pandas : nettoyer et préparer", href:"pandas-nettoyage.html", d:"Check de départ, doublons, valeurs manquantes, outliers, merge, groupby.", tags:["fillna","drop_duplicates","merge","groupby","apply"]},
+  {t:"SQL (MySQL)", d:"Modéliser, créer, interroger et joindre, sur la base sales_db.", tags:["SELECT","JOIN","GROUP BY","HAVING"]},
+  {t:"Terminal, Git et GitHub", d:"Le cycle pull, add, commit, push, les branches et le travail en équipe.", tags:["git status","git commit","git switch"]},
+  {t:"Python et NumPy", d:"Les bases du langage et les tableaux NumPy.", tags:["list","dict","np.array"]},
+  {t:"Streamlit", d:"Construire une application de données.", tags:["st.write","st.sidebar"]},
+  {t:"Machine Learning", d:"Préparer, entraîner, évaluer un modèle avec scikit-learn.", tags:["train_test_split","fit","predict"]}
+];
+const esc = (s) => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+document.getElementById("grid").innerHTML = DOMAINS.map((m) => {
+  const inner = '<span class="st ' + (m.href ? "ok" : "soon") + '">' + (m.href ? "Disponible" : "À venir") + "</span><h2>" + esc(m.t) + "</h2><p>" + esc(m.d) + '</p><div class="tags">' + m.tags.map((x) => "<code>" + esc(x) + "</code>").join("") + "</div>";
+  return m.href ? '<a class="dom" href="' + m.href + '">' + inner + "</a>" : '<div class="dom off">' + inner + "</div>";
+}).join("");
+
+const root = document.documentElement, btn = document.getElementById("theme");
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+const label = () => { btn.textContent = isDark() ? "Mode clair" : "Mode sombre"; };
+try { const t = localStorage.getItem("memo-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+label();
+btn.addEventListener("click", () => {
+  root.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("memo-theme", root.dataset.theme); } catch (e) {}
+  label();
+});
+}
+</script>
+</body>
+</html>

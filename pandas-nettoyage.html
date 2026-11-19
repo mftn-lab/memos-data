@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mémo pandas nettoyage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE  vif mais lisible : un carnet de recettes de code qu'on a plaisir à ouvrir
+   IDEA   un tableau sale qui devient propre ; chaque partie a sa couleur
+   PICTURE en-tête : mini-tableau « avant / après » ; portrait du Titanic avec barres de vides
+   COLOUR bleu (commencer), sarcelle (nettoyer), violet (transformer), orange (analyser) ; code sur fond nuit
+   TYPE   Inter 800 pour les titres + JetBrains Mono
+   LAYOUT sommaire coloré à gauche, fiches à droite ; tiroir sur téléphone */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0d1220);--bg2:light-dark(#f4f6fa,#151c2c);--ink:light-dark(#141922,#e7ebf3);--mute:light-dark(#5b6576,#9ba7bb);
+--line:light-dark(#e3e8ef,#263048);
+--blue:light-dark(#2457c5,#7aa7ff);--teal:light-dark(#0f8a7e,#3fd1bf);--violet:light-dark(#6d3fd0,#b39bff);--orange:light-dark(#d4570f,#ff9d5c);
+--amber:light-dark(#fff6dc,#2a2312);--amberl:light-dark(#c38d00,#e0b03a);--red:light-dark(#fdeeee,#301a1d);--redl:light-dark(#d03a3a,#ef7777);
+--why:light-dark(#eaf6f2,#11241f);--whyl:light-dark(#0f7d6f,#4fd3c0);
+--cbg:light-dark(#141b2d,#080c16);--cink:#e6ebf5;--cline:light-dark(#141b2d,#1f2940)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
+a{color:var(--blue)}
+pre,code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+p code,td code,.note code,.lead code,.why code,.gold p code{background:var(--bg2);border:1px solid var(--line);padding:0 5px;border-radius:5px;font-size:.86em;overflow-wrap:anywhere}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,4vw)}
+.top{background:linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);color:#fff}
+.top .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:center;padding-top:20px;padding-bottom:26px}
+.back{color:#fff;opacity:.85;text-decoration:none;font-size:15px}
+.back:hover{opacity:1;text-decoration:underline}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:12px 0 8px;text-wrap:balance}
+.sub{margin:0;opacity:.9;font-size:16.5px;max-width:52ch}
+.sub code{background:rgba(255,255,255,.18);border:0;color:#fff}
+.hero{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:16px 18px}
+.mini{display:grid;grid-template-columns:repeat(4,24px);gap:4px}
+.mini i{display:block;height:13px;border-radius:3px;background:rgba(255,255,255,.4)}
+.mini i.h{background:#fff}
+.mini i.v{background:transparent;border:1.5px dashed #ffb3b3}
+.mini i.d{background:#ffd166}
+.mini i.o{background:#ff8f5a}
+.hero figure{margin:0;text-align:center}
+.hero figcaption{font-size:12.5px;opacity:.85;margin-top:6px}
+.hero .arrow{font-size:22px;opacity:.9}
+.legend{display:flex;flex-direction:column;gap:5px;font-size:12.5px;opacity:.95;margin-left:4px}
+.legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:3px}
+.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:8px;align-items:center;padding-top:10px;padding-bottom:10px}
+.search{flex:1;position:relative}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mute);pointer-events:none}
+.search input{width:100%;font:inherit;font-size:16px;padding:11px 12px 11px 40px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg2);color:var(--ink);min-height:46px}
+.search input:focus{outline:none;border-color:var(--blue);background:var(--bg)}
+.tb{font:inherit;font-size:14px;font-weight:600;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:0 12px;min-height:46px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.tb:hover{border-color:var(--blue);color:var(--blue)}
+.tb[aria-pressed=true]{background:var(--why);border-color:var(--whyl);color:var(--whyl)}
+#menu{display:none}
+.layout{display:grid;grid-template-columns:272px minmax(0,1fr);gap:44px;padding-top:28px;padding-bottom:70px}
+.toc{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;padding-right:4px}
+.tg{margin-bottom:16px}
+.tg h4{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--gc);margin:0 0 4px 8px}
+.tg h4::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--gc)}
+.gnote{font-size:12.5px;color:var(--mute);margin:0 8px 6px 8px;line-height:1.4}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc li{position:relative}
+.toc a{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:9px;text-decoration:none;color:var(--ink);font-size:14.5px;line-height:1.3}
+.toc a:hover{background:var(--bg2)}
+.toc a.on{background:color-mix(in srgb,var(--gc) 13%,transparent);color:var(--gc);font-weight:600}
+.toc a .ic{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:color-mix(in srgb,var(--gc) 13%,transparent);color:var(--gc)}
+.toc .steps li:not(:last-child)::after{content:"";position:absolute;left:20px;top:31px;bottom:-7px;width:2px;background:color-mix(in srgb,var(--gc) 35%,transparent)}
+.toc .steps a .ic{border-radius:50%;background:var(--gc);color:var(--bg);font-weight:800;font-size:13px}
+.toc li.hide{display:none}
+main{max-width:880px}
+.gold{border-radius:16px;padding:18px 20px 10px;margin-bottom:36px;background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 10%,var(--bg)),color-mix(in srgb,var(--teal) 10%,var(--bg)));border:1px solid color-mix(in srgb,var(--blue) 30%,transparent)}
+.gold h2{margin:0 0 4px;font-size:19px;font-weight:800}
+.gold p{margin:0 0 6px;font-size:15px}
+.grp{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:var(--gc);margin:46px 0 14px}
+.grp::after{content:"";flex:1;height:2px;background:color-mix(in srgb,var(--gc) 25%,transparent)}
+.grp:first-of-type{margin-top:0}
+section.sec{margin-bottom:32px}
+.sec.hide,.card.hide,.grp.hide{display:none}
+.sh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 14px}
+.sh .ic{flex:none;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--gc);color:#fff}
+:root[data-theme=dark] .sh .ic{color:#0d1220}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .sh .ic{color:#0d1220}}
+.sh .ic b{font-size:18px}
+.sh h2{font-size:24px;line-height:1.15;margin:0;letter-spacing:-.015em;font-weight:800}
+.sh .step{font-size:12.5px;font-weight:700;color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,transparent);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px 18px 14px;margin-bottom:14px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:color-mix(in srgb,var(--gc) 45%,var(--line));box-shadow:0 4px 18px -10px color-mix(in srgb,var(--gc) 60%,transparent)}
+.card h3{font-size:17.5px;line-height:1.3;margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:700}
+.card h3 a{color:var(--ink);text-decoration:none}
+.card h3 a:hover{color:var(--gc)}
+.comp{font-size:12px;font-weight:700;color:var(--violet);background:color-mix(in srgb,var(--violet) 12%,transparent);border-radius:999px;padding:1px 9px}
+.lead{margin:2px 0 4px;color:var(--mute);font-size:15px}
+.snip{margin:12px 0 0}
+.lab{font-size:14.5px;margin:0 0 5px;font-weight:500}
+.cl{display:flex;align-items:stretch;border:1px solid var(--cline);border-radius:10px;background:var(--cbg);color:var(--cink);overflow:hidden}
+.cl pre{flex:1;margin:0;padding:10px 14px;overflow-x:auto;font-size:14px;line-height:1.6;tab-size:4}
+.cp{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;border:0;border-left:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#cfd8ea;font:inherit;font-size:13px;font-weight:600;padding:0 13px;min-width:48px;cursor:pointer}
+.cp:hover{background:rgba(255,255,255,.12);color:#fff}
+.cp.ok{color:#6ee7c8}
+.cp span{display:none}.cp.ok span{display:inline}
+.ts{color:#9fe3b0}.tk{color:#ff9fd2}.tn{color:#ffc58a}.tf{color:#8cc3ff}
+.tbl{overflow-x:auto;margin:12px 0 2px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:700;color:var(--mute);font-size:13px}
+td svg{display:block}
+.notes{display:grid;gap:8px;margin-top:12px}
+.note{display:flex;gap:9px;align-items:flex-start;border-radius:11px;padding:9px 12px;font-size:15px;line-height:1.5}
+.note svg{flex:none;margin-top:3px}
+.tip{background:var(--amber)}.tip svg{color:var(--amberl)}
+.trap{background:var(--red)}.trap svg{color:var(--redl)}
+details.why{border-radius:11px;background:var(--why);font-size:15px}
+details.why summary{cursor:pointer;padding:8px 12px;font-weight:700;color:var(--whyl);list-style:none;display:flex;align-items:center;gap:8px}
+details.why summary::-webkit-details-marker{display:none}
+details.why summary::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+details.why[open] summary::before{transform:rotate(45deg)}
+details.why div{padding:0 12px 10px 27px;line-height:1.55}
+.pt{margin:14px 0 4px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pt .cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);background:var(--bg2);padding:7px 12px;border-bottom:1px solid var(--line)}
+.pt .cap b{color:var(--ink)}
+.pt table{font-size:13.5px}
+.pt td,.pt th{padding:6px 10px}
+.pt th{background:var(--bg2)}
+.pt td:first-child{font-family:"JetBrains Mono",monospace;font-weight:500}
+.pt .ty{font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.ty.num{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.ty.txt{background:color-mix(in srgb,var(--orange) 14%,transparent);color:var(--orange)}
+.vb{display:flex;align-items:center;gap:8px;min-width:120px}
+.vb s{display:block;flex:1;height:8px;border-radius:9px;background:var(--bg2);text-decoration:none;overflow:hidden}
+.vb s i{display:block;height:100%;border-radius:9px;background:var(--redl)}
+.vb em{font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:3.6em;text-align:right}
+.vb.zero em{color:var(--mute)}
+.pt .ex{color:var(--mute);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.pt .nu{text-align:right;font-variant-numeric:tabular-nums}
+.iqr{position:relative;height:104px;margin:14px 6px 4px}
+.iqr .ax{position:absolute;left:0;right:0;top:51px;height:1px;background:var(--line)}
+.iqr .wh{position:absolute;top:51px;height:2px;background:var(--ink)}
+.iqr .tick{position:absolute;top:40px;width:2px;height:24px;background:var(--ink)}
+.iqr .box{position:absolute;top:36px;height:32px;border:2px solid var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent);border-radius:5px}
+.iqr .med{position:absolute;top:36px;width:2px;height:32px;background:var(--teal)}
+.iqr .dot{position:absolute;top:45px;width:12px;height:12px;border-radius:50%;background:var(--redl);transform:translateX(-50%)}
+.iqr .lb{position:absolute;font-size:13px;white-space:nowrap;transform:translateX(-50%);color:var(--mute)}
+.iqr .up{top:6px}.iqr .dn{top:76px}
+.iqr .lb b{color:var(--ink);font-weight:600}
+.figcap{font-size:14px;color:var(--mute);margin:4px 0 0}
+.empty{display:none;padding:34px;border:2px dashed var(--line);border-radius:16px;text-align:center;color:var(--mute)}
+.empty.show{display:block}
+footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);font-size:14px}
+.scrim{display:none}
+@media (max-width:920px){
+ #menu{display:inline-flex}
+ .layout{grid-template-columns:minmax(0,1fr);gap:0}
+ .toc{position:fixed;z-index:50;top:0;left:0;bottom:0;width:min(320px,86vw);max-height:none;background:var(--bg);padding:18px 14px;border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .2s}
+ body.tocopen .toc{transform:none}
+ body.tocopen .scrim{display:block;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4)}
+ .top .wrap{grid-template-columns:minmax(0,1fr)}
+ .hero{justify-self:start}
+}
+@media (max-width:600px){
+ .tb .tx{display:none}
+ .legend{display:none}
+ .mini{grid-template-columns:repeat(4,18px)}
+ .sh h2{font-size:21px}
+ .sh .ic{width:36px;height:36px}
+ .card{padding:14px 14px 12px}
+ .tbl thead{display:none}
+ .tbl tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+ .tbl td{display:block;border:0;padding:2px 2px}
+ .tbl td[data-l]:not([data-l=""])::before{content:attr(data-l);display:block;font-size:12.5px;font-weight:600;color:var(--mute)}
+ .pt .hide-s{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.bar,.toc,.cp,.hero{display:none}.layout{display:block}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="cpL"><circle cx="17" cy="14" r="11"/></clipPath></defs></svg>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <a class="back" href="index.html">← Tous les mémos</a>
+      <h1>pandas : nettoyer et préparer ses données</h1>
+      <p class="sub">Une envie, une phrase, une ligne de code à copier. Exemples sur le Titanic (<code>df</code>).</p>
+    </div>
+    <div class="hero" aria-hidden="true">
+      <figure><div class="mini" id="before"></div><figcaption>avant</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure><div class="mini" id="after"></div><figcaption>après</figcaption></figure>
+      <div class="legend"><span><i style="border:1.5px dashed #ffb3b3"></i>case vide</span><span><i style="background:#ffd166"></i>doublon</span><span><i style="background:#ff8f5a"></i>valeur aberrante</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <button class="tb" id="menu" type="button" aria-label="Ouvrir le sommaire"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="tx">Sommaire</span></button>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Je veux… (doublons, remplir, fusionner)" autocomplete="off" aria-label="Rechercher">
+    </div>
+    <button class="tb" id="whyall" type="button" aria-pressed="false" title="Afficher ou masquer toutes les explications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span class="tx">Tous les pourquoi</span></button>
+    <button class="tb" id="theme" type="button" aria-label="Changer de thème" title="Clair / sombre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <nav class="toc" id="toc" aria-label="Sommaire"></nav>
+  <main id="main">
+    <div class="gold">
+      <h2>★ La règle d'or : toujours ranger le résultat</h2>
+      <p>La plupart des méthodes fabriquent un nouveau tableau sans toucher à <code>df</code>. Sans <code>df =</code>, le résultat s'affiche… puis disparaît.</p>
+      <div id="goldsnips"></div>
+      <p style="margin-top:10px">Vrai aussi pour <code>drop_duplicates</code>, <code>fillna</code>, <code>drop</code>, <code>rename</code>, <code>merge</code>… Seules <code>df["col"] = …</code> et <code>df.loc[…] = …</code> modifient directement le tableau.</p>
+    </div>
+    <div class="empty" id="empty">Rien trouvé. Essaie un autre mot : « vide », « double », « colonne », « type », « date »…</div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<footer>
+  <div class="wrap">
+    <p>Sources : cours Pandas du parcours Data Analyst (les bases, nettoyage, transformation) et mémo PDF « Nettoyer des données avec pandas ». Ce qui est marqué <span class="comp">Complément</span> n'en vient pas.</p>
+    <p>Raccourcis : <code>/</code> pour chercher, <code>Échap</code> pour effacer.</p>
+  </div>
+</footer>
+
+<script>
+{
+const c = String.raw;
+const GOLD = [["Affiché… puis perdu", c`df.dropna(subset=["Age"])`], ["Enregistré dans df", c`df = df.dropna(subset=["Age"])`]];
+const GROUPS = [
+{g:"Commencer", col:"blue", sections:[
+ {id:"charger", ic:"file", t:"Charger un fichier", cards:[
+  {id:"importer", t:"Importer pandas", k:"import pd np numpy debut notebook",
+   s:[["Les deux imports en haut de chaque notebook", c`import pandas as pd
+import numpy as np`]],
+   why:"`pd` et `np` sont les surnoms que tout le monde utilise : ton code sera lisible par tous."},
+  {id:"creer-df", t:"Créer un tableau à la main", k:"creer dataframe dictionnaire dict liste tableau exemple pd.DataFrame",
+   s:[["Les clés deviennent les colonnes, les listes deviennent les valeurs", c`df_produits = pd.DataFrame({
+    "produit": ["Laptop", "Souris", "Clavier"],
+    "prix_ht": [850, 25, 60],
+    "en_stock": [True, True, False],
+})`]],
+   tip:"Pratique pour tester un code sur un petit exemple avant de le lancer sur le vrai fichier.",
+   trap:"Toutes les listes doivent avoir la même longueur, sinon pandas renvoie une erreur."},
+  {id:"lire", t:"Lire un fichier", k:"charger lire ouvrir csv excel json read_csv read_excel fichier",
+   s:[["Un fichier CSV", c`df = pd.read_csv("../data/titanic.csv")`],["Un fichier Excel", c`df = pd.read_excel("fichier.xlsx")`],["Un fichier JSON", c`df = pd.read_json("fichier.json")`]],
+   tip:"`../` veut dire « remonte d'un dossier » : le notebook est dans `notebooks/`, les données dans `data/`."},
+  {id:"lecture-difficile", t:"Le fichier se lit mal", lead:"Tout arrive dans une seule colonne, ou les cases vides ne sont pas reconnues.", k:"read_csv sep separateur point-virgule tabulation tsv na_values imdb une seule colonne",
+   s:[["Les colonnes sont séparées par des ; (fréquent en France)", c`df = pd.read_csv("fichier.csv", sep=";")`],
+      ["Les colonnes sont séparées par des tabulations (fichiers .tsv, comme IMDb)", c`df = pd.read_csv("fichier.tsv", sep="\t")`],
+      ["Les cases vides sont écrites \\N au lieu d'être vides (IMDb)", c`df = pd.read_csv("fichier.tsv", sep="\t", na_values="\\N")`]],
+   why:"`sep` indique le caractère qui sépare les colonnes. Un CSV utilise normalement la virgule ; s'il utilise autre chose, pandas ne sait pas où couper."}
+ ]},
+ {id:"coup-oeil", ic:"eye", t:"Premier coup d'œil", cards:[
+  {id:"portrait", t:"Tout voir d'un coup : le portrait du tableau", comp:true, lead:"Une petite fonction qui rassemble les réflexes en un seul tableau, avec une ligne par colonne.", k:"portrait resume synthese vue ensemble tableau de bord diagnostic tout voir apercu colonnes vides types", fig:"portrait",
+   s:[["La fonction (à coller une fois en haut du notebook)", c`def resume(df):
+    return pd.DataFrame({
+        "type": df.dtypes,
+        "remplies": df.notna().sum(),
+        "vides": df.isna().sum(),
+        "% vides": (df.isna().mean() * 100).round(1),
+        "valeurs différentes": df.nunique(),
+        "exemples": df.apply(lambda col: ", ".join(col.dropna().astype(str).unique()[:3])),
+    })`],["L'utiliser", c`resume(df)`],["Les colonnes les plus vides en premier", c`resume(df).sort_values("% vides", ascending=False)`]],
+   why:"Chaque ligne reprend une méthode du cours (`dtypes`, `isna().sum()`, `nunique()`…), calculée pour toutes les colonnes à la fois. `pd.DataFrame({...})` les range côte à côte, comme un dictionnaire dont chaque clé devient une colonne."},
+  {id:"check-depart", t:"Les 6 réflexes à l'ouverture d'un fichier", lead:"À lancer chaque fois que tu découvres un nouveau tableau.", k:"explorer check depart head shape dtypes info describe isna apercu taille",
+   s:[["Les 5 premières lignes", c`df.head()`],["Le nombre de lignes et de colonnes", c`df.shape`],["Le type de chaque colonne", c`df.dtypes`],["Résumé : types et nombre de cases remplies", c`df.info()`],["Statistiques des colonnes de nombres", c`df.describe()`],["Le nombre de cases vides par colonne", c`df.isna().sum()`]],
+   why:"En 30 secondes, tu connais la taille, les types, les trous et les ordres de grandeur. On ne nettoie rien avant de savoir ce qu'il y a.",
+   tip:"`df.describe().T` tourne le tableau des statistiques : plus lisible quand il y a beaucoup de colonnes."},
+  {id:"taille", t:"La fin du tableau, ses colonnes, sa taille", k:"tail fin derniere lignes columns liste colonnes shape nombre lignes colonnes phrase f-string",
+   s:[["Les 5 dernières lignes", c`df.tail()`],["La liste des noms de colonnes", c`df.columns`],["Le nombre de lignes seulement", c`df.shape[0]`],["Le nombre de colonnes seulement", c`df.shape[1]`],["Une phrase prête à lire", c`f"Nous avons {df.shape[0]} lignes et {df.shape[1]} colonnes."`]],
+   why:"`df.shape` donne un couple (lignes, colonnes). `[0]` prend le premier nombre, `[1]` le second, comme dans une liste. Dans un f-string, ce qui est entre accolades est remplacé par sa valeur."},
+  {id:"regarder-colonne", t:"Regarder une colonne", k:"value_counts unique nunique compter valeurs differentes categories pourcentage",
+   s:[["Combien de fois chaque valeur apparaît, avec une ligne NaN qui compte les cases vides", c`df["Embarked"].value_counts(dropna=False)`],["La même chose en pourcentages", c`df["Sex"].value_counts(normalize=True)`],["La liste des valeurs différentes", c`df["Embarked"].unique()`],["Le nombre de valeurs différentes", c`df["Embarked"].nunique()`]],
+   why:"Par défaut, `value_counts()` ignore les cases vides. Sur `Embarked`, il affiche S 644, C 168, Q 77 : total 889 au lieu de 891, sans rien signaler. Avec `dropna=False`, une ligne `NaN 2` apparaît et le compte est juste.",
+   tip:"`unique()` révèle les fautes de frappe : « Paris », « paris » et « Paris » suivi d'un espace comptent comme 3 valeurs."},
+  {id:"types", t:"Comprendre les types de colonnes", k:"dtypes type object int64 float64 bool datetime texte nombre",
+   tab:[["Type affiché","Ce que la colonne contient"],["`object`","du texte (noms, villes, catégories)"],["`int64`","des nombres entiers (âge, quantité)"],["`float64`","des nombres à virgule (prix)"],["`bool`","Vrai / Faux (`True` / `False`)"],["`datetime64`","des dates"]],
+   why:"On ne calcule pas une moyenne sur du texte. Un prix lu comme du texte (`object`) fera planter les calculs ou donnera des résultats absurdes.",
+   tip:"Une colonne d'entiers qui a des cases vides s'affiche en `float64` : pandas range les cases vides (`NaN`) parmi les nombres à virgule. Avec pandas 3, le texte peut aussi s'afficher `str` au lieu de `object` (complément)."}
+ ]},
+ {id:"selectionner", ic:"grid", t:"Choisir des colonnes et des lignes", cards:[
+  {id:"colonnes", t:"Choisir des colonnes", k:"selectionner colonne colonnes crochets series",
+   s:[["Une colonne", c`df["Name"]`],["Plusieurs colonnes (doubles crochets)", c`df[["Name", "Age", "Fare"]]`]],
+   why:"Une colonne seule s'appelle une Series. Avec une liste de noms (d'où les doubles crochets), tu obtiens un tableau."},
+  {id:"iloc", t:"Par position : iloc", lead:"On compte à partir de 0, comme en Python.", k:"iloc position ligne premiere derniere",
+   s:[["La première ligne", c`df.iloc[0]`],["La dernière ligne", c`df.iloc[-1]`],["La case de la ligne 0, colonne 3", c`df.iloc[0, 3]`],["Les lignes 0 à 2, les colonnes 0 et 1", c`df.iloc[0:3, 0:2]`]],
+   trap:"La fin est exclue : `0:3` donne les lignes 0, 1 et 2."},
+  {id:"loc", t:"Par nom : loc", lead:"Les lignes par leur numéro affiché à gauche (l'index), les colonnes par leur nom.", k:"loc label nom index ligne colonne",
+   s:[["Les lignes 0 à 2, de la colonne Name à la colonne Age", c`df.loc[0:2, "Name":"Age"]`],["Les plus de 60 ans, deux colonnes seulement", c`df.loc[df["Age"] > 60, ["Name", "Age"]]`]],
+   trap:"Avec `loc`, la fin est incluse : `0:2` donne 0, 1 et 2. Et `df.loc[-1]` plante : le -1 « dernière ligne » ne marche qu'avec `iloc`."}
+ ]},
+ {id:"filtrer", ic:"filter", t:"Filtrer des lignes", cards:[
+  {id:"filtre", t:"Garder les lignes qui respectent une condition", k:"filtrer filtre condition garder lignes masque",
+   s:[["Les passagers de plus de 60 ans", c`df[df["Age"] > 60]`]],
+   why:"`df[\"Age\"] > 60` donne une colonne de Vrai/Faux, une réponse par ligne. Placée dans `df[...]`, elle ne garde que les lignes Vrai.",
+   tip:"Un âge vide donne Faux : on ne peut pas dire qu'il dépasse 60."},
+  {id:"filtre-plusieurs", t:"Combiner plusieurs conditions", k:"et ou non & | ~ isin plusieurs conditions liste parentheses",
+   s:[["Les deux conditions vraies (ET)", c`df[(df["Sex"] == "female") & (df["Pclass"] == 1)]`],["Au moins une vraie (OU)", c`df[(df["Age"] < 10) | (df["Age"] > 60)]`],["Le contraire (NON)", c`df[~(df["Embarked"] == "S")]`],["La valeur fait partie d'une liste", c`df[df["Embarked"].isin(["C", "Q"])]`]],
+   trap:"On écrit `&` `|` `~` (pas `and`, `or`, `not`), et chaque condition entre parenthèses."},
+  {id:"filtre-autres", t:"D'autres façons d'écrire un filtre", lead:"Même résultat, écritures différentes : choisis celle qui se lit le mieux.", k:"filtre condition variable between intervalle query sql bornes",
+   s:[["Ranger la condition dans une variable, plus lisible", c`condition = (df["Age"] >= 25) & (df["Age"] <= 30)
+df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 30)]`],["Une écriture qui ressemble à du SQL", c`df.query("Embarked == 'S'")`]],
+   tip:"Dans `query`, toute la condition est entre guillemets, les noms de colonnes sans guillemets, et le texte à comparer entre apostrophes."},
+  {id:"filtrer-calculer", t:"Filtrer puis calculer", k:"filtrer calculer moyenne groupe qui a le plus maximum sort_values head",
+   s:[["L'âge moyen des passagers de 1re classe", c`df[df["Pclass"] == 1]["Age"].mean()`],["Le passager qui a payé le billet le plus cher", c`df.sort_values("Fare", ascending=False).head(1)`]],
+   why:"On lit de gauche à droite : on garde les lignes, on prend la colonne, on calcule. Pour « qui a le plus », on trie du plus grand au plus petit et on garde la première ligne.",
+   tip:"Le même calcul pour chaque groupe (chaque classe) ? Utilise plutôt `groupby`."},
+  {id:"copy", t:"Modifier une sélection sans message d'alerte", k:"copy settingwithcopywarning alerte avertissement warning",
+   s:[["Faire une vraie copie de la sélection", c`adultes = df[df["Age"] >= 18].copy()`]],
+   why:"Sans `.copy()`, pandas ne sait pas si tu modifies une copie ou le tableau d'origine. Il affiche alors l'alerte `SettingWithCopyWarning`."}
+ ]}
+]},
+{g:"Nettoyer", col:"teal", note:"L'ordre du cours : on nettoie d'abord, on calcule ensuite. Étape 5 : grouper et résumer.", sections:[
+ {id:"doublons", ic:"copy", step:1, t:"Doublons", cards:[
+  {id:"doublons-compter", t:"Compter et voir les doublons", k:"doublon doublons double copie duplicated compter",
+   s:[["Compter les lignes en double", c`df.duplicated().sum()`],["Les afficher", c`df[df.duplicated()]`]],
+   why:"`duplicated()` répond Vrai quand la même ligne existe plus haut. La première reste Faux : c'est l'originale. `.sum()` compte les Vrai (Vrai vaut 1).",
+   tip:"Un doublon gonfle les chiffres : la même commande comptée deux fois, c'est de l'argent qui n'existe pas."},
+  {id:"doublons-tous", t:"Voir l'original et ses copies", comp:true, k:"doublon keep false original copies comparer",
+   s:[["Toutes les lignes concernées, original compris", c`df[df.duplicated(keep=False)]`]],
+   tip:"Pratique pour les comparer côte à côte avant de supprimer."},
+  {id:"doublons-supprimer", t:"Supprimer les doublons", k:"doublon doublons supprimer enlever drop_duplicates subset keep",
+   s:[["Les lignes identiques sur toutes les colonnes", c`df = df.drop_duplicates()`],["Même identifiant, même si le reste diffère", c`df = df.drop_duplicates(subset=["PassengerId"])`],["Garder la dernière copie plutôt que la première", c`df = df.drop_duplicates(subset=["PassengerId"], keep="last")`]],
+   why:"`subset` dit quelles colonnes définissent un doublon. Un numéro de commande ne doit jamais apparaître deux fois ; un même prénom, c'est juste un client qui revient.",
+   trap:"Sans `df =`, rien ne change."}
+ ]},
+ {id:"assembler", ic:"link", step:2, t:"Assembler deux tableaux", cards:[
+  {id:"merge", t:"Relier deux tableaux par une colonne commune (merge)", lead:"Comme un JOIN en SQL : la colonne commune s'appelle la clé.", k:"merge jointure join fusionner relier cle left right inner outer on left_on right_on sql",
+   s:[["La clé a le même nom des deux côtés", c`df = pd.merge(films, notes, how="left", on="tconst")`],["La clé n'a pas le même nom", c`df = pd.merge(films, akas, how="inner", left_on="tconst", right_on="titleId")`],["La même chose, écrite à partir du premier tableau", c`df_merged = df_apprenants.merge(df_scores, on="id", how="left")`],["Relier sur deux colonnes à la fois", c`df = pd.merge(df_rh, df_paie, how="left", on=["Nom", "Département"])`]],
+   tab:[["","how=","On garde","En SQL"],["@venn:left","`\"left\"`","toutes les lignes du tableau de gauche","LEFT JOIN"],["@venn:right","`\"right\"`","toutes les lignes du tableau de droite","RIGHT JOIN"],["@venn:inner","`\"inner\"`","seulement ce qui existe des deux côtés","INNER JOIN"],["@venn:outer","`\"outer\"`","tout, des deux côtés","FULL OUTER JOIN"]],
+   why:"Pour choisir `how`, une seule question : quel tableau ne doit perdre aucune ligne ? Pour compléter des commandes avec la fiche client, ce sont les commandes : `left`.",
+   trap:"Un `left` laisse des cases vides quand la clé n'existe pas de l'autre côté. Et compte les lignes après un merge : une clé en double de l'autre côté multiplie les lignes."},
+  {id:"concat", t:"Coller des tableaux (concat)", k:"concat empiler coller ajouter lignes colonnes mois ignore_index axis",
+   s:[["Mettre un tableau sous l'autre (mêmes colonnes)", c`df = pd.concat([df_jan, df_fev], ignore_index=True)`],["Mettre un tableau à côté de l'autre (mêmes lignes)", c`df = pd.concat([df_infos, df_contacts], axis=1)`]],
+   why:"`ignore_index=True` renumérote les lignes 0, 1, 2… Sans lui, janvier et février gardent chacun leur ligne 0, leur ligne 1…",
+   trap:"Côte à côte, les lignes doivent correspondre une à une. Sinon pandas crée des cases vides : utilise plutôt un `merge`."},
+  {id:"merge-ou-concat", t:"merge ou concat ?", k:"merge concat difference choisir",
+   tab:[["Outil","Ce qu'il fait"],["`merge`","relie grâce à une clé et ajoute des colonnes"],["`concat`","colle des tableaux, dessous ou à côté"]]}
+ ]},
+ {id:"vides", ic:"drop", step:3, t:"Les cases vides", cards:[
+  {id:"vides-compter", t:"Compter les cases vides", k:"vide vides manquant manquantes nan null isna compter pourcentage",
+   s:[["Le nombre de cases vides par colonne", c`df.isna().sum()`],["Le pourcentage de cases vides", c`df.isna().mean() * 100`],["Le total de cases vides dans tout le tableau (0 à la fin du nettoyage)", c`df.isna().sum().sum()`]],
+   why:"`isna()` met Vrai dans chaque case vide. Vrai vaut 1 et Faux vaut 0 : `.sum()` compte les vides, `.mean()` donne leur proportion. Le premier `.sum()` compte par colonne, le second additionne toutes les colonnes.",
+   tip:"On ne remplit rien avant de savoir où sont les trous."},
+  {id:"vides-voir", t:"Voir ou garder les lignes vides", k:"vide lignes voir afficher notna remplies",
+   s:[["Voir les lignes où Embarked est vide", c`df[df["Embarked"].isna()]`],["Garder les lignes où Embarked est rempli", c`df[df["Embarked"].notna()]`]]},
+  {id:"vides-trace", t:"Garder une trace avant de remplir", k:"trace colonne manquant avant remplir",
+   s:[["Une colonne Vrai/Faux qui se souvient des âges vides", c`df["Age_manquant"] = df["Age"].isna()`]],
+   why:"Une fois la case remplie, tu ne sauras plus quelle valeur était vraie. Cette colonne s'en souvient."},
+  {id:"remplir-choisir", t:"Choisir comment remplir", lead:"Une question par colonne : que veut dire ce vide ?", k:"remplir strategie choix mediane moyenne mode valeur fixe",
+   tab:[["Le vide veut dire…","On remplace par","Exemple"],["« rien » (pas de remise)","`0`","une remise, un bonus"],["« on ne sait pas » (texte)","`\"Inconnu\"`","une ville, un port"],["un nombre oublié","la médiane","un âge, un prix"],["une catégorie oubliée","la valeur la plus fréquente","le port d'embarquement"]],
+   why:"Il n'existe pas une bonne méthode pour tout le tableau : on décide colonne par colonne.",
+   tip:"L'exemple du live code « pourboires » : les tables sans pourboire sont supprimées (`dropna(subset=[\"tip\"])`), car on ne peut pas inventer ce qu'on analyse. Les cases vides de `smoker` deviennent « Inconnu », car la table compte quand même."},
+  {id:"remplir-fixe", t:"Remplir avec une valeur fixe", k:"fillna remplir valeur fixe zero inconnu texte",
+   s:[["Par 0", c`df["Remise"] = df["Remise"].fillna(0)`],["Par « Inconnu »", c`df["Embarked"] = df["Embarked"].fillna("Inconnu")`]],
+   why:"Avec « Inconnu », on n'invente rien : on écrit qu'on ne sait pas, et la ligne reste dans les calculs."},
+  {id:"remplir-mediane", t:"Remplir un nombre : la médiane", k:"fillna mediane moyenne median mean nombre age",
+   s:[["Par la médiane (le choix par défaut)", c`df["Age"] = df["Age"].fillna(df["Age"].median())`],["Par la moyenne (seulement sans valeurs extrêmes)", c`df["Age"] = df["Age"].fillna(df["Age"].mean())`]],
+   why:"La moyenne se laisse tirer par les valeurs extrêmes. Dans le cours, une commande à 3 500 € fait monter la moyenne à 539 € ; la médiane (la valeur du milieu) reste à 92 €."},
+  {id:"remplir-mode", t:"Remplir une catégorie : la valeur la plus fréquente", k:"fillna mode valeur plus frequente categorie texte",
+   s:[["Trouver la valeur la plus fréquente", c`mode = df["Embarked"].mode()[0]`],["Remplir avec", c`df["Embarked"] = df["Embarked"].fillna(mode)`]],
+   why:"`mode()` renvoie une liste, car plusieurs valeurs peuvent être à égalité. `[0]` prend la première."},
+  {id:"remplir-groupe", t:"Remplir selon le groupe", k:"fillna groupby transform groupe classe mediane par groupe",
+   s:[["L'âge médian de la classe du passager", c`df["Age"] = df["Age"].fillna(df.groupby("Pclass")["Age"].transform("median"))`]],
+   why:"`transform` donne à chaque ligne la médiane de son groupe. Un passager de 1re classe reçoit l'âge médian de la 1re classe : plus réaliste qu'une médiane globale."},
+  {id:"ffill", t:"Recopier la valeur d'avant ou d'après", k:"ffill bfill recopier temps date jours precedente suivante",
+   s:[["Recopier la valeur précédente", c`df["Temperature"] = df["Temperature"].ffill()`],["Recopier la valeur suivante", c`df["Temperature"] = df["Temperature"].bfill()`]],
+   trap:"Seulement quand l'ordre des lignes a un sens, comme des jours qui se suivent. Trie d'abord par date."},
+  {id:"dropna", t:"Supprimer les lignes qui ont des vides", k:"dropna supprimer lignes vides subset how all",
+   s:[["Si une case est vide, n'importe où", c`df = df.dropna()`],["Si Embarked est vide", c`df = df.dropna(subset=["Embarked"])`],["Si Age ou Fare est vide", c`df = df.dropna(subset=["Age", "Fare"])`],["Seulement si Age et Fare sont vides tous les deux", c`df = df.dropna(subset=["Age", "Fare"], how="all")`]],
+   trap:"`dropna()` sans `subset` regarde toutes les colonnes. Sur le Titanic, la colonne `Cabin` (77 % vide) ferait disparaître environ 700 passagers !",
+   tip:"Supprimer, c'est perdre des lignes : on préfère remplir, et on ne supprime que l'inutilisable."}
+ ]},
+ {id:"outliers", ic:"dots", step:4, t:"Valeurs aberrantes (outliers)", cards:[
+  {id:"outliers-reperer", t:"Repérer une valeur anormale", k:"outlier outliers aberrant aberrante extreme describe moyenne mediane",
+   s:[["Les statistiques d'une colonne", c`df["Fare"].describe()`]],
+   why:"Compare `mean` (la moyenne) et `50%` (la médiane). Si la moyenne est bien plus haute, quelques valeurs très grandes la tirent vers le haut. Regarde aussi `max` par rapport à `75%`."},
+  {id:"iqr", t:"Détecter avec la méthode IQR", lead:"La méthode la plus utilisée : on mesure la « boîte » du milieu, et ce qui s'en éloigne trop est signalé.", k:"iqr quartile quantile outlier borne haute basse 1.5", fig:"iqr",
+   s:[["Calculer les bornes", c`Q1 = df["Fare"].quantile(0.25)
+Q3 = df["Fare"].quantile(0.75)
+IQR = Q3 - Q1
+borne_basse = Q1 - 1.5 * IQR
+borne_haute = Q3 + 1.5 * IQR`],["Afficher les lignes signalées", c`df[(df["Fare"] < borne_basse) | (df["Fare"] > borne_haute)]`]],
+   why:"Q1 et Q3 encadrent la moitié centrale des données : c'est la boîte, sa largeur s'appelle l'IQR. Au-delà d'une fois et demie cette largeur, une valeur est jugée trop loin des autres.",
+   trap:"La méthode signale, c'est toi qui décides. Sur le Titanic, beaucoup de billets de 1re classe sont signalés : ce sont de vrais prix, pas des erreurs."},
+  {id:"outliers-decider", t:"Décider quoi faire", lead:"Trois options : on en choisit une selon le cas.", k:"outlier corriger plafonner clip supprimer loc garder decider",
+   s:[["On connaît la bonne valeur : on corrige (exemple du cours, la boutique)", c`df.loc[df["Commande"] == "C08", "Montant_HT"] = 350.0`],["On ne la connaît pas : on ramène aux bornes, sans supprimer de ligne", c`df["Fare"] = df["Fare"].clip(lower=borne_basse, upper=borne_haute)`],["On supprime les lignes hors bornes", c`df = df[(df["Fare"] >= borne_basse) & (df["Fare"] <= borne_haute)]`]],
+   why:"Erreur ou vraie valeur ? On regarde le contexte, et souvent on demande au métier. Une vraie valeur extrême (la directrice, un billet de luxe) se garde.",
+   trap:"Pour corriger une case, c'est toujours `df.loc[condition, colonne] = valeur`. Vu en live code : `df[(df[\"tip\"] == 50).sum()] = 5` crée une nouvelle colonne au lieu de corriger le pourboire. Et pense à recalculer les colonnes qui en dépendent (le pourcentage de pourboire)."},
+  {id:"boxplot", t:"Voir les outliers en graphique", k:"boxplot boite moustaches graphique plot box",
+   s:[["La boîte à moustaches", c`df["Fare"].plot.box()`]],
+   tip:"Les points isolés au-delà des moustaches sont les valeurs signalées par la méthode IQR."}
+ ]}
+]},
+{g:"Transformer", col:"violet", sections:[
+ {id:"supprimer", ic:"cut", t:"Supprimer des lignes ou des colonnes", cards:[
+  {id:"drop-colonnes", t:"Supprimer des colonnes", k:"drop supprimer colonne colonnes enlever",
+   s:[["Une colonne", c`df = df.drop(columns=["Cabin"])`],["Plusieurs colonnes", c`df = df.drop(columns=["Name", "Ticket"])`]],
+   why:"Une colonne presque vide (comme `Cabin`) gêne plus qu'elle n'aide. Mais c'est définitif : essaie d'abord de la remplir si elle a du sens."},
+  {id:"drop-lignes", t:"Supprimer des lignes", k:"drop index supprimer lignes condition reset_index renumeroter",
+   s:[["Par leur numéro (affiché à gauche)", c`df = df.drop(index=[61, 829])`],["Garder seulement les billets payés", c`df = df[df["Fare"] > 0]`],["Renuméroter 0, 1, 2… après des suppressions", c`df = df.reset_index(drop=True)`]],
+   trap:"`drop(index=61)` supprime la ligne qui porte le numéro 61 à gauche, pas forcément la 62e ligne."}
+ ]},
+ {id:"modifier", ic:"pencil", t:"Modifier des valeurs", cards:[
+  {id:"map-replace", t:"Remplacer des valeurs", k:"map replace remplacer traduire recoder valeurs dictionnaire",
+   s:[["Tout traduire (le reste devient vide)", c`df["Sex"] = df["Sex"].map({"male": 1, "female": 0})`],["Remplacer certaines valeurs (le reste ne bouge pas)", c`df["Sex"] = df["Sex"].replace({"male": "homme"})`]],
+   trap:"Avec `map`, une valeur oubliée dans le dictionnaire devient vide (`NaN`). Avec `replace`, elle reste telle quelle."},
+  {id:"loc-modifier", t:"Modifier les cases qui respectent une condition", k:"loc modifier remplacer cases condition corriger",
+   s:[["Les âges négatifs deviennent vides", c`df.loc[df["Age"] < 0, "Age"] = np.nan`]],
+   why:"`loc[lignes, colonne]` vise exactement les cases à changer : les lignes qui respectent la condition, dans la colonne nommée."},
+  {id:"np-where", t:"Créer une colonne oui / non", k:"np.where condition colonne oui non si sinon",
+   s:[["« oui » si moins de 18 ans, sinon « non »", c`df["Enfant"] = np.where(df["Age"] < 18, "oui", "non")`]],
+   trap:"Un âge vide donne « non », car la condition est fausse. Traite les cases vides avant."},
+  {id:"defaut-loc", t:"Une colonne avec une valeur par défaut", k:"colonne valeur defaut loc condition mention categorie plusieurs cas",
+   s:[["Tout le monde reçoit « Passable »", c`df["Mention"] = "Passable"`],["Puis « Bien » pour les scores de 80 et plus", c`df.loc[df["Score"] >= 80, "Mention"] = "Bien"`]],
+   why:"Deux étapes faciles à lire : une valeur pour tous, puis on corrige seulement les lignes concernées. Avec plus de deux cas, on ajoute une ligne `loc` par cas.",
+   trap:"Un score vide reste « Passable » : la condition est fausse. Traite les cases vides avant."},
+  {id:"cut", t:"Découper en tranches", k:"cut tranches classes bins labels age",
+   s:[["Des tranches d'âge", c`df["Tranche"] = pd.cut(df["Age"], bins=[0, 12, 18, 60, 100], labels=["enfant", "ado", "adulte", "senior"])`]],
+   tip:"5 bornes font 4 tranches : il faut un nom de moins que de bornes."}
+ ]},
+ {id:"calculer", ic:"calc", t:"Calculer : colonnes, apply, lambda", cards:[
+  {id:"colonne-calculee", t:"Créer une colonne calculée", k:"nouvelle colonne calcul creer ajouter operation",
+   s:[["La taille de la famille à bord (+1 pour le passager lui-même)", c`df["Famille"] = df["SibSp"] + df["Parch"] + 1`],["Exemple du cours : le montant TTC", c`df["Montant_TTC"] = df["Montant_HT"] * 1.20`]],
+   tip:"Le calcul se fait sur toutes les lignes d'un coup, sans boucle. Pour un calcul simple entre colonnes, pas besoin d'`apply`."},
+  {id:"apply", t:"Appliquer sa propre fonction (apply)", k:"apply fonction def chaque valeur if ambiguous",
+   s:[["La fonction", c`def tranche_age(age):
+    if age < 18:
+        return "Enfant"
+    else:
+        return "Adulte"`],["L'appliquer à chaque valeur de la colonne", c`df["Statut"] = df["Age"].apply(tranche_age)`]],
+   why:"Un `if` sur une colonne entière donne l'erreur `The truth value of a Series is ambiguous` : il ne sait tester qu'une valeur. `apply` envoie les valeurs dans la fonction une par une.",
+   trap:"Le nom de la fonction s'écrit sans parenthèses : `apply(tranche_age)`. Et un âge vide part dans le `else`."},
+  {id:"lambda", t:"La même chose en une ligne (lambda)", k:"lambda fonction courte une ligne apply x",
+   s:[["Enfant / Adulte en une ligne", c`df["Statut"] = df["Age"].apply(lambda x: "Enfant" if x < 18 else "Adulte")`],["Arrondir chaque prix", c`df["Fare"].apply(lambda x: round(x, 2))`]],
+   why:"`lambda x:` remplace `def nom(x):`. `x` reçoit chaque valeur de la colonne, l'une après l'autre.",
+   trap:"Vu en live code : `df[\"Montant_HT\"].apply(lambda x: ...)` sans `df[\"Panier\"] =` devant. Le résultat s'affiche puis disparaît : c'est la règle d'or."},
+  {id:"apply-axis1", t:"Utiliser plusieurs colonnes à la fois", k:"apply axis=1 ligne plusieurs colonnes lambda",
+   s:[["Signaler les enfants de 3e classe", c`df["Alerte"] = df.apply(lambda ligne: "Enfant 3e" if ligne["Pclass"] == 3 and ligne["Age"] < 18 else "OK", axis=1)`]],
+   why:"Avec `axis=1`, la fonction reçoit une ligne entière : on lit chaque colonne avec `ligne[\"...\"]`.",
+   trap:"Sans `axis=1`, pandas envoie des colonnes entières : erreur."}
+ ]},
+ {id:"types-noms", ic:"tag", t:"Renommer et changer les types", cards:[
+  {id:"rename", t:"Renommer des colonnes", k:"rename renommer colonnes nom minuscules",
+   s:[["Renommer certaines colonnes", c`df = df.rename(columns={"Sex": "Sexe", "Pclass": "Classe"})`],["Tous les noms en minuscules", c`df.columns = df.columns.str.lower()`]]},
+  {id:"astype", t:"Changer le type d'une colonne", k:"astype type convertir changer int64 category entier to_numeric to_datetime date coerce",
+   s:[["En catégorie", c`df["Pclass"] = df["Pclass"].astype("category")`],["En nombre entier qui accepte les cases vides", c`df["Age"] = df["Age"].astype("Int64")`],["Du texte vers un nombre", c`df["prix"] = pd.to_numeric(df["prix"], errors="coerce")`],["Du texte vers une date (jour/mois/année)", c`df["date"] = pd.to_datetime(df["date"], format="%d/%m/%Y", errors="coerce")`]],
+   why:"`errors=\"coerce\"` : ce qui ne peut pas être converti devient une case vide au lieu de faire planter le code. Compte ensuite les cases vides créées.",
+   trap:"`astype(int)` plante s'il reste des cases vides. Utilise `\"Int64\"` (avec un I majuscule) ou remplis d'abord."}
+ ]},
+ {id:"dates", ic:"calendar", t:"Travailler avec des dates", cards:[
+  {id:"to-datetime", t:"Transformer une colonne de texte en vraies dates", k:"date dates to_datetime convertir texte datetime64 trier format",
+   s:[["Convertir la colonne", c`df["date_event"] = pd.to_datetime(df["date_event"])`],["En précisant le format (jour/mois/année)", c`df["date_event"] = pd.to_datetime(df["date_event"], format="%d/%m/%Y")`],["Vérifier que le type est devenu datetime64", c`df.dtypes`]],
+   why:"Pour Python, « 2024-06-15 » n'est que du texte. Tant qu'elle n'est pas convertie, une date ne se trie pas correctement et on ne peut ni en extraire le mois ni calculer un délai."},
+  {id:"dt", t:"Extraire le mois, l'année, le jour", k:"date dt month year day mois annee jour day_name semaine extraire filtrer groupby",
+   s:[["Le mois (1 à 12)", c`df["mois"] = df["date_event"].dt.month`],["L'année", c`df["annee"] = df["date_event"].dt.year`],["Le jour du mois", c`df["jour"] = df["date_event"].dt.day`],["Le nom du jour (en anglais : Monday…)", c`df["nom_du_jour"] = df["date_event"].dt.day_name()`],["Garder seulement les événements de juin", c`df[df["date_event"].dt.month == 6]`],["Exemple du live code : le total d'heures par jour", c`df_sessions.groupby("Jour")["Duree_h"].sum().sort_values(ascending=False)`]],
+   why:"`.dt` donne accès aux morceaux d'une date, comme `.str` pour le texte. Une fois le mois ou le jour extrait, on peut filtrer ou grouper dessus."},
+  {id:"strptime", t:"Une date seule : strptime et strftime", lead:"En Python pur, sans pandas, avec le module datetime.", k:"strptime strftime datetime module texte date format parse convertir chaine",
+   s:[["Importer", c`from datetime import datetime, timedelta`],["Texte → date : strptime", c`date1 = datetime.strptime("15/06/2024", "%d/%m/%Y")`],["Date → texte mis en forme : strftime", c`date1.strftime("%d/%m/%Y")`],["Avec l'heure", c`event = datetime.strptime("2024-06-15 21:30", "%Y-%m-%d %H:%M")`]],
+   tab:[["Code","Signifie","Exemple"],["`%Y`","année (4 chiffres)","2024"],["`%y`","année (2 chiffres)","24"],["`%m`","mois (avec zéro)","06"],["`%d`","jour (avec zéro)","15"],["`%H`","heure (24 h)","21"],["`%M`","minutes","30"],["`%S`","secondes","08"],["`%A`","nom du jour (anglais)","Saturday"],["`%B`","nom du mois (anglais)","June"]],
+   tip:"Pour s'en souvenir : strP = Parse (lire le texte → date), strF = Format (date → texte).",
+   trap:"Le format doit correspondre à la chaîne caractère par caractère, séparateurs compris (tiret, slash, espace, deux-points). Sinon : `ValueError`."},
+  {id:"timedelta", t:"Calculer avec des dates : timedelta", k:"timedelta duree delai ajouter soustraire jours semaines now aujourd'hui date future passee",
+   s:[["30 jours avant le concert", c`repetition = concert - timedelta(days=30)`],["3 semaines après le concert", c`demontage = concert + timedelta(weeks=3)`],["La date et l'heure actuelles", c`datetime.now()`],["Il y a 7 jours", c`datetime.now() - timedelta(days=7)`]],
+   why:"`timedelta` représente une durée. Ajoutée ou retirée à une date, elle donne une nouvelle date.",
+   tip:"Durées possibles : `days`, `weeks`, `hours`, `minutes`, `seconds`."},
+  {id:"date-ambigue", t:"Un format de date ambigu : apply + strptime", k:"date ambigu format jour mois inverse apply strptime lambda 15/06 06/15",
+   s:[["Imposer exactement le format jour/mois/année", c`df["date_event"] = df["date_event"].apply(lambda x: datetime.strptime(x, "%d/%m/%Y"))`]],
+   why:"« 05/06/2024 » : 5 juin ou 6 mai ? `pd.to_datetime` peut hésiter. Avec `strptime`, c'est toi qui dis où est le jour et où est le mois.",
+   tip:"Dans la plupart des cas, `pd.to_datetime` suffit et va plus vite. On garde `apply + strptime` pour les formats vraiment ambigus ou non reconnus."}
+ ]},
+ {id:"texte", ic:"text", t:"Nettoyer du texte", cards:[
+  {id:"str-base", t:"Espaces, majuscules, caractères à remplacer", k:"str strip lstrip rstrip espaces lower upper title majuscules minuscules casse replace texte",
+   s:[["Enlever les espaces au début et à la fin", c`df_produits["Nom"] = df_produits["Nom"].str.strip()`],["Tout en minuscules", c`df_produits["Nom"] = df_produits["Nom"].str.lower()`],["Tout en majuscules", c`df_produits["Nom"] = df_produits["Nom"].str.upper()`],["Une majuscule au début de chaque mot", c`df_produits["Nom"] = df_produits["Nom"].str.title()`],["Remplacer un caractère, dans une nouvelle colonne", c`df_produits["Categories_affichage"] = df_produits["Categories"].str.replace(",", " / ")`]],
+   why:"`.str` applique la méthode de texte à toute la colonne d'un coup. Sans lui, `df[\"Nom\"].upper()` donne une `AttributeError` : `upper` marche sur un texte, pas sur une colonne.",
+   tip:"`.str.strip()` remplace `apply(lambda x: x.strip())` : plus lisible et plus rapide. Il existe aussi `.str.lstrip()` (à gauche seulement) et `.str.rstrip()` (à droite)."},
+  {id:"astype-str", t:"Un nombre à mettre en forme : astype(str)", k:"astype str nombre texte convertir prix virgule euro affichage accessor",
+   s:[["Le prix à la française : 3.0 devient « 3,0 € »", c`df_produits["Prix_affichage"] = df_produits["Prix_HT"].astype(str).str.replace(".", ",") + " €"`]],
+   why:"`.str` ne marche que sur du texte. `astype(str)` transforme d'abord les nombres en texte ; `+ \" €\"` colle ensuite le symbole, comme quand on additionne deux textes en Python.",
+   trap:"`.str` sur une colonne de nombres donne l'erreur `Can only use .str accessor with string values`. Et la colonne de départ reste un nombre : `astype` fabrique une nouvelle colonne."},
+  {id:"str-contains", t:"Garder les lignes qui contiennent un mot", k:"str contains chercher mot texte contient filtre motif case",
+   s:[["Les produits de la catégorie « scolaire »", c`df_produits[df_produits["Categories"].str.contains("scolaire")]`],["Sans tenir compte des majuscules", c`df_produits[df_produits["Nom"].str.contains("cahier", case=False)]`],["Exemple Titanic : les noms qui contiennent « Mrs »", c`df[df["Name"].str.contains("Mrs", case=False, na=False)]`]],
+   tip:"`na=False` compte les cases vides comme « pas trouvé » au lieu de renvoyer une case vide qui ferait planter le filtre."},
+  {id:"str-split", t:"Plusieurs valeurs dans une case : split + explode", lead:"Le cas des catégories, des genres de films, des tags : « papeterie,scolaire » dans une seule case.", k:"str split decouper liste explode aplatir lignes value_counts multi genres categories tags virgule",
+   s:[["1. Découper chaque case en liste", c`df_produits["Categories"] = df_produits["Categories"].str.split(",")`],["2. Une ligne par catégorie", c`df_long = df_produits.explode("Categories", ignore_index=True)`],["3. Compter chaque catégorie", c`df_long["Categories"].value_counts()`],["Ou faire un calcul par catégorie", c`df_long.groupby("Categories")["Stock"].sum()`],["Exemple Titanic : le nom de famille (avant la virgule)", c`df["Nom"] = df["Name"].str.split(",").str[0]`]],
+   why:"Après `split`, chaque case contient une liste. `explode` déroule les listes : un produit à 3 catégories devient 3 lignes, et les autres colonnes sont recopiées. Chaque ligne = un produit × une catégorie : on peut enfin compter ou grouper.",
+   tip:"`ignore_index=True` renumérote les lignes 0, 1, 2… après l'explode. `.str[0]` prend le premier morceau de la liste."}
+ ]}
+]},
+{g:"Analyser et finir", col:"orange", sections:[
+ {id:"grouper", ic:"group", t:"Grouper et résumer", cards:[
+  {id:"groupby", t:"Un calcul par groupe (groupby)", k:"groupby grouper groupe moyenne somme par categorie reset_index",
+   s:[["Le taux de survie par classe", c`df.groupby("Pclass")["Survived"].mean()`],["Par classe et par sexe", c`df.groupby(["Pclass", "Sex"])["Survived"].mean()`],["En tableau normal, pour le réutiliser", c`df.groupby("Pclass")["Survived"].mean().reset_index()`]],
+   why:"Après un `groupby`, les groupes passent à gauche, à la place des numéros de ligne. `reset_index()` les remet en colonnes normales : indispensable pour filtrer ou relier le résultat ensuite."},
+  {id:"agg", t:"Plusieurs calculs d'un coup (agg)", k:"agg plusieurs statistiques sum mean count min max median dictionnaire",
+   s:[["Plusieurs calculs sur une colonne", c`df.groupby("Pclass")["Fare"].agg(["mean", "min", "max", "count"])`],["Un calcul différent par colonne", c`df.groupby("Sex").agg({"Survived": "mean", "Age": "median", "Fare": "max"})`]],
+   tip:"`count` ne compte que les cases remplies : un résultat plus petit que prévu révèle des vides."},
+  {id:"pivot", t:"Croiser deux colonnes (pivot_table)", lead:"Comme un tableau croisé dynamique dans Excel.", k:"pivot_table tableau croise dynamique tcd index columns values aggfunc",
+   s:[["Le taux de survie par classe (lignes) et par sexe (colonnes)", c`df.pivot_table(index="Pclass", columns="Sex", values="Survived", aggfunc="mean")`]],
+   tab:[["Paramètre","Devient"],["`index`","les lignes"],["`columns`","les colonnes"],["`values`","la colonne à calculer"],["`aggfunc`","le calcul : `\"sum\"`, `\"mean\"`, `\"count\"`"]]},
+  {id:"trier", t:"Trier", k:"trier tri sort_values ordre croissant decroissant",
+   s:[["Du plus petit au plus grand", c`df.sort_values("Fare")`],["Les 5 plus grands", c`df.sort_values("Fare", ascending=False).head(5)`]]}
+ ]},
+ {id:"comparer", ic:"scale", t:"Comparer des groupes", cards:[
+  {id:"comparer-stats", t:"Moyenne, effectif et dispersion par groupe", k:"comparer groupes std ecart-type dispersion moyenne effectif agg promo",
+   s:[["Pour chaque promo", c`df_examen.groupby("Promo")["Score"].agg(["mean", "count", "std"])`]],
+   why:"`std` (l'écart-type) mesure la dispersion : plus il est grand, plus les notes s'éloignent de la moyenne. Deux promos peuvent avoir des moyennes proches mais des dispersions très différentes."},
+  {id:"boxplot-groupes", t:"Voir les groupes côte à côte", k:"boxplot boite moustaches groupes by comparer graphique",
+   s:[["Une boîte à moustaches par promo", c`df_examen.boxplot(column="Score", by="Promo")`]],
+   tip:"D'un coup d'œil : la médiane (le trait dans la boîte) et la dispersion (la taille de la boîte) de chaque groupe."},
+  {id:"pvalue", t:"L'écart est-il réel ? Le test de Student", lead:"Avant d'écrire « les Premium dépensent plus que les Standard », on vérifie que l'écart ne vient pas du hasard.", k:"p-value pvalue test student ttest ttest_ind scipy stats hasard hypothese h0 h1 significatif",
+   s:[["Importer le test (SciPy, déjà installé dans Colab)", c`from scipy.stats import ttest_ind`],["Séparer les deux groupes", c`premium = commandes[commandes["abonnement"] == "Premium"]["montant"]
+standard = commandes[commandes["abonnement"] == "Standard"]["montant"]`],["Lancer le test et afficher la p-value", c`resultat = ttest_ind(premium, standard)
+print(resultat.pvalue)`]],
+   tab:[["p-value","Ce que ça veut dire","Ce qu'on écrit"],["inférieure à 0,05","l'écart est trop rare pour venir du hasard","l'écart est statistiquement significatif"],["0,05 ou plus","un écart pareil peut venir du hasard","l'écart n'est pas significatif : on ne peut pas conclure"]],
+   why:"La p-value, c'est la probabilité d'obtenir un écart aussi grand par simple hasard, si les deux groupes étaient en réalité identiques (H0). Comme une pièce : 6 piles sur 10, c'est banal ; 10 sur 10, c'est trop rare pour être le hasard. On cherche à mettre H0 en défaut, on ne « prouve » jamais H1.",
+   trap:"Une p-value au-dessus de 0,05 ne prouve pas que les groupes sont identiques : les données ne suffisent pas à montrer une différence. Et la bibliothèque s'appelle `scipy` : `pip install spicy` installe un autre paquet."},
+  {id:"pvalue-lire", t:"Lire une p-value en phrase", k:"p-value lire traduire fois sur seuil 0,05 hasard notation scientifique e-07",
+   tab:[["p-value","Se lit","On en pense"],["0,70","7 fois sur 10, le hasard seul fait un écart aussi grand","le hasard suffit à l'expliquer"],["0,05","1 fois sur 20","c'est la limite qu'on s'est fixée"],["0,01","1 fois sur 100","rare : on ne croit plus au hasard"],["0,0000001","1 fois sur 10 millions","le hasard n'y est pour rien"]],
+   tip:"`1.0073e-07` est en notation scientifique : `e-07` veut dire « décale la virgule de 7 rangs vers la gauche », soit environ 0,0000001. Réflexe : une p-value affichée avec `e-` est forcément très en dessous de 0,05.",
+   trap:"C'est le nombre après `e-` qui compte : `9.9e-08` est plus petit que `1.2e-07` (8 rangs contre 7)."},
+  {id:"pvalue-conclure", t:"Écrire la conclusion", lead:"Trois morceaux : l'écart, le test, puis ce qu'on a le droit d'affirmer.", k:"conclusion rediger ecrire analyse rapport p-value affirmer",
+   tab:[["Cas","Modèle de phrase"],["p-value < 0,05","Les Premium dépensent en moyenne 95 € contre 72 € pour les Standard (23 € d'écart). Un test de Student donne une p-value inférieure à 0,05 : l'écart ne s'explique pas par le hasard. Je peux affirmer que les Premium dépensent plus."],["p-value ≥ 0,05","Une commande vaut en moyenne 72 € en semaine contre 73 € le week-end. Un test de Student donne une p-value de 0,56 : l'écart peut venir du hasard. Je ne peux pas affirmer qu'on dépense plus le week-end."]],
+   why:"Les deux conclusions sont des résultats. Savoir écrire « je ne peux pas l'affirmer » évite qu'une décision soit prise sur un écart qui n'existe pas.",
+   trap:"On ne compare que des groupes comparables. Si les Premium achètent surtout de l'électronique et les Standard des vêtements, l'écart vient peut-être de ce qu'ils achètent, pas de leur abonnement."}
+ ]},
+ {id:"encoder", ic:"target", t:"Préparer pour un modèle", cards:[
+  {id:"get-dummies", t:"Transformer du texte en colonnes 0 / 1", k:"get_dummies encoder encodage categories modele machine learning drop_first",
+   s:[["Choisir les colonnes utiles", c`X = df[["Pclass", "Sex", "Age", "Embarked"]]`],["Transformer le texte en 0 / 1", c`X = pd.get_dummies(X, columns=["Sex", "Embarked"], drop_first=True, dtype=int)`]],
+   tab:[["Paramètre","Rôle"],["`columns=`","les colonnes de texte à transformer"],["`drop_first=True`","retire une colonne inutile (ni C ni Q, c'est forcément S)"],["`dtype=int`","des 1 / 0 au lieu de True / False"]],
+   why:"Un modèle ne lit que des nombres. Remplacer C, Q, S par 1, 2, 3 inventerait un ordre qui n'existe pas : on crée une colonne 0/1 par valeur.",
+   trap:"Sur tout le tableau, il crée une colonne par nom, par billet… Choisis d'abord tes colonnes."}
+ ]},
+ {id:"sauvegarder", ic:"save", t:"Sauvegarder", cards:[
+  {id:"to-csv", t:"Enregistrer le tableau propre", k:"to_csv sauvegarder enregistrer exporter fichier csv unnamed",
+   s:[["Écrire le fichier", c`df.to_csv("../data/titanic_propre.csv", index=False)`]],
+   why:"`index=False` évite d'écrire les numéros de ligne. Sans ça, ils reviennent en colonne `Unnamed: 0` quand tu relis le fichier."}
+ ]},
+ {id:"reflexes", ic:"check", t:"Bons réflexes", cards:[
+  {id:"bons-reflexes", t:"Ce qui évite les erreurs", k:"reflexes pieges conseils verifier notebook redemarrer justifier",
+   tab:[["Réflexe","Comment"],["Regarder avant de supprimer","afficher les lignes concernées, puis décider"],["Vérifier après chaque étape","`df.shape`, `df.isna().sum()`, `df.head()`"],["Notebook bizarre ?","Redémarrer, puis Exécuter tout"],["Avant un modèle","plus aucune case vide, que des nombres"],["Justifier ses choix","chaque suppression ou remplissage s'explique en une phrase"]],
+   why:"Même code, chiffres faux : dans le cours, sans nettoyage, l'Électronique affiche 3 820 € au lieu de 670 €. C'est le nettoyage qui rend les résultats vrais."},
+  {id:"entretien", t:"Pandas, pour quoi faire ?", lead:"La réponse d'entretien du cours.", k:"entretien pourquoi pandas limites ram sql gros volumes",
+   tip:"« J'utilise pandas pour explorer, nettoyer et analyser des données, et préparer des jeux de données pour des modèles. Pour de très gros volumes, je passerais sur SQL. »"}
+ ]}
+]}
+];
+
+
+/* ---------------- Outils ---------------- */
+const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmt = (s) => esc(s).replace(/`([^`]+)`/g,"<code>$1</code>");
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function hl(src){
+  const re = /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|\b(from|import|as|def|return|if|else|and|or|not|in|lambda|True|False|None)\b|\b(\d+(?:\.\d+)?)\b|\b(pd|np|df)\b/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    out += '<span class="' + (m[1] ? "ts" : m[2] ? "tk" : m[3] ? "tn" : "tf") + '">' + esc(m[0]) + "</span>";
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+const P = {file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',grid:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 4v16"/>',filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',dots:'<circle cx="5" cy="16" r="1.8"/><circle cx="9" cy="13" r="1.8"/><circle cx="13" cy="15" r="1.8"/><circle cx="20" cy="5" r="2"/>',cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/>',pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h1M14 12h1M9 16h1M14 16h1"/>',tag:'<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',text:'<path d="M4 7V5h16v2M12 5v14M9 19h6"/>',group:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-6h8v6"/>',check:'<path d="M4 12l5 5L20 6"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',scale:'<path d="M12 3v18M5 21h14M4 8h16"/><path d="M4 8l-2 6a3 3 0 0 0 4 0zM20 8l-2 6a3 3 0 0 0 4 0z"/>'};
+const icon = (k, s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (P[k] || "") + "</svg>";
+const ICON_COPY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const ICON_OK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5 9-10"/></svg>';
+const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
+const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
+const SNIPS = [];
+function snip([lab, code]){
+  SNIPS.push(code);
+  return '<div class="snip"><p class="lab">' + fmt(lab) + '</p><div class="cl"><pre><code>' + hl(code) + '</code></pre><button class="cp" type="button" data-i="' + (SNIPS.length - 1) + '" title="Copier" aria-label="Copier : ' + esc(lab) + '">' + ICON_COPY + "<span>Copié</span></button></div></div>";
+}
+function venn(kind){
+  const L = '<circle cx="17" cy="14" r="11"', R = '<circle cx="31" cy="14" r="11"', f = ' fill="var(--teal)" fill-opacity=".45"', o = ' fill="none" stroke="var(--teal)" stroke-width="1.6"/>';
+  const fill = kind === "left" ? L + f + "/>" : kind === "right" ? R + f + "/>" : kind === "inner" ? R + f + ' clip-path="url(#cpL)"/>' : L + f + "/>" + R + f + "/>";
+  return '<svg width="48" height="28" viewBox="0 0 48 28" aria-label="' + kind + '">' + fill + L + o + R + o + "</svg>";
+}
+const cell = (v) => v.startsWith("@venn:") ? venn(v.slice(6)) : fmt(v);
+const table = (rows) => '<div class="tbl"><table><thead><tr>' + rows[0].map((h) => "<th>" + fmt(h) + "</th>").join("") + "</tr></thead><tbody>"
+  + rows.slice(1).map((r) => "<tr>" + r.map((v, j) => '<td data-l="' + esc(rows[0][j].replace(/`/g, "")) + '">' + cell(v) + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+
+/* Portrait du Titanic (train.csv, 891 passagers) : ce que resume(df) affiche */
+const TITANIC = [["PassengerId","int64",0,891,"1, 2, 3"],["Survived","int64",0,2,"0, 1"],["Pclass","int64",0,3,"3, 1, 2"],["Name","object",0,891,"Braund, Mr. Owen Harris, …"],["Sex","object",0,2,"male, female"],["Age","float64",177,88,"22.0, 38.0, 26.0"],["SibSp","int64",0,7,"1, 0, 3"],["Parch","int64",0,7,"0, 1, 2"],["Ticket","object",0,681,"A/5 21171, PC 17599, …"],["Fare","float64",0,248,"7.25, 71.2833, 7.925"],["Cabin","object",687,147,"C85, C123, E46"],["Embarked","object",2,3,"S, C, Q"]];
+const portrait = () => '<div class="pt"><div class="cap"><span>Ce que <b>resume(df)</b> affiche sur le Titanic</span><span>891 lignes · 12 colonnes</span></div><div class="tbl" style="margin:0"><table><thead><tr><th>colonne</th><th>type</th><th>vides</th><th class="nu hide-s">valeurs différentes</th><th class="hide-s">exemples</th></tr></thead><tbody>'
+  + TITANIC.map(([n, t, v, u, ex]) => { const pc = v / 891 * 100; return '<tr><td data-l="">' + n + '</td><td data-l="type"><span class="ty ' + (t === "object" ? "txt" : "num") + '">' + t + '</span></td><td data-l="vides"><div class="vb' + (v ? "" : " zero") + '"><s><i style="width:' + pc.toFixed(1) + '%"></i></s><em>' + (v ? v + " · " + pc.toFixed(1).replace(".", ",") + " %" : "0") + '</em></div></td><td class="nu hide-s" data-l="valeurs différentes">' + u + '</td><td class="ex hide-s" data-l="exemples">' + esc(ex) + "</td></tr>"; }).join("")
+  + "</tbody></table></div></div>";
+const FIGS = {
+  portrait,
+  iqr: () => '<div class="iqr" aria-hidden="true"><div class="ax"></div><div class="wh" style="left:12%;width:22%"></div><div class="wh" style="left:56%;width:24%"></div><div class="tick" style="left:12%"></div><div class="tick" style="left:80%"></div><div class="box" style="left:34%;width:22%"></div><div class="med" style="left:43%"></div><div class="dot" style="left:89%"></div><div class="dot" style="left:96%"></div>'
+  + '<span class="lb up" style="left:12%"><b>borne basse</b></span><span class="lb up" style="left:80%"><b>borne haute</b></span><span class="lb dn" style="left:34%">Q1</span><span class="lb dn" style="left:56%">Q3</span><span class="lb up" style="left:45%">IQR</span><span class="lb dn" style="left:100%;transform:translateX(-100%);color:var(--redl)">signalés</span></div>'
+  + '<p class="figcap">La boîte va de Q1 à Q3. Les bornes sont à 1,5 × IQR de chaque côté. Au-delà : valeur signalée.</p>'
+};
+
+/* ---------------- Mini-tableaux de l'en-tête ---------------- */
+const cells = (pattern) => pattern.split("").map((k) => '<i class="' + (k === "." ? "" : k) + '"></i>').join("");
+document.getElementById("before").innerHTML = cells("hhhh" + "...." + ".v.." + "dddd" + "..o." + "v...");
+document.getElementById("after").innerHTML = cells("hhhh" + "...." + "...." + "...." + "....");
+
+/* ---------------- Rendu ---------------- */
+const main = document.getElementById("main"), tocEl = document.getElementById("toc");
+document.getElementById("goldsnips").innerHTML = GOLD.map(snip).join("");
+let html = "", toc = "";
+const ALL = [];
+GROUPS.forEach((G, gi) => {
+  const gc = "--gc:var(--" + G.col + ")";
+  const isSteps = G.sections.some((s) => s.step);
+  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + "</p>";
+  toc += '<div class="tg" style="' + gc + '"><h4>' + esc(G.g) + "</h4>" + (G.note ? '<p class="gnote">' + esc(G.note) + "</p>" : "") + '<ol class="' + (isSteps ? "steps" : "") + '">';
+  G.sections.forEach((s) => {
+    s.g = gi;
+    const badge = s.step ? "<b>" + s.step + "</b>" : icon(s.ic, 20);
+    html += '<section class="sec" id="' + s.id + '" style="' + gc + '"><div class="sh"><span class="ic">' + badge + "</span><h2>" + esc(s.t) + "</h2>" + (s.step ? '<span class="step">Étape ' + s.step + " du nettoyage</span>" : "") + "</div>";
+    s.cards.forEach((cd) => {
+      cd.hay = norm([cd.t, cd.k, cd.lead || "", (cd.s || []).map((x) => x.join(" ")).join(" "), cd.why || "", cd.tip || "", cd.trap || "", s.t].join(" "));
+      html += '<article class="card" id="' + cd.id + '"><h3><a href="#' + cd.id + '">' + esc(cd.t) + "</a>" + (cd.comp ? '<span class="comp">Complément</span>' : "") + "</h3>"
+        + (cd.lead ? '<p class="lead">' + fmt(cd.lead) + "</p>" : "")
+        + (cd.fig ? FIGS[cd.fig]() : "")
+        + (cd.s || []).map(snip).join("")
+        + (cd.tab ? table(cd.tab) : "")
+        + ((cd.why || cd.tip || cd.trap) ? '<div class="notes">'
+          + (cd.tip ? '<div class="note tip">' + ICON_TIP + "<div><strong>Astuce.</strong> " + fmt(cd.tip) + "</div></div>" : "")
+          + (cd.trap ? '<div class="note trap">' + ICON_TRAP + "<div><strong>Piège.</strong> " + fmt(cd.trap) + "</div></div>" : "")
+          + (cd.why ? '<details class="why"><summary>Pourquoi ?</summary><div>' + fmt(cd.why) + "</div></details>" : "")
+          + "</div>" : "")
+        + "</article>";
+    });
+    html += "</section>";
+    toc += '<li data-s="' + s.id + '"><a href="#' + s.id + '"><span class="ic">' + (s.step ? s.step : icon(s.ic, 15)) + "</span><span>" + esc(s.t) + "</span></a></li>";
+    ALL.push(s);
+  });
+  toc += "</ol></div>";
+});
+main.insertAdjacentHTML("beforeend", html);
+tocEl.innerHTML = toc;
+
+/* ---------------- Copier ---------------- */
+function fallbackCopy(txt){
+  const ta = document.createElement("textarea");
+  ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove(); return ok;
+}
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest(".cp"); if (!b) return;
+  const txt = SNIPS[+b.dataset.i];
+  let ok = false;
+  try { await navigator.clipboard.writeText(txt); ok = true; } catch (err) { ok = fallbackCopy(txt); }
+  if (!ok) { const r = document.createRange(); r.selectNodeContents(b.previousElementSibling); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); return; }
+  b.innerHTML = ICON_OK + "<span>Copié</span>"; b.classList.add("ok");
+  setTimeout(() => { b.innerHTML = ICON_COPY + "<span>Copié</span>"; b.classList.remove("ok"); }, 1400);
+});
+
+/* ---------------- Recherche ---------------- */
+const q = document.getElementById("q"), emptyEl = document.getElementById("empty");
+const gold = document.querySelector(".gold");
+function search(){
+  const words = norm(q.value.trim()).split(/\s+/).filter(Boolean);
+  let shown = 0; const gCount = {};
+  ALL.forEach((s) => {
+    let inSec = 0;
+    s.cards.forEach((cd) => {
+      const ok = words.every((w) => cd.hay.includes(w));
+      document.getElementById(cd.id).classList.toggle("hide", !ok);
+      if (ok) inSec++;
+    });
+    document.getElementById(s.id).classList.toggle("hide", !inSec);
+    tocEl.querySelector('li[data-s="' + s.id + '"]').classList.toggle("hide", !inSec);
+    gCount[s.g] = (gCount[s.g] || 0) + inSec;
+    shown += inSec;
+  });
+  document.querySelectorAll(".grp").forEach((el) => el.classList.toggle("hide", !gCount[el.dataset.g]));
+  gold.style.display = words.length ? "none" : "";
+  emptyEl.classList.toggle("show", shown === 0);
+}
+let wasSearching = false;
+q.addEventListener("input", () => {
+  search();
+  const s = q.value.trim() !== "";
+  if (s && !wasSearching) window.scrollTo({top: document.querySelector(".bar").offsetTop});
+  wasSearching = s;
+});
+q.addEventListener("keydown", (e) => { if (e.key === "Escape") { q.value = ""; search(); wasSearching = false; } });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  if (e.key === "Escape") document.body.classList.remove("tocopen");
+});
+
+/* ---------------- Tous les pourquoi ---------------- */
+const whyBtn = document.getElementById("whyall");
+whyBtn.addEventListener("click", () => {
+  const on = whyBtn.getAttribute("aria-pressed") !== "true";
+  whyBtn.setAttribute("aria-pressed", on);
+  document.querySelectorAll("details.why").forEach((d) => { d.open = on; });
+});
+
+/* ---------------- Sommaire : tiroir sur téléphone, section active ---------------- */
+document.getElementById("menu").addEventListener("click", () => document.body.classList.add("tocopen"));
+document.getElementById("scrim").addEventListener("click", () => document.body.classList.remove("tocopen"));
+tocEl.addEventListener("click", (e) => { if (e.target.closest("a")) document.body.classList.remove("tocopen"); });
+const secObserver = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) tocEl.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+  });
+}, {rootMargin: "-90px 0px -65% 0px"});
+document.querySelectorAll("section.sec").forEach((s) => secObserver.observe(s));
+
+/* ---------------- Thème ---------------- */
+const root = document.documentElement, themeBtn = document.getElementById("theme");
+try { const t = localStorage.getItem("memo-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+themeBtn.addEventListener("click", () => {
+  root.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("memo-theme", root.dataset.theme); } catch (e) {}
+});
+}
+</script>
+</body>
+</html>
