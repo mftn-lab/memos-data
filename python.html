@@ -1,0 +1,3098 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mémo Python bases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE  vif mais lisible : un carnet de recettes de code qu'on a plaisir à ouvrir
+   IDEA   les quatre collections de Python, chacune avec sa forme ; chaque partie a sa couleur
+   PICTURE en-tête : les 4 collections dessinées (liste, tuple, dictionnaire, set)
+   COLOUR bleu (commencer), sarcelle (nettoyer), violet (transformer), orange (analyser) ; code sur fond nuit
+   TYPE   Inter 800 pour les titres + JetBrains Mono
+   LAYOUT sommaire coloré à gauche, fiches à droite ; tiroir sur téléphone */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0d1220);--bg2:light-dark(#f4f6fa,#151c2c);--ink:light-dark(#141922,#e7ebf3);--mute:light-dark(#5b6576,#9ba7bb);
+--line:light-dark(#e3e8ef,#263048);
+--blue:light-dark(#2457c5,#7aa7ff);--teal:light-dark(#0f8a7e,#3fd1bf);--violet:light-dark(#6d3fd0,#b39bff);--orange:light-dark(#d4570f,#ff9d5c);
+--amber:light-dark(#fff6dc,#2a2312);--amberl:light-dark(#c38d00,#e0b03a);--red:light-dark(#fdeeee,#301a1d);--redl:light-dark(#d03a3a,#ef7777);
+--why:light-dark(#eaf6f2,#11241f);--whyl:light-dark(#0f7d6f,#4fd3c0);
+--cbg:light-dark(#141b2d,#080c16);--cink:#e6ebf5;--cline:light-dark(#141b2d,#1f2940)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
+a{color:var(--blue)}
+pre,code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+p code,td code,.note code,.lead code,.why code,.gold p code{background:var(--bg2);border:1px solid var(--line);padding:0 5px;border-radius:5px;font-size:.86em;overflow-wrap:anywhere}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,4vw)}
+.top{background:linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);color:#fff}
+.top .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:center;padding-top:20px;padding-bottom:26px}
+.back{color:#fff;opacity:.85;text-decoration:none;font-size:15px}
+.back:hover{opacity:1;text-decoration:underline}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:12px 0 8px;text-wrap:balance}
+.sub{margin:0;opacity:.9;font-size:16.5px;max-width:52ch}
+.sub code{background:rgba(255,255,255,.18);border:0;color:#fff}
+.hero{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:16px 18px}
+.mini{display:grid;grid-template-columns:repeat(4,24px);gap:4px}
+.mini i{display:block;height:13px;border-radius:3px;background:rgba(255,255,255,.4)}
+.mini i.h{background:#fff}
+.mini i.v{background:transparent;border:1.5px dashed #ffb3b3}
+.mini i.d{background:#ffd166}
+.mini i.o{background:#ff8f5a}
+.hero figure{margin:0;text-align:center}
+.coll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.coll div{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:10px;padding:8px 10px;min-width:150px}
+.coll code{display:block;font-size:13px;color:#fff;white-space:nowrap}
+.coll span{display:block;font-size:12px;opacity:.85;margin-top:2px}
+.hero figcaption{font-size:12.5px;opacity:.85;margin-top:6px}
+.hero .arrow{font-size:22px;opacity:.9}
+.legend{display:flex;flex-direction:column;gap:5px;font-size:12.5px;opacity:.95;margin-left:4px}
+.legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:3px}
+.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:8px;align-items:center;padding-top:10px;padding-bottom:10px}
+.search{flex:1;position:relative}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mute);pointer-events:none}
+.search input{width:100%;font:inherit;font-size:16px;padding:11px 12px 11px 40px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg2);color:var(--ink);min-height:46px}
+.search input:focus{outline:none;border-color:var(--blue);background:var(--bg)}
+.tb{font:inherit;font-size:14px;font-weight:600;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:0 12px;min-height:46px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.tb:hover{border-color:var(--blue);color:var(--blue)}
+.tb[aria-pressed=true]{background:var(--why);border-color:var(--whyl);color:var(--whyl)}
+#menu{display:none}
+.layout{display:grid;grid-template-columns:272px minmax(0,1fr);gap:44px;padding-top:28px;padding-bottom:70px}
+.toc{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;padding-right:4px}
+.tg{margin-bottom:16px}
+.tg h4{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--gc);margin:0 0 4px 8px}
+.tg h4::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--gc)}
+.gnote{font-size:12.5px;color:var(--mute);margin:0 8px 6px 8px;line-height:1.4}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc li{position:relative}
+.toc a{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:9px;text-decoration:none;color:var(--ink);font-size:14.5px;line-height:1.3}
+.toc a:hover{background:var(--bg2)}
+.toc a.on{background:color-mix(in srgb,var(--gc) 13%,transparent);color:var(--gc);font-weight:600}
+.toc a .ic{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:color-mix(in srgb,var(--gc) 13%,transparent);color:var(--gc)}
+.toc .steps li:not(:last-child)::after{content:"";position:absolute;left:20px;top:31px;bottom:-7px;width:2px;background:color-mix(in srgb,var(--gc) 35%,transparent)}
+.toc .steps a .ic{border-radius:50%;background:var(--gc);color:var(--bg);font-weight:800;font-size:13px}
+.toc li.hide{display:none}
+main{max-width:880px}
+.gold{border-radius:16px;padding:18px 20px 10px;margin-bottom:36px;background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 10%,var(--bg)),color-mix(in srgb,var(--teal) 10%,var(--bg)));border:1px solid color-mix(in srgb,var(--blue) 30%,transparent)}
+.gold h2{margin:0 0 4px;font-size:19px;font-weight:800}
+.gold p{margin:0 0 6px;font-size:15px}
+.grp{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:var(--gc);margin:46px 0 14px}
+.grp::after{content:"";flex:1;height:2px;background:color-mix(in srgb,var(--gc) 25%,transparent)}
+.grp a{order:2;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--gc);text-decoration:none;border:1.5px solid color-mix(in srgb,var(--gc) 40%,transparent);border-radius:999px;padding:2px 10px}
+.grp a:hover{background:color-mix(in srgb,var(--gc) 12%,transparent)}
+a.tb{text-decoration:none}
+.pdfm{position:relative}
+.pdfm summary{list-style:none}.pdfm summary::-webkit-details-marker{display:none}
+.pdfm[open] summary{border-color:var(--blue);color:var(--blue)}
+.pdfm div{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:240px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 30px -12px rgba(0,0,0,.35)}
+.pdfm div a{display:block;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink)}
+.pdfm div a:hover{background:var(--bg2)}
+.pdfm div b{display:block;font-size:14.5px}
+.pdfm div span{display:block;font-size:13px;color:var(--mute)}
+.grp a + a{margin-left:-2px}
+.grp:first-of-type{margin-top:0}
+section.sec{margin-bottom:32px}
+.sec.hide,.card.hide,.grp.hide{display:none}
+.sh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 14px}
+.sh .ic{flex:none;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--gc);color:#fff}
+:root[data-theme=dark] .sh .ic{color:#0d1220}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .sh .ic{color:#0d1220}}
+.sh .ic b{font-size:18px}
+.sh h2{font-size:24px;line-height:1.15;margin:0;letter-spacing:-.015em;font-weight:800}
+.sh .step{font-size:12.5px;font-weight:700;color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,transparent);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px 18px 14px;margin-bottom:14px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:color-mix(in srgb,var(--gc) 45%,var(--line));box-shadow:0 4px 18px -10px color-mix(in srgb,var(--gc) 60%,transparent)}
+.card h3{font-size:17.5px;line-height:1.3;margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:700}
+.card h3 a{color:var(--ink);text-decoration:none}
+.card h3 a:hover{color:var(--gc)}
+.comp{font-size:12px;font-weight:700;color:var(--violet);background:color-mix(in srgb,var(--violet) 12%,transparent);border-radius:999px;padding:1px 9px}
+.lead{margin:2px 0 4px;color:var(--mute);font-size:15px}
+.snip{margin:12px 0 0}
+.lab{font-size:14.5px;margin:0 0 5px;font-weight:500}
+.cl{display:flex;align-items:stretch;border:1px solid var(--cline);border-radius:10px;background:var(--cbg);color:var(--cink);overflow:hidden}
+.cl pre{flex:1;margin:0;padding:10px 14px;overflow-x:auto;font-size:14px;line-height:1.6;tab-size:4}
+.cl{cursor:pointer;transition:border-color .15s}
+.cl:hover{border-color:#5b6b8c}
+.run{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-left:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#cfd8ea;font:inherit;font-size:13px;font-weight:600;padding:0 13px;min-width:48px;cursor:pointer}
+.run:hover,.cl:hover .run{background:rgba(110,231,200,.14);color:#6ee7c8}
+.run[aria-expanded="true"]{color:#6ee7c8;background:rgba(110,231,200,.1)}
+.run svg{transition:transform .15s}.run[aria-expanded="true"] svg{transform:rotate(90deg)}
+.snip.open .cl{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.res{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--bg2);padding:8px 14px 10px;font-size:14px}
+.res[hidden]{display:none}
+.res .rt{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);margin:0 0 4px}
+.res pre{margin:0;font-size:13.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.res .ctx{display:flex;gap:8px;align-items:baseline;margin:0 0 8px;padding:0 0 8px;border-bottom:1px dashed var(--line)}
+.res .ctx pre,.res .alt pre{color:var(--mute)}
+.res .ctx pre .ts,.res .ctx pre .tk,.res .ctx pre .tn,.res .ctx pre .tf,.res .alt pre span{color:inherit}
+.res .tag{flex:none;font-size:11px;font-weight:700;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:0 6px;line-height:1.6}
+.res .alt{display:flex;gap:8px;align-items:baseline;margin:8px 0 4px}
+.res .nv{display:flex;gap:10px;align-items:baseline;margin:2px 0}
+.res .nv b{flex:none;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;color:var(--teal);background:color-mix(in srgb,var(--teal) 12%,transparent);border-radius:6px;padding:0 6px}
+.res .nv b::after{content:" vaut"}
+.res .err{color:var(--redl);font-weight:600}
+.res .info{margin:6px 0 0;font-size:13.5px;color:var(--mute);font-style:italic}
+.res pre + pre{margin-top:4px}
+@media (max-width:600px){.res .nv{display:block;margin:4px 0}.res .nv b{display:inline-block;margin-bottom:2px}.res{padding:8px 11px 10px}}
+.ts{color:#9fe3b0}.tk{color:#ff9fd2}.tn{color:#ffc58a}.tf{color:#8cc3ff}
+.tbl{overflow-x:auto;margin:12px 0 2px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:700;color:var(--mute);font-size:13px}
+td svg{display:block}
+.notes{display:grid;gap:8px;margin-top:12px}
+.note{display:flex;gap:9px;align-items:flex-start;border-radius:11px;padding:9px 12px;font-size:15px;line-height:1.5}
+.note svg{flex:none;margin-top:3px}
+.tip{background:var(--amber)}.tip svg{color:var(--amberl)}
+.trap{background:var(--red)}.trap svg{color:var(--redl)}
+details.why{border-radius:11px;background:var(--why);font-size:15px}
+details.why summary{cursor:pointer;padding:8px 12px;font-weight:700;color:var(--whyl);list-style:none;display:flex;align-items:center;gap:8px}
+details.why summary::-webkit-details-marker{display:none}
+details.why summary::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+details.why[open] summary::before{transform:rotate(45deg)}
+details.why div{padding:0 12px 10px 27px;line-height:1.55}
+.pt{margin:14px 0 4px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pt .cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);background:var(--bg2);padding:7px 12px;border-bottom:1px solid var(--line)}
+.pt .cap b{color:var(--ink)}
+.pt table{font-size:13.5px}
+.pt td,.pt th{padding:6px 10px}
+.pt th{background:var(--bg2)}
+.pt td:first-child{font-family:"JetBrains Mono",monospace;font-weight:500}
+.pt .ty{font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.ty.num{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.ty.txt{background:color-mix(in srgb,var(--orange) 14%,transparent);color:var(--orange)}
+.vb{display:flex;align-items:center;gap:8px;min-width:120px}
+.vb s{display:block;flex:1;height:8px;border-radius:9px;background:var(--bg2);text-decoration:none;overflow:hidden}
+.vb s i{display:block;height:100%;border-radius:9px;background:var(--redl)}
+.vb em{font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:3.6em;text-align:right}
+.vb.zero em{color:var(--mute)}
+.pt .ex{color:var(--mute);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.pt .nu{text-align:right;font-variant-numeric:tabular-nums}
+.iqr{position:relative;height:104px;margin:14px 6px 4px}
+.iqr .ax{position:absolute;left:0;right:0;top:51px;height:1px;background:var(--line)}
+.iqr .wh{position:absolute;top:51px;height:2px;background:var(--ink)}
+.iqr .tick{position:absolute;top:40px;width:2px;height:24px;background:var(--ink)}
+.iqr .box{position:absolute;top:36px;height:32px;border:2px solid var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent);border-radius:5px}
+.iqr .med{position:absolute;top:36px;width:2px;height:32px;background:var(--teal)}
+.iqr .dot{position:absolute;top:45px;width:12px;height:12px;border-radius:50%;background:var(--redl);transform:translateX(-50%)}
+.iqr .lb{position:absolute;font-size:13px;white-space:nowrap;transform:translateX(-50%);color:var(--mute)}
+.iqr .up{top:6px}.iqr .dn{top:76px}
+.iqr .lb b{color:var(--ink);font-weight:600}
+.figcap{font-size:14px;color:var(--mute);margin:4px 0 0}
+.empty{display:none;padding:34px;border:2px dashed var(--line);border-radius:16px;text-align:center;color:var(--mute)}
+.empty.show{display:block}
+footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);font-size:14px}
+.scrim{display:none}
+@media (max-width:920px){
+ #menu{display:inline-flex}
+ .layout{grid-template-columns:minmax(0,1fr);gap:0}
+ .toc{position:fixed;z-index:50;top:0;left:0;bottom:0;width:min(320px,86vw);max-height:none;background:var(--bg);padding:18px 14px;border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .2s}
+ body.tocopen .toc{transform:none}
+ body.tocopen .scrim{display:block;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4)}
+ .top .wrap{grid-template-columns:minmax(0,1fr)}
+ .hero{justify-self:start}
+}
+@media (max-width:600px){
+ html{scroll-padding-top:130px}
+ .bar .wrap{flex-wrap:wrap;justify-content:flex-end}
+ .search{order:9;flex-basis:100%}
+ #menu{margin-right:auto}
+ .tb .tx{display:none}
+ .legend{display:none}
+ .mini{grid-template-columns:repeat(4,18px)}
+ .sh h2{font-size:21px}
+ .sh .ic{width:36px;height:36px}
+ .card{padding:14px 14px 12px}
+ .tbl thead{display:none}
+ .tbl tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+ .tbl td{display:block;border:0;padding:2px 2px}
+ .tbl td[data-l]:not([data-l=""])::before{content:attr(data-l);display:block;font-size:12.5px;font-weight:600;color:var(--mute)}
+ .pt .hide-s{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.bar,.toc,.run,.hero{display:none}.layout{display:block}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="cpL"><circle cx="17" cy="14" r="11"/></clipPath></defs></svg>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <a class="back" href="index.html">← Tous les mémos</a>
+      <h1>Python : les bases du langage</h1>
+      <p class="sub">Une envie, une phrase, une ligne de code. Clique sur le code pour voir ce qu'il affiche, comme dans Colab. Des variables aux fonctions, avec les exemples du cours (RestoClic, la boutique, les notes).</p>
+    </div>
+    <div class="hero" aria-hidden="true">
+      <div class="coll">
+        <div><code>[1, 2, 2]</code><span>liste : ordonnée, modifiable</span></div>
+        <div><code>(1, 2, 2)</code><span>tuple : figé</span></div>
+        <div><code>{"a": 1}</code><span>dictionnaire : par clé</span></div>
+        <div><code>{1, 2}</code><span>set : sans doublon</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <button class="tb" id="menu" type="button" aria-label="Ouvrir le sommaire"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="tx">Sommaire</span></button>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Je veux… (boucle, liste, dictionnaire, erreur)" autocomplete="off" aria-label="Rechercher">
+    </div>
+    <button class="tb" id="whyall" type="button" aria-pressed="false" title="Afficher ou masquer toutes les explications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span class="tx">Tous les pourquoi</span></button>
+    <button class="tb" id="resall" type="button" aria-pressed="false" title="Afficher ou masquer tous les résultats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l11 7-11 7z"/></svg><span class="tx">Tous les résultats</span></button>
+    <details class="pdfm"><summary class="tb" title="Télécharger le mémo en PDF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="tx">PDF</span></summary>
+      <div><a href="pdf/memo-python-court.pdf" download><b>Version courte</b><span>le code, les astuces, les pièges</span></a><a href="pdf/memo-python.pdf" download><b>Version complète</b><span>avec tous les « Pourquoi ? »</span></a></div></details>
+    <button class="tb" id="theme" type="button" aria-label="Changer de thème" title="Clair / sombre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <nav class="toc" id="toc" aria-label="Sommaire"></nav>
+  <main id="main">
+    <div class="gold">
+      <h2>★ La règle d'or : chaîne ou liste, deux réflexes inverses</h2>
+      <p>Une chaîne ne se modifie jamais : ses méthodes renvoient une copie, qu'il faut ranger. Une liste se modifie sur place : ses méthodes ne renvoient rien (<code>None</code>).</p>
+      <div id="goldsnips"></div>
+      <p style="margin-top:10px">Oublier <code>nom =</code> perd le résultat. Écrire <code>courses = courses.append(...)</code> met <code>None</code> dans la liste. Aucun des deux ne déclenche d'erreur : un programme qui s'exécute n'est pas un programme juste, vérifie toujours sur un cas dont tu connais la réponse.</p>
+    </div>
+    <div class="empty" id="empty">Rien trouvé. Essaie un autre mot : « boucle », « liste », « dictionnaire », « erreur », « trier »…</div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<footer>
+  <div class="wrap">
+    <p>Sources : cours Python du parcours Data Analyst (semaines 1 et 2, introductions 1 à 3) et leurs corrections. Ce qui est marqué <span class="comp">Complément</span> n'en vient pas.</p>
+    <p>Raccourcis : <code>/</code> pour chercher, <code>Échap</code> pour effacer.</p>
+  </div>
+</footer>
+
+<script>
+{
+const c = String.raw;
+const GOLD = [["Une chaîne : la méthode renvoie une copie, on range le résultat", c`nom = nom.strip()`], ["Une liste : la méthode modifie sur place, on ne range rien", c`courses.append("riz")`]];
+const GROUPS = [
+{g:"Les bases", col:"blue", note:"Semaine 1 du cours : le langage, pas à pas.", sections:[
+ {id:"algo", ic:"list", t:"Algorithmique et pseudo-code", cards:[
+  {id:"trois-briques", t:"Les trois briques de tout programme", lead:"Un algorithme est une suite d'opérations dans l'ordre, comme une recette de cuisine.", k:"algorithme algorithmique sequence boucle condition briques recette",
+   tab:[["Brique","Ce qu'elle fait","En Python"],["La séquence","une opération après l'autre","des lignes l'une sous l'autre"],["La boucle","répéter sans réécrire","`for`, `while`"],["La condition","choisir selon la situation","`if`, `elif`, `else`"]],
+   why:"Presque tous les programmes sont une combinaison de ces trois briques. Les données manipulées sont les variables, les étapes sont les opérations."},
+  {id:"pseudo-code", t:"Écrire le pseudo-code avant le code", k:"pseudo-code pseudo code francais etapes traduire",
+   s:[["Le pseudo-code, en français", c`Demander le montant du panier
+Si le montant est supérieur ou égal à 50
+    Les frais de port sont de 0
+Sinon
+    Les frais de port sont de 4.90
+Afficher le total`],["Sa traduction en Python", c`panier = float(input("Montant du panier : "))
+
+if panier >= 50:
+    frais = 0
+else:
+    frais = 4.90
+
+print("Total à payer :", panier + frais, "€")`]],
+   why:"On réfléchit d'abord à ce que le programme doit faire, et dans quel ordre, sans se soucier de la syntaxe. Chaque étape du pseudo-code doit se retrouver dans le code.",
+   tip:"« À partir de 50 € » veut dire 50 compris : `>=`, pas `>`. Relis toujours l'énoncé pour savoir si la borne est incluse."}
+ ]},
+ {id:"variables", ic:"tag", t:"Variables et types", cards:[
+  {id:"afficher", t:"Afficher un résultat", k:"print afficher derniere ligne cellule notebook script sep end",
+   s:[["Afficher (marche partout, même dans un script .py)", c`print(38 + 4)`],["Plusieurs valeurs : la virgule ajoute une espace", c`print("Vous avez", age, "ans")`],["Changer le séparateur et la fin de ligne", c`print("Hello", "World", sep=", ", end="!\n")`]],
+   why:"Dans un notebook, la dernière ligne d'une cellule s'affiche toute seule, mais seulement la dernière. Dans un vrai script `.py`, rien ne s'affiche sans `print()`. Prends l'habitude de l'écrire.",
+   tip:"`sep` se place entre les valeurs (une espace par défaut), `end` après la dernière (un retour à la ligne par défaut)."},
+  {id:"types-base", t:"Créer une variable et connaître son type", k:"variable type int float str bool true false affectation egal",
+   s:[["Créer une variable : le = range une valeur", c`prix = 2.5`],["Connaître son type", c`type(prix)`]],
+   tab:[["Type","Contient","Comment le repérer"],["`int`","un nombre entier","`5` : pas de point"],["`float`","un nombre à virgule","`2.5` : un point"],["`str`","du texte","`\"Hello\"` : des guillemets"],["`bool`","vrai ou faux","`True` / `False`, avec une majuscule"]],
+   why:"Python devine le type tout seul à partir de la valeur. Le type dit ce qu'on a le droit de faire : on additionne des nombres, pas du texte.",
+   trap:"`true` sans majuscule n'existe pas : `NameError`. Et `6.0` vaut 6, mais c'est un `float` : la valeur et le type sont deux choses différentes."},
+  {id:"nommer", t:"Bien nommer ses variables", k:"nom nommer snake_case variable regle majuscule underscore mot reserve",
+   s:[["Le style Python : snake_case (minuscules et _)", c`salaire_annuel = 36000`]],
+   tab:[["Règle","Exemple"],["commence par une lettre ou un _","`age`, `_total`"],["ensuite lettres, chiffres, _","`total_panier2`"],["pas d'espace ni de caractère spécial","`total panier` est refusé"],["pas un mot du langage","`for`, `return` sont refusés"]],
+   why:"Un bon nom est un commentaire qui ne devient jamais faux : `total_panier` se comprend tout seul, `x` non.",
+   trap:"Évite `list`, `dict`, `str`, `print` comme noms : Python l'accepte, mais tu écrases l'outil du même nom pour la suite du notebook."},
+  {id:"convertir", t:"Convertir un type", k:"convertir conversion cast int float str round arrondir tronquer",
+   s:[["Texte → entier", c`age = int("25")`],["Entier → nombre à virgule", c`float(5)`],["Nombre → texte", c`str(36000)`],["Arrondir au plus proche", c`round(5.7)`],["Arrondir à 2 décimales", c`round(5.678, 2)`]],
+   trap:"`int(5.9)` donne 5 : `int()` **coupe** la partie décimale, il n'arrondit pas. Pour arrondir, c'est `round()`. Aucun message ne te préviendra.",
+   tip:"`round(0.5)` donne 0 : en cas d'égalité, Python arrondit au nombre pair le plus proche."},
+  {id:"input", t:"Demander une valeur : input", k:"input saisie utilisateur demander texte convertir int float",
+   s:[["Demander un nombre entier", c`age = int(input("Quel est ton âge ? "))`],["Demander un nombre à virgule", c`prix = float(input("Prix HT : "))`],["Demander du texte (pas de conversion)", c`nom = input("Ton nom ? ")`]],
+   why:"`input()` renvoie **toujours** du texte, même si on tape 25. Sans conversion, `age * 2` donne `\"2525\"` (le texte répété) au lieu de 50, sans erreur.",
+   tip:"L'espace après le `?` n'est pas décorative : sans elle, la saisie se colle au point d'interrogation. Le diaporama montre aussi `eval(input(...))` : préfère `int()` ou `float()`, `eval` exécute tout ce que l'utilisateur tape (complément)."},
+  {id:"echanger", t:"Échanger deux variables", k:"echanger inverser permuter swap temporaire variable",
+   s:[["Avec une variable temporaire", c`temporaire = x
+x = y
+y = temporaire`],["La version Python, en une ligne", c`x, y = y, x`]],
+   trap:"`x = y` puis `y = x` ne marche pas : la première ligne a déjà écrasé `x`. Une affectation détruit l'ancienne valeur, définitivement."}
+ ]},
+ {id:"operateurs", ic:"calc", t:"Les opérateurs", cards:[
+  {id:"arithmetique", t:"Calculer", k:"calcul operateur addition soustraction multiplication division puissance modulo division entiere raccourci +=",
+   tab:[["Opérateur","Opération","Exemple","Résultat"],["`+` `-` `*`","addition, soustraction, multiplication","`5 * 2`","`10`"],["`/`","division","`5 / 2`","`2.5`"],["`//`","division entière","`5 // 2`","`2`"],["`%`","modulo (le reste)","`5 % 2`","`1`"],["`**`","puissance","`5 ** 2`","`25`"]],
+   s:[["La notation raccourcie : ajouter 5 au total", c`total += 5`]],
+   trap:"`/` renvoie toujours un nombre à virgule : `12 / 3` donne `4.0`, pas `4`. Pour un entier, `12 // 3`."},
+  {id:"priorites", t:"Priorités et parenthèses", k:"priorite parentheses ordre calcul pourcentage tva",
+   s:[["Le prix TTC : les parenthèses sont indispensables", c`prix_ttc = prix_ht * (1 + taux_tva / 100)`]],
+   why:"Python calcule `**` d'abord, puis `*` et `/`, puis `+` et `-`. Sans parenthèses, `prix_ht * 1 + taux_tva / 100` donnerait un résultat absurde, sans aucun message.",
+   tip:"Un pourcentage tapé « 20 » se divise par 100 avant usage : `prix * 20` multiplierait le prix par vingt."},
+  {id:"div-mod", t:"// et % : ce qui rentre et ce qui reste", k:"division entiere modulo reste heures minutes secondes pair impair dernier chiffre",
+   s:[["Convertir des secondes en heures, minutes, secondes", c`heures = total_secondes // 3600
+reste = total_secondes % 3600
+minutes = reste // 60
+secondes = reste % 60`],["Tester si un nombre est pair", c`nombre % 2 == 0`],["Le dernier chiffre d'un nombre", c`nombre % 10`]],
+   why:"`//` dit combien de fois ça rentre, `%` dit ce qui reste. Ensemble, ils épuisent le nombre de départ : on retire la plus grosse unité, puis on recommence sur le reste.",
+   trap:"Calculer les minutes sur le total au lieu du reste : 12 334 secondes donneraient 205 minutes au lieu de 25."},
+  {id:"comparer", t:"Comparer deux valeurs", k:"comparer comparaison superieur inferieur egal different booleen == !=",
+   tab:[["Opérateur","Veut dire"],["`>` / `>=`","supérieur / supérieur ou égal"],["`<` / `<=`","inférieur / inférieur ou égal"],["`==`","égal"],["`!=`","différent"]],
+   s:[["Une comparaison se range dans une variable", c`est_plus_grand = a > b`]],
+   why:"Une comparaison n'est pas une question : c'est une valeur, `True` ou `False`, comme `2 + 3` vaut 5.",
+   trap:"Un seul `=` range, deux `==` comparent. Et `0.1 + 0.2 == 0.3` vaut `False` : les nombres à virgule sont stockés de façon approchée."},
+  {id:"and-or-not", t:"Combiner des conditions : and, or, not", k:"and or not et ou non logique combiner conditions booleen",
+   s:[["Les deux conditions (and)", c`livraison_gratuite = est_membre and panier >= 50`],["Au moins une des deux (or)", c`remise = montant > 100 or nb_articles >= 10`],["Le contraire (not)", c`not (5 <= 10)`]],
+   tab:[["Opérateur","Vrai quand…"],["`and`","les deux sont vraies"],["`or`","au moins une est vraie"],["`not`","l'expression est fausse (on inverse)"]],
+   trap:"`and` passe avant `or` : `a or b and c` se lit `a or (b and c)`. Mets toujours des parenthèses. Et le texte `\"non\"` compte comme vrai : compare avec `reponse == \"oui\"`."}
+ ]}
+]},
+{g:"Contrôler le déroulé", col:"teal", sections:[
+ {id:"conditions", ic:"branch", t:"Les conditions", cards:[
+  {id:"if-elif-else", t:"if, elif, else", k:"if elif else si sinon condition structure conditionnelle indentation deux points",
+   s:[["Trois cas, de haut en bas", c`if achat < 100:
+    remise = 0
+elif achat <= 500:
+    remise = achat * 0.05
+else:
+    remise = achat * 0.08
+
+print("Remise :", remise, "€")`]],
+   why:"Python teste les conditions dans l'ordre et s'arrête à la **première vraie** : les suivantes ne sont même pas lues. Le `elif` n'a donc pas besoin de répéter `achat >= 100`.",
+   tip:"Calcule dans les branches, affiche une seule fois après : si tu changes l'affichage, tu le changes à un seul endroit.",
+   trap:"N'oublie pas les `:` en fin de ligne, et décale le bloc de 4 espaces : c'est l'indentation qui dit ce qui appartient au `if`."},
+  {id:"ordre-conditions", t:"Ordonner ses conditions", k:"ordre conditions elif restrictive large note mention",
+   s:[["Du plus restrictif au plus large", c`if note < 10:
+    print("Ajourné")
+elif note >= 16:
+    print("Très bien")
+elif note >= 14:
+    print("Bien")
+elif note >= 12:
+    print("Assez bien")
+else:
+    print("Passable")`]],
+   trap:"Si `note >= 10` est testé en premier, une note de 18 affiche « Passable » : la première condition vraie gagne. Le programme tourne et ment.",
+   tip:"Termine toujours une série de `elif` par un `else`, même pour signaler un cas imprévu. Sans lui, rien ne s'affiche, sans erreur."},
+  {id:"bornes", t:"La borne est-elle incluse ?", k:"borne incluse exclue superieur ou egal strict au moins plus de a partir de",
+   tab:[["L'énoncé dit…","On écrit"],["« à partir de 50 », « au moins 50 »","`>= 50`"],["« plus de 50 »","`> 50`"],["« jusqu'à 500 inclus »","`<= 500`"],["« moins de 10 »","`< 10`"]],
+   tip:"Python accepte les comparaisons chaînées : `if x <= y <= z:` se lit comme en maths.",
+   trap:"`<` au lieu de `<=` : un achat de exactement 500 € tombe dans la mauvaise tranche. Teste toujours les valeurs pile sur les bornes."}
+ ]},
+ {id:"boucles", ic:"loop", t:"Les boucles", cards:[
+  {id:"for-ou-while", t:"for ou while ?", k:"for while boucle choisir nombre de tours condition",
+   tab:[["","`for`","`while`"],["Nombre de tours","connu d'avance","inconnu"],["Ce qui arrête","la fin de la séquence","une condition devenue fausse"],["Exemple","les nombres de 0 à 1000","additionner tant que la somme ≤ 300"]],
+   why:"« Je sais combien de tours je vais faire » → `for`. « C'est une condition qui décide » → `while`."},
+  {id:"range", t:"Compter avec range", k:"range compter intervalle debut fin pas borne exclue",
+   s:[["De 0 à 4", c`for i in range(5):
+    print(i)`],["De 1 à 10", c`range(1, 11)`],["De 3 à 30, de 3 en 3", c`range(3, 31, 3)`],["À l'envers : 5, 3", c`range(5, 2, -2)`]],
+   trap:"La borne de fin est **toujours exclue** : `range(1, 10)` s'arrête à 9. Pour aller jusqu'à 10, écris `range(1, 11)`."},
+  {id:"accumulateur", t:"L'accumulateur : faire un total", k:"accumulateur total somme compteur produit boucle initialiser",
+   s:[["La somme de 1 à 100", c`total = 0
+for nombre in range(1, 101):
+    total += nombre
+print(total)`]],
+   tab:[["On accumule…","On démarre à"],["une somme, un compteur","`0`"],["un produit","`1`"],["du texte","`\"\"`"],["une liste","`[]`"]],
+   why:"L'accumulateur se crée **avant** la boucle, grandit **dans** la boucle, s'affiche **après**. Déplace une seule ligne d'un cran et le résultat est faux.",
+   trap:"Un produit qui démarre à 0 vaut 0 pour toujours : 0 × n'importe quoi = 0."},
+  {id:"while", t:"while : tant que", k:"while tant que condition boucle infinie jamais executee",
+   s:[["Ajouter les carrés tant que la somme ne dépasse pas 300", c`somme = 0
+nombre = 0
+while somme <= 300:
+    nombre += 1
+    somme += nombre ** 2`]],
+   why:"La condition est testée **avant** chaque tour. Le dernier tour s'exécute en entier : c'est pour ça que la somme finale dépasse 300 (385).",
+   trap:"Si rien ne modifie la condition dans la boucle, elle tourne à l'infini. Et si la condition est fausse dès le départ, la boucle ne s'exécute jamais."},
+  {id:"break-continue", t:"break et continue", k:"break continue quitter sauter tour boucle",
+   s:[["Arrêter à 30, sauter les multiples de 7", c`for numero in range(1, 51):
+    if numero == 30:
+        break
+    if numero % 7 == 0:
+        continue
+    print(numero, end=" ")`]],
+   tab:[["Instruction","Effet"],["`break`","quitte la boucle pour de bon"],["`continue`","abandonne le tour en cours, passe au suivant"]],
+   tip:"Place toujours la condition de sortie (`break`) avant les `continue` : sinon elle peut devenir inatteignable."},
+  {id:"imbriquees", t:"Boucles imbriquées", k:"boucles imbriquees double boucle pyramide table multiplication indentation",
+   s:[["Une pyramide de nombres", c`for i in range(1, 6):
+    for j in range(1, i + 1):
+        print(j, end="")
+    print()`]],
+   why:"La boucle extérieure fait une ligne par tour, la boucle intérieure remplit la ligne. `end=\"\"` empêche le retour à la ligne ; le `print()` vide passe à la ligne suivante.",
+   trap:"Décale le dernier `print()` d'un cran vers la droite et tu passes à la ligne après chaque chiffre : l'indentation décide de ce qui se répète."}
+ ]},
+ {id:"debug", ic:"bug", t:"Commenter et débugger", cards:[
+  {id:"commenter", t:"Écrire un commentaire utile", k:"commentaire commenter diese pourquoi quoi documenter",
+   s:[["Un commentaire qui explique le pourquoi", c`# TVA à 20 % : taux standard en France (5,5 % pour les livres)
+prix_ttc = prix_ht * 1.2`]],
+   why:"Un commentaire explique le **pourquoi**, jamais le **quoi** : le code dit déjà ce qu'il fait. `# on multiplie par 1.2` n'apprend rien.",
+   tip:"Un nombre écrit en dur (1.2, 50, 0.05) mérite presque toujours un commentaire : d'où sort-il ?",
+   trap:"Un commentaire faux est pire que pas de commentaire : quand tu modifies une ligne, relis celui qui l'accompagne."},
+  {id:"lire-erreur", t:"Lire un message d'erreur", lead:"Le message se lit **par la fin** : le type d'erreur, puis la ligne, puis le code.", k:"erreur traceback message lire syntaxerror nameerror typeerror valueerror indexerror zerodivisionerror indentationerror",
+   tab:[["Erreur","Veut dire","Cause typique"],["`SyntaxError`","Python ne comprend pas la phrase","`:` ou parenthèse oubliés"],["`IndentationError`","indentation incohérente","espaces et tabulations mélangés"],["`NameError`","ce nom n'existe pas","faute de frappe, cellule pas exécutée"],["`TypeError`","opération impossible entre ces types","`\"5\" + 5`, `int()` oublié après `input()`"],["`ValueError`","bon type, valeur impossible","`int(\"bonjour\")`"],["`ZeroDivisionError`","division par zéro","une liste vide, un dénominateur à 0"],["`IndexError`","position inexistante","`liste[3]` sur 3 éléments"]],
+   trap:"La ligne signalée est celle où ça a **cassé**, pas toujours celle de l'erreur. Un `input()` non converti à la ligne 1 fait planter le calcul de la ligne 12 : remonte."},
+  {id:"print-debug", t:"Débugger avec des print étiquetés", k:"debug debugger print etiquete repr resultat faux suivre variable",
+   s:[["Encadrer la ligne suspecte", c`print("total avant :", total)
+total += article
+print("total après :", total)`],["Voir les espaces cachées et les guillemets", c`print(repr(texte))`]],
+   why:"Quand le code tourne mais donne un résultat faux, les `print()` te montrent le film, pas seulement la dernière image. `repr()` affiche `'Data '` avec ses guillemets : l'espace finale devient visible.",
+   tip:"Avant de débugger, formule ce que tu attends : « total devrait valoir 60, il vaut 30 ». Et enlève les `print()` une fois le bug trouvé."},
+  {id:"chaining", t:"Enchaîner des méthodes (chaining)", k:"chaining enchainer methodes chaine strip lower split ordre",
+   s:[["Nettoyer un en-tête en une ligne", c`colonnes = entete.strip().lower().split(";")`],["Une longue chaîne : entre parenthèses, une étape par ligne", c`resultat = (phrase
+            .lower()
+            .replace("us", "es")
+            .replace("w", "u"))`]],
+   why:"Chaque méthode s'applique au résultat de la précédente. À chaque point, demande-toi : « j'ai quoi entre les mains, du texte ou une liste ? »",
+   trap:"`.split()` change le texte en liste : il vient **en dernier**. `entete.split(\";\").lower()` donne `AttributeError: 'list' object has no attribute 'lower'`."}
+ ]}
+]},
+{g:"Les structures de données", col:"violet", note:"Semaine 2 du cours : ranger plusieurs valeurs.", sections:[
+ {id:"chaines", ic:"text", t:"Les chaînes de caractères", cards:[
+  {id:"creer-chaine", t:"Écrire une chaîne", k:"chaine str texte guillemets apostrophe triple ligne",
+   s:[["Guillemets ou apostrophes : c'est pareil", c`str_1 = "Salut wilder !"`],["Une apostrophe dans le texte : entre guillemets", c`phrase = "Je pense qu'il a raison"`],["Sur plusieurs lignes : triples guillemets", c`texte = """Première ligne
+Deuxième ligne"""`]]},
+  {id:"mesurer-chaine", t:"Mesurer, parcourir, chercher", k:"len longueur parcourir for caractere in present chercher casse",
+   s:[["Le nombre de caractères (espaces comprises)", c`len("Data Analyst")`],["Parcourir caractère par caractère", c`for caractere in "Data":
+    print(caractere)`],["Tester la présence d'un mot", c`"Data" in "Data Analyst"`]],
+   trap:"`in` est sensible à la casse : `\"data\" in \"Data Analyst\"` vaut `False`. Pour comparer, normalise d'abord avec `.lower()`."},
+  {id:"slicing", t:"Sélectionner : position et tranches", k:"index position tranche slicing slice sous-chaine envers inverser borne",
+   s:[["Le premier caractère", c`s[0]`],["Le dernier", c`s[-1]`],["Les 2 premiers", c`s[0:2]`],["À partir du 4e jusqu'à la fin", c`s[3:]`],["Les 5 derniers", c`s[-5:]`],["La chaîne à l'envers", c`s[::-1]`]],
+   why:"On compte à partir de 0. Dans `s[a:b]`, `a` est inclus et `b` exclu : `b - a` donne le nombre de caractères obtenus.",
+   tip:"Pense aux bornes comme aux **coupures entre** les caractères : `s[1:4]` prend tout ce qui est entre la coupure 1 et la coupure 4.",
+   trap:"La dernière position est `len(s) - 1` : `s[len(s)]` donne une `IndexError`. Compter depuis la fin (`[-5:]`) est plus solide si la longueur change."},
+  {id:"immuable", t:"Une chaîne ne se modifie pas", k:"immuable immutable modifier chaine replace copie ranger resultat",
+   s:[["Ranger le résultat pour le garder", c`mot = mot.replace("b", "m")`]],
+   why:"Une chaîne est figée. Toutes ses méthodes fabriquent une **copie** : sans `mot =`, la copie est créée puis perdue.",
+   trap:"`mot[0] = \"m\"` donne `TypeError: 'str' object does not support item assignment`. Et `mot.replace(\"b\", \"m\")` tout seul ne fait rien, sans erreur : c'est le bug le plus fréquent."},
+  {id:"methodes-chaine", t:"Les méthodes à connaître", k:"methodes strip upper lower title capitalize replace count find split espaces majuscules",
+   s:[["Enlever les espaces au début et à la fin", c`s.strip()`],["Tout en majuscules / minuscules", c`s.upper()`],["Une majuscule à chaque mot", c`s.title()`],["Une majuscule au premier caractère seulement", c`s.capitalize()`],["Remplacer (toutes les occurrences)", c`s.replace("a", "@")`],["Combien de fois « a » apparaît", c`s.count("a")`],["La position de la première occurrence", c`s.find("Analyst")`],["Écraser les espaces multiples du milieu", c`" ".join(s.split())`]],
+   trap:"`.find()` renvoie `-1` si le texte est absent, et `-1` est aussi une position valide (le dernier caractère). Et `.strip()` ne touche jamais au milieu de la chaîne."},
+  {id:"split-join", t:"Découper et recoller : split / join", k:"split join decouper recoller liste separateur",
+   s:[["Texte → liste", c`"nom;prenom;ville".split(";")`],["Liste → texte", c`", ".join(["pain", "lait", "oeufs"])`],["Découper puis ranger dans des variables", c`nom, prenom, email = ligne.split(";")`]],
+   trap:"`.join()` s'écrit sur le **séparateur** : `\", \".join(liste)`, pas `liste.join(\", \")`. Et il n'accepte que du texte : `\", \".join(str(p) for p in prix)` pour des nombres."},
+  {id:"f-string", t:"Construire une phrase : la f-string", k:"f-string fstring format concatener texte nombre accolades zero",
+   s:[["Insérer des variables entre accolades", c`print(f"{nom} a {age} ans")`],["Un calcul directement dans les accolades", c`print(f"L'an prochain : {age + 1}")`],["Afficher sur 2 chiffres : 03:25:34", c`print(f"{heures:02d}:{minutes:02d}:{secondes:02d}")`]],
+   why:"La f-string convertit toute seule les nombres en texte et ressemble au résultat final. Avec `+`, il faut des `str()` partout.",
+   trap:"`\"J'ai \" + age + \" ans\"` donne `TypeError: can only concatenate str (not \"int\") to str`."}
+ ]},
+ {id:"listes", ic:"list", t:"Les listes", cards:[
+  {id:"creer-liste", t:"Créer et lire une liste", k:"liste list creer crochets index position len in index",
+   s:[["Créer", c`courses = ["pain", "lait", "oeufs", "café", "riz"]`],["Le premier / le dernier", c`courses[0]`],["Les 2 derniers (une tranche renvoie une liste)", c`courses[-2:]`],["Le nombre d'éléments", c`len(courses)`],["Tester la présence", c`"lait" in courses`],["La position d'un élément", c`courses.index("café")`]],
+   trap:"Le 3e élément est en position 2. Et `.index()` plante si l'élément est absent : teste avec `in` avant."},
+  {id:"modifier-liste", t:"Ajouter, remplacer, supprimer", k:"append insert remove pop del remplacer ajouter supprimer liste",
+   s:[["Remplacer (la taille ne change pas)", c`courses[3] = "thé"`],["Ajouter à la fin", c`courses.append("pommes")`],["Insérer en 2e position (tout se décale)", c`courses.insert(1, "beurre")`],["Supprimer une valeur (sa 1re occurrence)", c`courses.remove("riz")`],["Supprimer une position et récupérer l'élément", c`retire = courses.pop(0)`],["Supprimer une position", c`del courses[0]`]],
+   tab:[["Outil","On lui donne","Renvoie l'élément ?"],["`.remove(x)`","une **valeur**","non"],["`.pop(i)`","une **position**","oui"],["`del liste[i]`","une **position**","non"]],
+   trap:"`.remove(0)` cherche la **valeur** 0, pas la première position. S'il y a un 0 dans la liste, il supprime le zéro, sans erreur."},
+  {id:"liste-none", t:"Le piège : une liste se modifie sur place", k:"none append sort piege egal liste mutable",
+   s:[["La bonne écriture : rien à gauche", c`courses.append("riz")`]],
+   why:"Une liste est **mutable** : ses méthodes la modifient directement et ne renvoient rien (`None`). C'est l'inverse des chaînes.",
+   trap:"`courses = courses.append(\"riz\")` met `None` dans `courses` : la liste est perdue. Même piège avec `.sort()`, `.insert()`, `.remove()`, `.reverse()`."},
+  {id:"trier-liste", t:"Trier : sorted ou sort", k:"trier tri sorted sort reverse decroissant top 3",
+   s:[["Une nouvelle liste triée, l'originale intacte", c`triee = sorted(notes)`],["Trier la liste elle-même", c`notes.sort()`],["Du plus grand au plus petit", c`sorted(notes, reverse=True)`],["Les 3 meilleurs", c`sorted(scores, reverse=True)[:3]`]],
+   tab:[["","`sorted(l)`","`l.sort()`"],["L'originale","intacte","modifiée"],["Renvoie","la liste triée","`None`"],["S'applique à","tout (texte, tuple…)","une liste seulement"]],
+   tip:"Dans le doute, prends `sorted()` : ne rien détruire est le choix le plus sûr. Attention, les majuscules passent avant les minuscules."},
+  {id:"parcourir-liste", t:"Parcourir : trois façons", k:"parcourir boucle for enumerate range len position valeur",
+   s:[["Les valeurs seules", c`for note in notes:
+    print(note)`],["Les positions", c`for i in range(len(notes)):
+    print(i, notes[i])`],["Les deux, numérotés à partir de 1", c`for i, note in enumerate(notes, start=1):
+    print(f"Note n°{i} : {note}")`]],
+   trap:"Avec `enumerate`, la position vient **en premier**. `for note, i in enumerate(notes)` ne plante pas, mais range les numéros dans `note`."},
+  {id:"copier-liste", t:"Copier une liste", k:"copie copier copy liste meme objet id is",
+   s:[["Une vraie copie", c`copie = original.copy()`],["Autres écritures équivalentes", c`copie = original[:]`]],
+   trap:"`copie = original` ne copie rien : c'est un deuxième nom pour la **même** liste. Modifier l'une modifie l'autre, sans aucun message.",
+   tip:"`a is b` : même objet ? `a == b` : même contenu ? Une bonne copie est `==` sans être `is`."},
+  {id:"liste-de-listes", t:"Des listes dans une liste", k:"liste de listes tableau ligne colonne double crochet imbrique",
+   s:[["Un tableau : une ligne par mois", c`ventes = [["janvier", 120, 340], ["février", 95, 410], ["mars", 180, 260]]`],["Ligne 1, colonne 2", c`ventes[1][2]`],["Parcourir ligne par ligne", c`for ligne in ventes:
+    print(ligne[0], ":", ligne[1] + ligne[2])`]],
+   why:"Le premier crochet choisit la ligne (une liste), le second la colonne dans cette ligne. C'est l'ancêtre direct d'un tableau pandas."},
+  {id:"filtrer-liste", t:"Construire une nouvelle liste", k:"filtrer nouvelle liste append boucle supprimer pendant parcours",
+   s:[["Garder les températures au-dessus de 20", c`chaudes = []
+for t in temperatures:
+    if t > 20:
+        chaudes.append(t)`],["La même chose en une ligne (compréhension)", c`chaudes = [t for t in temperatures if t > 20]`]],
+   trap:"Ne supprime jamais des éléments d'une liste pendant que tu la parcours : tout se décale et la boucle en saute, sans erreur. Construis une nouvelle liste."},
+  {id:"outils-liste", t:"Fonctions utiles sur les listes", k:"sum max min count reverse moyenne repeter concatener list range",
+   s:[["Somme, maximum, minimum", c`sum(notes), max(notes), min(notes)`],["La moyenne", c`sum(notes) / len(notes)`],["Combien de fois une valeur", c`notes.count(8)`],["Coller deux listes", c`[1, 2] + [3, 4]`],["Une liste de 4 zéros", c`[0] * 4`],["Transformer en liste", c`list(range(5))`]],
+   trap:"La moyenne d'une liste vide plante : `ZeroDivisionError`. Prévois le cas avec `if len(notes) == 0:`."}
+ ]},
+ {id:"dictionnaires", ic:"key", t:"Les dictionnaires", cards:[
+  {id:"creer-dict", t:"Créer et lire un dictionnaire", k:"dictionnaire dict cle valeur creer lire get keyerror in",
+   s:[["Créer : des paires clé: valeur", c`prix = {"Burger": 12.5, "Salade": 9.0}`],["Lire une valeur", c`prix["Burger"]`],["Lire sans risque d'erreur", c`prix.get("Pizza")`],["Avec une valeur de repli", c`prix.get("Pizza", 0)`],["Tester si une clé existe", c`"Burger" in prix`]],
+   why:"Une liste range par **position**, un dictionnaire par **étiquette** : on demande ce qu'on veut par son nom. C'est la structure la plus utilisée en data (JSON, API…).",
+   trap:"`prix[\"Pizza\"]` sur une clé absente donne `KeyError`. Et `in` teste les **clés** : pour les valeurs, `\"Lyon\" in d.values()`."},
+  {id:"modifier-dict", t:"Ajouter, modifier, supprimer", k:"ajouter modifier supprimer update pop popitem del fusionner dictionnaire",
+   s:[["Ajouter ou remplacer : même écriture", c`prix["Tiramisu"] = 6.5`],["Ajouter par méthode (plusieurs d'un coup)", c`prix.update({"Café": 2.0, "Thé": 2.5})`],["Supprimer et récupérer la valeur", c`retire = prix.pop("Salade")`],["Supprimer la dernière paire ajoutée", c`prix.popitem()`],["Supprimer", c`del prix["Burger"]`],["Fusionner deux dictionnaires", c`fusion = d1 | d2`]],
+   why:"`d[\"cle\"] = valeur` **ajoute** si la clé n'existe pas, **remplace** si elle existe. Pratique, mais c'est aussi comme ça qu'on écrase une valeur sans s'en rendre compte.",
+   tip:"`.pop(\"cle\")` renvoie la valeur, `.popitem()` renvoie la paire en tuple. `del` est un mot-clé : il ne renvoie rien."},
+  {id:"parcourir-dict", t:"Parcourir un dictionnaire", k:"parcourir boucle keys values items deballage cle valeur",
+   s:[["Les clés", c`for plat in prix:
+    print(plat)`],["Les valeurs", c`sum(prix.values())`],["Les deux à la fois", c`for plat, tarif in prix.items():
+    print(f"{plat} coûte {tarif} €")`]],
+   tab:[["J'écris","La boucle me donne"],["`for x in d:`","les clés"],["`for x in d.values():`","les valeurs"],["`for x in d.items():`","les paires, en tuples"],["`for cle, valeur in d.items():`","les deux, déballées"]]},
+  {id:"compter-dict", t:"Compter avec un dictionnaire", k:"compter occurrences get counter frequence plus frequent",
+   s:[["Compter chaque élément", c`comptes = {}
+for element in liste:
+    comptes[element] = comptes.get(element, 0) + 1`],["Le même calcul avec Counter", c`from collections import Counter
+Counter(liste).most_common(1)`]],
+   why:"Au premier passage, la clé n'existe pas : `.get(element, 0)` renvoie 0 au lieu de planter, puis on ajoute 1.",
+   trap:"`comptes = {}` doit être **avant** la boucle : dedans, le dictionnaire est vidé à chaque tour."},
+  {id:"dict-imbrique", t:"Des dictionnaires dans un dictionnaire", k:"imbrique dictionnaire liste niveau crochets json",
+   s:[["Descendre niveau par niveau", c`maison["mobilier"]["salon"]`],["Une liste comme valeur", c`salons["salon_vert"][0]`]],
+   tip:"Avant chaque crochet, demande-toi ce que tu viens d'obtenir : un dictionnaire → une clé, une liste → une position."},
+  {id:"cles-autorisees", t:"Quelles clés sont autorisées ?", k:"cle autorisee unhashable liste tuple type",
+   tab:[["Type","Clé valide ?"],["`str`, `int`, `float`, `bool`","oui"],["`tuple`","oui"],["`list`, `dict`, `set`","non : `TypeError: unhashable type`"]],
+   why:"Une clé doit être stable, donc non modifiable. Si on pouvait modifier une liste après l'avoir utilisée comme clé, le dictionnaire ne retrouverait plus sa valeur."},
+  {id:"trier-dict", t:"Trier un dictionnaire", k:"trier dictionnaire sorted key valeur cles prix",
+   s:[["Les clés, par ordre alphabétique", c`sorted(prix)`],["Les clés, du moins cher au plus cher", c`sorted(prix, key=prix.get)`],["Les paires, du plus cher au moins cher", c`sorted(prix.items(), key=lambda paire: paire[1], reverse=True)`]],
+   why:"Parcourir un dictionnaire, c'est parcourir ses clés : `sorted()` trie donc les clés. `key=` dit sur quoi trier."}
+ ]},
+ {id:"tuples", ic:"lock", t:"Les tuples", cards:[
+  {id:"creer-tuple", t:"Créer un tuple", k:"tuple creer parentheses virgule immuable un element",
+   s:[["Un tuple : comme une liste qu'on ne peut plus modifier", c`plat = ("Burger", 13.0)`],["Un tuple d'un seul élément : la virgule", c`un_tuple = ("Burger",)`],["Passer d'une liste à un tuple", c`tuple(ma_liste)`]],
+   trap:"C'est la **virgule** qui fait le tuple, pas les parenthèses : `(\"Burger\")` n'est qu'une chaîne.",
+   tip:"Immuable ne veut pas dire constant : on peut réaffecter le nom (`plat = (\"Salade\", 9.0)`). Et si un tuple contient une liste, la liste, elle, reste modifiable."},
+  {id:"depaqueter", t:"Dépaqueter un tuple", k:"depaqueter deballer unpacking affectation multiple zip enumerate items",
+   s:[["Répartir dans plusieurs variables", c`nom, prix = plat`],["Échanger deux variables", c`a, b = b, a`],["Parcourir deux listes en parallèle", c`for nom, tarif in zip(plats, tarifs):
+    print(f"{nom} : {tarif} €")`]],
+   why:"C'est le mécanisme derrière `for cle, valeur in d.items()` et `enumerate` : chaque tour fournit un tuple, que Python répartit dans tes variables.",
+   trap:"Le nombre de variables doit correspondre : `a, b = (1, 2, 3)` donne `ValueError: too many values to unpack`."},
+  {id:"remplacer-tuple", t:"« Modifier » un tuple : en créer un autre", k:"remplacer element tuple tranche concatener nouveau",
+   s:[["Remplacer l'élément en position 3", c`inventaire = inventaire[:3] + ("atelier",) + inventaire[4:]`]],
+   why:"On ne modifie pas un tuple : on en assemble un nouveau à partir de tranches, et on lui donne le même nom.",
+   trap:"Sans le `+ 1` (`[4:]` et non `[3:]`), l'ancien élément est conservé et le nouveau s'insère devant. Vérifie avec `len()`."},
+  {id:"quand-tuple", t:"Quand choisir un tuple ?", k:"pourquoi tuple choisir cle composee retour fonction proteger",
+   tab:[["Cas","Exemple"],["des données qui ne doivent pas changer","des coordonnées, une date"],["une clé de dictionnaire composée","`{(\"Lyon\", \"2026-09\"): 1240}`"],["une fonction qui renvoie plusieurs valeurs","`return total, phrase`"]],
+   why:"Si quelqu'un essaie de modifier un tuple, Python refuse tout de suite, au lieu de laisser passer un bug silencieux."}
+ ]},
+ {id:"sets", ic:"venn", t:"Les sets", cards:[
+  {id:"set-doublons", t:"Enlever les doublons, compter les valeurs différentes", k:"set doublons distinct unique compter valeurs differentes ensemble",
+   s:[["Les valeurs uniques", c`set(commandes)`],["Combien de valeurs différentes", c`len(set(commandes))`],["Un set vide", c`vide = set()`]],
+   why:"Un set ne garde ni l'ordre ni les doublons : c'est l'outil des questions « combien de clients **différents** ? ».",
+   trap:"`{}` tout seul crée un **dictionnaire** vide, pas un set. Un set n'a pas de position (`mon_set[0]` plante) et son ordre d'affichage n'est pas un tri."},
+  {id:"set-modifier", t:"Ajouter et retirer", k:"add update discard remove union set modifier",
+   s:[["Ajouter un élément", c`clients.add("Tom")`],["Ajouter toute une collection", c`clients.update(nouveaux)`],["Retirer, sans erreur si absent", c`clients.discard("Nadia")`],["Retirer, avec erreur si absent", c`clients.remove("Yann")`]],
+   tip:"`discard()` quand l'absence est normale, `remove()` quand l'absence est un bug.",
+   trap:"`clients.union(nouveaux)` ne modifie pas `clients` : elle renvoie un nouveau set, perdu s'il n'est pas rangé. Pour ajouter sur place, c'est `update()`."},
+  {id:"set-comparer", t:"Comparer deux groupes", k:"union intersection difference symetrique commun comparer groupes issubset",
+   s:[["Venus les deux mois (en commun)", c`aout & septembre`],["Tous, sans doublon", c`aout | septembre`],["Venus en août seulement", c`aout - septembre`],["Venus un seul des deux mois", c`aout ^ septembre`],["Tous les éléments sont-ils dans l'autre ?", c`commande.issubset(carte)`]],
+   tab:[["Opérateur","Méthode","Question"],["`&`","`.intersection()`","qui est dans les deux ?"],["`|`","`.union()`","qui est dans au moins un ?"],["`-`","`.difference()`","qui est dans le premier, pas le second ?"],["`^`","`.symmetric_difference()`","qui n'est que dans un seul ?"]],
+   trap:"`-` n'est pas symétrique : `aout - septembre` et `septembre - aout` ne donnent pas le même résultat.",
+   tip:"Tu retrouveras ces opérations en SQL : `INNER JOIN`, `UNION`, `EXCEPT`."},
+  {id:"choisir-collection", t:"Choisir la bonne collection", k:"choisir collection liste tuple set dictionnaire comparer tableau",
+   tab:[["Type","S'écrit","Ordonné","Doublons","Modifiable","Quand l'utiliser"],["`list`","`[1, 2, 2]`","oui","oui","oui","le choix par défaut"],["`tuple`","`(1, 2, 2)`","oui","oui","non","protéger des valeurs fixes"],["`set`","`{1, 2}`","non","non","oui","valeurs distinctes, comparer des groupes"],["`dict`","`{\"a\": 1}`","oui","clés uniques","oui","retrouver une valeur par son nom"]]}
+ ]}
+]},
+{g:"Structurer son code", col:"orange", sections:[
+ {id:"fonctions", ic:"fx", t:"Les fonctions", cards:[
+  {id:"creer-fonction", t:"Créer et appeler une fonction", k:"fonction def creer appeler parametre argument return",
+   s:[["Définir", c`def somme(nombre_1, nombre_2):
+    return nombre_1 + nombre_2`],["Appeler, et ranger le résultat", c`resultat = somme(4, 7)`]],
+   why:"Une fonction est un petit programme réutilisable. Les **paramètres** sont les noms entre les parenthèses de la définition ; les **arguments** sont les valeurs données à l'appel.",
+   trap:"Pas d'`input()` dans une fonction : un paramètre reçoit sa valeur de celui qui appelle, pas de l'humain devant l'écran. Et le nombre d'arguments doit correspondre aux paramètres."},
+  {id:"return-print", t:"return, pas print", k:"return print none renvoyer afficher fonction",
+   tab:[["","`print(...)`","`return ...`"],["Affiche à l'écran","oui","oui, dans un notebook"],["Rend la valeur à celui qui appelle","non","oui"],["`resultat = f()` contient","`None`","la valeur"],["On peut réutiliser le résultat","non","oui"]],
+   why:"Une fonction qui affiche au lieu de renvoyer donne la même sortie à l'écran, mais son résultat est `None` : impossible de le réutiliser (`f() * 2` plante).",
+   trap:"`return` **arrête** la fonction : deux `return` à la suite, et le second ne s'exécute jamais."},
+  {id:"plusieurs-retours", t:"Renvoyer plusieurs valeurs", k:"return plusieurs valeurs tuple depaqueter",
+   s:[["Renvoyer deux valeurs", c`def produit_et_mot(a, b, mot):
+    return a * b, mot`],["Les récupérer dans deux variables", c`produit, mot = produit_et_mot(6, 7, "data")`]],
+   why:"Une fonction ne renvoie qu'un seul objet : la virgule fabrique un tuple qui contient les deux valeurs."},
+  {id:"selon-cas", t:"Renvoyer selon le cas", k:"fonction condition if elif else return escalier bornes",
+   s:[["Calculer, classer, un seul return à la fin", c`def somme_et_situation(a, b):
+    total = a + b
+    if total < 10:
+        phrase = "La somme est inférieure à 10."
+    elif total <= 50:
+        phrase = "La somme est entre 10 et 50."
+    else:
+        phrase = "La somme est supérieure à 50."
+    return total, phrase`]],
+   tip:"Teste toujours une fonction sur plusieurs valeurs, et surtout sur les bornes (10 et 50 ici) : c'est là que le code casse."},
+  {id:"docstring", t:"Documenter une fonction", k:"docstring documentation triple guillemets parametre retour help",
+   s:[["La docstring : juste sous le def", c`def moyenne(liste):
+    """Calcule la moyenne des valeurs d'une liste.
+
+    Paramètre : liste (list) - une liste de nombres
+    Retour    : float - la moyenne, arrondie à 2 décimales
+    """
+    return round(sum(liste) / len(liste), 2)`]],
+   tip:"`help(moyenne)` affiche ensuite cette documentation."}
+ ]},
+ {id:"raccourcis", ic:"bolt", t:"Écrire court (shorthand)", cards:[
+  {id:"lambda", t:"La fonction lambda", k:"lambda fonction courte une ligne anonyme expression",
+   s:[["Le carré d'un nombre, en une ligne", c`carre = lambda x: x ** 2`],["Plusieurs paramètres", c`total = lambda prix, quantite: prix * quantite`],["Avec une condition", c`lambda x: "Gros" if x >= 100 else "Petit"`]],
+   why:"`lambda x:` remplace `def nom(x):` et le `return` est implicite. Elle sert surtout à passer une petite fonction à une autre (`sorted`, `max`, `apply` en pandas).",
+   trap:"Une lambda ne contient **qu'une expression** : pas de boucle, pas de `if` sur plusieurs lignes. Au-delà, écris un `def`."},
+  {id:"comprehension", t:"La compréhension de liste", k:"comprehension liste une ligne for if filtrer transformer",
+   s:[["Transformer chaque élément", c`[i * 3 for i in range(10)]`],["Filtrer : le if à la fin", c`[i * 3 for i in range(10) if i != 5]`],["Transformer selon le cas : if/else au début", c`[x ** 2 if x % 2 == 0 else x ** 3 for x in range(6)]`]],
+   tab:[["Je veux…","Le if se place"],["garder certains éléments (sans else)","après le `for`"],["traiter tous les éléments différemment (avec else)","avant le `for`"]],
+   tip:"Lis-la de droite à gauche : « pour chaque i dans range(10), je produis i × 3 »."},
+  {id:"comprehension-dict", t:"Compréhensions de dictionnaire et de set", k:"comprehension dictionnaire set zip filtrer dict",
+   s:[["Un dictionnaire à partir de deux listes", c`carte = {nom: prix for nom, prix in zip(plats, tarifs)}`],["Filtrer un dictionnaire", c`{nom: prix for nom, prix in carte.items() if prix < 10}`],["Un set", c`{client.upper() for client in commandes}`]]},
+  {id:"map-filter", t:"map, filter, sum : avec une fonction", k:"map filter sum generateur fonction appliquer",
+   s:[["Appliquer une fonction à chaque élément", c`list(map(abs, nombres))`],["Ne garder que certains éléments", c`list(filter(lambda p: p < 10, tarifs))`],["Une somme filtrée en une ligne", c`sum(x for x in nombres if x % 2 == 0)`]],
+   tip:"En Python, on préfère la compréhension : `[abs(x) for x in nombres]` se lit mieux que `list(map(abs, nombres))`. Connais `map` et `filter` pour les reconnaître."},
+  {id:"key", t:"Trier ou chercher le maximum selon un critère : key=", k:"key sorted max min lambda critere trier maximum",
+   s:[["Les plats du moins cher au plus cher", c`sorted(carte, key=lambda plat: carte[plat])`],["Le plat le plus cher", c`max(carte, key=carte.get)`],["Le mois aux meilleures ventes", c`max(ventes, key=lambda m: m["sales"])`]],
+   why:"`key` reçoit chaque élément et renvoie la valeur sur laquelle comparer. Le même `key=` marche dans `sorted()`, `max()`, `min()` et `.sort()`.",
+   trap:"En cas d'égalité, `max()` renvoie le premier rencontré. Vérifie les ex æquo avant d'annoncer un gagnant unique."},
+  {id:"quand-court", t:"Quand ne PAS écrire court", k:"lisibilite court long boucle explicite quand",
+   tab:[["Signal","Mieux vaut une boucle"],["la ligne dépasse ~80 caractères","oui"],["plus d'un `for` imbriqué","oui"],["tu as besoin d'un commentaire au milieu","oui"],["tu dois relire la ligne deux fois","oui"]],
+   why:"Du code lisible par un collègue vaut mieux que du code malin."}
+ ]},
+ {id:"modules", ic:"pkg", t:"Les modules", cards:[
+  {id:"importer", t:"Importer : les quatre formes", k:"import from as alias module importer math",
+   s:[["Le module entier (la forme par défaut)", c`import math
+math.sqrt(16)`],["Une fonction précise", c`from math import sqrt`],["Avec un alias", c`import pandas as pd`],["Plusieurs éléments", c`from math import sqrt, pi`]],
+   why:"Avec `import math`, on voit toujours d'où vient la fonction (`math.sqrt`). Les alias `pd`, `np`, `plt` sont des conventions que tout le monde respecte.",
+   trap:"N'écris jamais `from math import *` : on ne sait plus d'où viennent les noms, et un module peut écraser en silence la fonction d'un autre."},
+  {id:"bibliotheque-standard", t:"La bibliothèque standard", k:"math random statistics datetime randint choice sample mean median",
+   s:[["D'abord, importer les modules", c`import math
+import random
+import statistics
+from datetime import datetime`],["Racine carrée, arrondi au-dessus, en dessous", c`math.sqrt(16), math.ceil(4.2), math.floor(4.8)`],["Un entier au hasard entre 1 et 10", c`random.randint(1, 10)`],["Un élément au hasard", c`random.choice(["pomme", "banane", "cerise"])`],["Moyenne, médiane, écart-type", c`statistics.mean(ventes), statistics.median(ventes), statistics.stdev(ventes)`],["La date du jour", c`datetime.now().strftime("%d/%m/%Y")`]],
+   trap:"`random.randint(1, 10)` **peut** renvoyer 10 : contrairement à `range`, il inclut les deux bornes.",
+   tip:"Ces modules sont livrés avec Python : rien à installer, juste `import math`, `import random`… Un `ModuleNotFoundError` veut dire que le module est externe et doit être installé (`!pip install`)."},
+  {id:"creer-module", t:"Créer son propre module", k:"module creer fichier py writefile importer propre",
+   s:[["1. Écrire le fichier depuis un notebook", c`%%writefile data_utils.py
+def carre(x):
+    """Renvoie le carré d'un nombre."""
+    return x ** 2`],["2. L'importer", c`import data_utils`],["3. L'utiliser avec le préfixe", c`data_utils.carre(7)`]],
+   why:"Un module, c'est un fichier `.py` de fonctions. On range ses outils à un endroit, on les corrige une seule fois, et tous les notebooks en profitent.",
+   trap:"`carre(7)` sans préfixe donne `NameError` : `import data_utils` rend disponible le module, pas ses fonctions. `ModuleNotFoundError` veut dire que le fichier est introuvable."},
+  {id:"reload", t:"Recharger un module modifié", k:"reload importlib recharger cache modifier module",
+   s:[["Après chaque modification du fichier", c`import importlib
+importlib.reload(data_utils)`]],
+   why:"Python garde le module en mémoire au premier import et ne relit plus le fichier. Sans `reload`, tu testes l'ancienne version, parfois sans aucune erreur.",
+   tip:"Le réflexe : modification → reload → test, dans cet ordre."},
+  {id:"name-main", t:"Des tests qui ne s'exécutent pas à l'import", k:"name main __name__ __main__ test module script",
+   s:[["En bas du module", c`if __name__ == "__main__":
+    print("Test carré :", carre(7))`]],
+   why:"Ce bloc ne tourne que si on lance le fichier directement (`!python data_utils.py`), pas quand on l'importe. Un module ne doit contenir que des définitions : pas de `print` qui s'exécute tout seul."}
+ ]},
+ {id:"exceptions", ic:"alert", t:"Gérer les erreurs (exceptions)", cards:[
+  {id:"try-except", t:"Attraper une erreur : try / except", k:"try except exception erreur attraper gerer as e",
+   s:[["Essayer, et prévoir le cas d'erreur", c`try:
+    panier = recette / couverts
+except ZeroDivisionError:
+    print("Aucun couvert servi.")`],["Récupérer le message de Python", c`try:
+    tarif = prix["Pizza"]
+except KeyError as e:
+    print(f"Plat inconnu : {e}")`]],
+   why:"Le `try` ne fait pas disparaître l'erreur : il l'attrape, exécute le bloc `except`, puis le programme continue au lieu de s'arrêter.",
+   tip:"Place le `try` autour de la plus petite portion de code qui peut échouer, **dans** la boucle : sinon la première erreur fait sortir de toute la boucle."},
+  {id:"except-nu", t:"Ne jamais écrire except tout seul", k:"except nu bare except masquer erreur faute de frappe",
+   s:[["Le piège : une faute de frappe (totl), mais le message parle de division", c`try:
+    moyenne = totl / couverts
+except:
+    print("Aucun couvert servi.")`],["Avec l'erreur nommée, la vraie panne apparaît", c`try:
+    moyenne = totl / couverts
+except ZeroDivisionError:
+    print("Aucun couvert servi.")`]],
+   trap:"`except:` tout seul attrape **toutes** les erreurs, y compris une faute de frappe dans ton code (`NameError`). Le bug devient invisible, remplacé par un message faux."},
+  {id:"else-finally-raise", t:"else, finally, raise", k:"else finally raise lever declencher erreur toujours",
+   tab:[["Mot-clé","Rôle"],["`try`","le code qui peut échouer"],["`except NomErreur`","quoi faire si cette erreur arrive"],["`else`","à faire si **aucune** erreur n'est arrivée"],["`finally`","à faire **dans tous les cas** (fermer un fichier…)"],["`raise`","déclencher soi-même une erreur"]],
+   s:[["Refuser une valeur impossible", c`if n < 0:
+    raise ValueError(f"nombre de couverts négatif : {n}")`]],
+   trap:"Un `print(\"Erreur\")` à la place de `raise` n'arrête rien : la valeur invalide continue son chemin, et le bug apparaît bien plus loin."},
+  {id:"exception-ou-correction", t:"Gérer l'erreur ou corriger le code ?", k:"quand exception corriger code exterieur fichier saisie",
+   tab:[["L'erreur vient…","Exemple","On fait"],["de l'extérieur","saisie, fichier absent, réseau, API","on gère l'exception"],["de ton code","index en dur, faute de frappe","on corrige le code"]],
+   why:"Un `try/except` n'est pas un pansement sur un code faux : il cache le symptôme et laisse le bug en place.",
+   tip:"Pour un cas prévisible, une vérification suffit : `carte.get(plat)` ou `if couverts != 0:`."},
+  {id:"catalogue-erreurs", t:"Les erreurs les plus courantes", k:"catalogue erreurs keyerror indexerror attributeerror valueerror typeerror nameerror filenotfounderror",
+   tab:[["Erreur","Quand elle arrive"],["`ZeroDivisionError`","on divise par 0"],["`KeyError`","la clé n'existe pas dans le dictionnaire"],["`IndexError`","la position n'existe pas dans la liste"],["`AttributeError`","la méthode n'existe pas pour ce type (`.upper()` sur un nombre)"],["`ValueError`","bon type, mauvaise valeur (`int(\"douze\")`)"],["`TypeError`","mauvais type (`int([1, 2])`, `\"5\" + 5`)"],["`NameError`","le nom n'existe pas (faute de frappe)"],["`FileNotFoundError`","le fichier n'existe pas"]],
+   tip:"Le traceback se lit de bas en haut : la dernière ligne donne le type et le message, la flèche `---->` la ligne fautive."}
+ ]},
+ {id:"pep8", ic:"brush", t:"PEP 8 : écrire un code lisible", cards:[
+  {id:"regles-pep8", t:"Les règles principales", k:"pep8 pep 8 style lisible regles indentation espaces longueur nommage",
+   tab:[["Règle","Exemple"],["4 espaces par niveau d'indentation","pas 2, pas de tabulation"],["79 caractères maximum par ligne","couper avec des parenthèses"],["fonctions et variables en snake_case","`prix_ttc`, pas `PrixTTC`"],["une espace autour de `=` et après `,`","`TVA = 1.20`, `f(a, b)`"],["pas d'espace collée aux parenthèses","`print(x)`, pas `print( x )`"],["deux lignes vides avant chaque `def`",""],["pas de `l`, `I`, `O` comme noms","confondus avec 1 et 0"],["une instruction par ligne","pas de `if x: y = 1` sur une ligne"]],
+   why:"Le but n'est pas la conformité pour elle-même : c'est que le lecteur n'ait jamais à s'adapter à ton style.",
+   tip:"Si tu rejoins un projet qui a d'autres conventions, écris comme le projet : la cohérence prime."},
+  {id:"couper-ligne", t:"Couper une ligne trop longue", k:"couper ligne longue parentheses operateur 79",
+   s:[["Les parenthèses permettent d'aller à la ligne, l'opérateur en début de ligne", c`revenu = (salaire_brut
+          + interets
+          - deductions)`],["Une f-string plutôt que des +", c`print(
+    f"Ticket pour {nom_client} table {table} réglé par {reglement}"
+)`]]},
+  {id:"flake8", t:"Vérifier avec flake8", k:"flake8 linter verifier pep8 erreurs e w f",
+   s:[["Installer", c`!pip install flake8 -q`],["Analyser un fichier", c`!flake8 caisse.py`]],
+   tab:[["Code","Veut dire"],["`E…`","règle PEP 8 non respectée"],["`W…`","avertissement de mise en forme"],["`F…`","vrai défaut de code : import inutile, nom non défini"]],
+   trap:"Une sortie vide ne veut pas dire « code bon » : flake8 ne vérifie ni le nommage (`PrixTTC` passe), ni la logique. Conforme ne veut pas dire juste."},
+  {id:"black", t:"Reformater avec black", k:"black formateur reformater automatique linter",
+   s:[["Installer", c`!pip install black -q`],["Réécrire le fichier proprement", c`!black caisse.py`]],
+   tab:[["","flake8 (linter)","black (formateur)"],["Rôle","signale","réécrit"],["Modifie le fichier","non","oui"],["Détecte les imports inutiles","oui","non"]],
+   tip:"Les deux se complètent : black règle la mise en forme, flake8 attrape ce qui reste. black vise 88 caractères par ligne, flake8 79."}
+ ]},
+ {id:"methodes", ic:"tool", t:"Méthodes et caisse à outils", cards:[
+  {id:"fonction-methode", t:"Fonction ou méthode ?", k:"fonction methode difference point len upper",
+   s:[["Une fonction reçoit l'objet", c`len(plat)`],["Une méthode appartient à l'objet", c`plat.upper()`]],
+   why:"`len()` est une fonction : elle accepte tout ce qui a une longueur. `.upper()` est une méthode du type `str` : une liste ne l'a pas (`AttributeError`)."},
+  {id:"explorer-objet", t:"Explorer un objet inconnu", k:"type dir help documentation methodes explorer tab",
+   s:[["Ce que c'est", c`type(objet)`],["La liste de ses méthodes", c`[n for n in dir(objet) if not n.startswith("_")]`],["La documentation d'une méthode", c`help(str.strip)`]],
+   tip:"Dans Colab, tape `objet.` puis **Tab** pour voir les méthodes, et **Maj + Tab** pour la documentation."},
+  {id:"modifie-ou-renvoie", t:"Modifie sur place ou renvoie un nouvel objet ?", k:"modifie sur place renvoie nouvel objet none sort sorted append",
+   tab:[["Modifie l'objet, renvoie `None`","Renvoie un nouvel objet"],["`liste.append()`, `.insert()`, `.extend()`","`sorted(liste)`, `liste.copy()`"],["`liste.sort()`, `.reverse()`","`texte.upper()`, `texte.strip()`"],["`dict.update()`","`set1 | set2`"],["`set.add()`, `set.discard()`","`liste1 + liste2`"]],
+   why:"Les méthodes de `str` renvoient toujours une copie (une chaîne est immuable). Pour `list`, `dict` et `set`, vérifie au cas par cas avec `help()`.",
+   trap:"`ma_liste = ma_liste.sort()` remplace la liste triée par `None`, sans erreur."},
+  {id:"boite-outils", t:"Des outils à garder sous la main", k:"enumerate any all setdefault counter issubset outils boite",
+   s:[["Numéroter à partir de 1", c`for numero, plat in enumerate(commande, start=1):
+    print(f"{numero}. {plat}")`],["Au moins un vrai / tous vrais", c`any(prix > 20 for prix in carte.values())`],["Compter sans tester si la clé existe", c`compteur[plat] = compteur.setdefault(plat, 0) + 1`],["Les 3 éléments les plus fréquents", c`Counter(liste).most_common(3)`]],
+   tip:"La documentation officielle, en français, fait autorité : docs.python.org/fr/3/library/stdtypes.html."}
+ ]},
+ {id:"json", ic:"braces", t:"Lire et écrire du JSON", cards:[
+  {id:"json-load", t:"Lire un fichier JSON", k:"json load fichier lire open with encoding utf-8",
+   s:[["Ouvrir et charger le fichier", c`import json
+
+with open("restoclic.json", encoding="utf-8") as fichier:
+    resto = json.load(fichier)`]],
+   why:"Un JSON, ce sont des dictionnaires et des listes imbriqués, écrits en texte. `with` ferme le fichier automatiquement, même en cas d'erreur. `encoding=\"utf-8\"` garde les accents lisibles sur toutes les machines."},
+  {id:"json-loads", t:"Lire une chaîne JSON : loads", k:"json loads chaine texte string api",
+   s:[["Texte JSON → dictionnaire", c`data = json.loads(texte)`]],
+   tab:[["Fonction","Attend"],["`json.load(f)`","un fichier ouvert"],["`json.loads(t)`","une chaîne (le s = string)"]],
+   trap:"Tant qu'il n'est pas converti, un JSON n'est que du texte : `texte[\"restaurant\"]` donne `TypeError: string indices must be integers`."},
+  {id:"json-naviguer", t:"Naviguer dans un JSON", k:"naviguer json niveau cle index liste dictionnaire explorer",
+   s:[["Explorer la structure d'abord", c`print(type(data), list(data.keys()))`],["Descendre : dictionnaire → liste → dictionnaire", c`resto["carte"][2]["prix"]`],["Chercher par le nom plutôt que par la position", c`for plat in resto["carte"]:
+    if plat["nom"] == "Soupe du jour":
+        print(plat["prix"])`],["Aperçu lisible du contenu", c`print(json.dumps(data, indent=2)[:400])`]],
+   tip:"Avant chaque crochet : un `dict` → une clé, une `list` → une position. On descend un niveau à la fois.",
+   trap:"`resto[\"carte\"][2]` suppose que la soupe est en 3e position : le jour où l'ordre change, le code renvoie le mauvais plat sans erreur."},
+  {id:"json-dump", t:"Écrire un fichier JSON", k:"json dump ecrire exporter sauvegarder indent ensure_ascii",
+   s:[["Exporter un dictionnaire", c`with open("synthese.json", "w", encoding="utf-8") as fichier:
+    json.dump(synthese, fichier, indent=2, ensure_ascii=False)`]],
+   tab:[["Argument","Sert à"],["`indent=2`","une structure lisible, pas tout sur une ligne"],["`ensure_ascii=False`","écrire `Entrecôte` et non `Entrec\\u00f4te`"],["`\"w\"`","écrire (écrase le fichier existant)"]],
+   trap:"`\"w\"` écrase le fichier sans prévenir. Relis ensuite le fichier avec `json.load` : c'est la seule preuve qu'il est valide."},
+  {id:"json-python", t:"JSON et Python : les différences", k:"json python true false null none guillemets virgule",
+   tab:[["JSON","Python"],["`true` / `false`","`True` / `False`"],["`null`","`None`"],["objet `{...}`","dictionnaire"],["tableau `[...]`","liste"],["clés entre guillemets **doubles** obligatoires","guillemets simples ou doubles"],["virgule après le dernier élément interdite","tolérée"]]},
+  {id:"json-erreurs", t:"Les trois pannes classiques", k:"json erreur filenotfounderror jsondecodeerror keyerror get",
+   tab:[["Erreur","Quand","Cause"],["`FileNotFoundError`","à l'ouverture","le fichier n'existe pas"],["`json.JSONDecodeError`","à la lecture","le contenu n'est pas du JSON valide (virgule en trop…)"],["`KeyError`","à l'utilisation","la clé demandée n'existe pas"]],
+   s:[["Une clé peut manquer : .get avec une valeur par défaut", c`data.get("couverts_par_jour", 0)`]],
+   tip:"Le message de `JSONDecodeError` donne la position exacte du problème : `line 4 column 1`."}
+ ]}
+]}
+];
+/*OUT*/const OUT = {
+"pseudo-code#0": {
+"out": [
+[
+"i",
+"Du pseudo-code : du français organisé, pas du Python. Il ne s'exécute pas."
+]
+]
+},
+"pseudo-code#1": {
+"out": [
+[
+"o",
+"Montant du panier : 35\nTotal à payer : 39.9 €"
+]
+]
+},
+"afficher#0": {
+"ctx": "age = 38",
+"out": [
+[
+"o",
+"42"
+]
+]
+},
+"afficher#1": {
+"ctx": "age = 38",
+"out": [
+[
+"o",
+"Vous avez 38 ans"
+]
+]
+},
+"afficher#2": {
+"ctx": "age = 38",
+"out": [
+[
+"o",
+"Hello, World!"
+]
+]
+},
+"types-base#0": {
+"out": [
+[
+"n",
+"prix",
+"2.5"
+]
+]
+},
+"types-base#1": {
+"out": [
+[
+"v",
+"<class 'float'>"
+]
+]
+},
+"nommer#0": {
+"out": [
+[
+"n",
+"salaire_annuel",
+"36000"
+]
+]
+},
+"convertir#0": {
+"out": [
+[
+"n",
+"age",
+"25"
+]
+]
+},
+"convertir#1": {
+"out": [
+[
+"v",
+"5.0"
+]
+]
+},
+"convertir#2": {
+"out": [
+[
+"v",
+"'36000'"
+]
+]
+},
+"convertir#3": {
+"out": [
+[
+"v",
+"6"
+]
+]
+},
+"convertir#4": {
+"out": [
+[
+"v",
+"5.68"
+]
+]
+},
+"input#0": {
+"out": [
+[
+"o",
+"Quel est ton âge ? 25"
+],
+[
+"n",
+"age",
+"25"
+]
+]
+},
+"input#1": {
+"out": [
+[
+"o",
+"Prix HT : 12.5"
+],
+[
+"n",
+"prix",
+"12.5"
+]
+]
+},
+"input#2": {
+"out": [
+[
+"o",
+"Ton nom ? Marco"
+],
+[
+"n",
+"nom",
+"'Marco'"
+]
+]
+},
+"echanger#0": {
+"ctx": "x = 1\ny = 2",
+"out": [
+[
+"n",
+"x",
+"2"
+],
+[
+"n",
+"y",
+"1"
+]
+]
+},
+"echanger#1": {
+"ctx": "x = 1\ny = 2",
+"out": [
+[
+"n",
+"x",
+"2"
+],
+[
+"n",
+"y",
+"1"
+]
+]
+},
+"arithmetique#0": {
+"ctx": "total = 10",
+"out": [
+[
+"n",
+"total",
+"15"
+]
+]
+},
+"priorites#0": {
+"ctx": "prix_ht = 100\ntaux_tva = 20",
+"out": [
+[
+"n",
+"prix_ttc",
+"120.0"
+]
+]
+},
+"div-mod#0": {
+"ctx": "total_secondes = 12334",
+"out": [
+[
+"n",
+"heures",
+"3"
+],
+[
+"n",
+"minutes",
+"25"
+],
+[
+"n",
+"secondes",
+"34"
+]
+]
+},
+"div-mod#1": {
+"ctx": "nombre = 47",
+"out": [
+[
+"v",
+"False"
+]
+]
+},
+"div-mod#2": {
+"ctx": "nombre = 47",
+"out": [
+[
+"v",
+"7"
+]
+]
+},
+"comparer#0": {
+"ctx": "a = 8\nb = 5",
+"out": [
+[
+"n",
+"est_plus_grand",
+"True"
+]
+]
+},
+"and-or-not#0": {
+"ctx": "est_membre = True\npanier = 42",
+"out": [
+[
+"n",
+"livraison_gratuite",
+"False"
+]
+]
+},
+"and-or-not#1": {
+"ctx": "montant = 80\nnb_articles = 12",
+"out": [
+[
+"n",
+"remise",
+"True"
+]
+]
+},
+"and-or-not#2": {
+"out": [
+[
+"v",
+"False"
+]
+]
+},
+"if-elif-else#0": {
+"ctx": "achat = 250",
+"out": [
+[
+"o",
+"Remise : 12.5 €"
+]
+]
+},
+"ordre-conditions#0": {
+"ctx": "note = 15",
+"out": [
+[
+"o",
+"Bien"
+]
+]
+},
+"range#0": {
+"out": [
+[
+"o",
+"0\n1\n2\n3\n4"
+]
+]
+},
+"range#1": {
+"out": [
+[
+"v",
+"range(1, 11)"
+],
+[
+"a",
+"list(range(1, 11))"
+],
+[
+"v",
+"[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+],
+[
+"i",
+"Un range seul ne montre pas ses nombres : list() les déroule."
+]
+]
+},
+"range#2": {
+"out": [
+[
+"v",
+"range(3, 31, 3)"
+],
+[
+"a",
+"list(range(3, 31, 3))"
+],
+[
+"v",
+"[3, 6, 9, 12, 15, 18, 21, 24, 27, 30]"
+]
+]
+},
+"range#3": {
+"out": [
+[
+"v",
+"range(5, 2, -2)"
+],
+[
+"a",
+"list(range(5, 2, -2))"
+],
+[
+"v",
+"[5, 3]"
+]
+]
+},
+"accumulateur#0": {
+"out": [
+[
+"o",
+"5050"
+]
+]
+},
+"while#0": {
+"out": [
+[
+"n",
+"nombre",
+"10"
+],
+[
+"n",
+"somme",
+"385"
+]
+]
+},
+"break-continue#0": {
+"out": [
+[
+"o",
+"1 2 3 4 5 6 8 9 10 11 12 13 15 16 17 18 19 20 22 23 24 25 26 27 29 "
+]
+]
+},
+"imbriquees#0": {
+"out": [
+[
+"o",
+"1\n12\n123\n1234\n12345"
+]
+]
+},
+"commenter#0": {
+"ctx": "prix_ht = 100",
+"out": [
+[
+"n",
+"prix_ttc",
+"120.0"
+]
+]
+},
+"print-debug#0": {
+"ctx": "total = 30\narticle = 30",
+"out": [
+[
+"o",
+"total avant : 30\ntotal après : 60"
+]
+]
+},
+"print-debug#1": {
+"ctx": "texte = \"Data \"",
+"out": [
+[
+"o",
+"'Data '"
+]
+]
+},
+"chaining#0": {
+"ctx": "entete = \"   Nom;Prénom;VILLE;Email   \"",
+"out": [
+[
+"n",
+"colonnes",
+"['nom', 'prénom', 'ville', 'email']"
+]
+]
+},
+"chaining#1": {
+"ctx": "phrase = \"VowS êtUS sûrs ?\"",
+"out": [
+[
+"n",
+"resultat",
+"'vous êtes sûrs ?'"
+]
+]
+},
+"creer-chaine#0": {
+"out": [
+[
+"n",
+"str_1",
+"'Salut wilder !'"
+]
+]
+},
+"creer-chaine#1": {
+"out": [
+[
+"n",
+"phrase",
+"\"Je pense qu'il a raison\""
+]
+]
+},
+"creer-chaine#2": {
+"out": [
+[
+"n",
+"texte",
+"'Première ligne\\nDeuxième ligne'"
+]
+]
+},
+"mesurer-chaine#0": {
+"out": [
+[
+"v",
+"12"
+]
+]
+},
+"mesurer-chaine#1": {
+"out": [
+[
+"o",
+"D\na\nt\na"
+]
+]
+},
+"mesurer-chaine#2": {
+"out": [
+[
+"v",
+"True"
+]
+]
+},
+"slicing#0": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'D'"
+]
+]
+},
+"slicing#1": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'t'"
+]
+]
+},
+"slicing#2": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'Da'"
+]
+]
+},
+"slicing#3": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'a Analyst'"
+]
+]
+},
+"slicing#4": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'alyst'"
+]
+]
+},
+"slicing#5": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'tsylanA ataD'"
+]
+]
+},
+"immuable#0": {
+"ctx": "mot = \"bain\"",
+"out": [
+[
+"n",
+"mot",
+"'main'"
+]
+]
+},
+"methodes-chaine#0": {
+"ctx": "s = \"   Data Analyst  \"",
+"out": [
+[
+"v",
+"'Data Analyst'"
+]
+]
+},
+"methodes-chaine#1": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'DATA ANALYST'"
+]
+]
+},
+"methodes-chaine#2": {
+"ctx": "s = \"data analyst\"",
+"out": [
+[
+"v",
+"'Data Analyst'"
+]
+]
+},
+"methodes-chaine#3": {
+"ctx": "s = \"data analyst\"",
+"out": [
+[
+"v",
+"'Data analyst'"
+]
+]
+},
+"methodes-chaine#4": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"'D@t@ An@lyst'"
+]
+]
+},
+"methodes-chaine#5": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"3"
+]
+]
+},
+"methodes-chaine#6": {
+"ctx": "s = \"Data Analyst\"",
+"out": [
+[
+"v",
+"5"
+]
+]
+},
+"methodes-chaine#7": {
+"ctx": "s = \"Data    Analyst   Junior\"",
+"out": [
+[
+"v",
+"'Data Analyst Junior'"
+]
+]
+},
+"split-join#0": {
+"out": [
+[
+"v",
+"['nom', 'prenom', 'ville']"
+]
+]
+},
+"split-join#1": {
+"out": [
+[
+"v",
+"'pain, lait, oeufs'"
+]
+]
+},
+"split-join#2": {
+"ctx": "ligne = \"Dupont;Marie;marie.dupont@mail.fr\"",
+"out": [
+[
+"n",
+"nom",
+"'Dupont'"
+],
+[
+"n",
+"prenom",
+"'Marie'"
+],
+[
+"n",
+"email",
+"'marie.dupont@mail.fr'"
+]
+]
+},
+"f-string#0": {
+"ctx": "nom = \"Marco\"\nage = 38",
+"out": [
+[
+"o",
+"Marco a 38 ans"
+]
+]
+},
+"f-string#1": {
+"ctx": "age = 38",
+"out": [
+[
+"o",
+"L'an prochain : 39"
+]
+]
+},
+"f-string#2": {
+"ctx": "heures = 3\nminutes = 25\nsecondes = 34",
+"out": [
+[
+"o",
+"03:25:34"
+]
+]
+},
+"creer-liste#0": {
+"out": [
+[
+"n",
+"courses",
+"['pain', 'lait', 'oeufs', 'café', 'riz']"
+]
+]
+},
+"creer-liste#1": {
+"out": [
+[
+"v",
+"'pain'"
+]
+]
+},
+"creer-liste#2": {
+"out": [
+[
+"v",
+"['café', 'riz']"
+]
+]
+},
+"creer-liste#3": {
+"out": [
+[
+"v",
+"5"
+]
+]
+},
+"creer-liste#4": {
+"out": [
+[
+"v",
+"True"
+]
+]
+},
+"creer-liste#5": {
+"out": [
+[
+"v",
+"3"
+]
+]
+},
+"modifier-liste#0": {
+"ctx": "courses = [\"pain\", \"lait\", \"oeufs\", \"café\", \"riz\"]",
+"out": [
+[
+"n",
+"courses",
+"['pain', 'lait', 'oeufs', 'thé', 'riz']"
+]
+]
+},
+"modifier-liste#1": {
+"ctx": "courses = [\"pain\", \"lait\", \"oeufs\", \"café\", \"riz\"]",
+"out": [
+[
+"n",
+"courses",
+"['pain', 'lait', 'oeufs', 'café', 'riz',\n 'pommes']"
+]
+]
+},
+"modifier-liste#2": {
+"ctx": "courses = [\"pain\", \"lait\", \"oeufs\", \"café\", \"riz\"]",
+"out": [
+[
+"n",
+"courses",
+"['pain', 'beurre', 'lait', 'oeufs', 'café',\n 'riz']"
+]
+]
+},
+"modifier-liste#3": {
+"ctx": "courses = [\"pain\", \"lait\", \"oeufs\", \"café\", \"riz\"]",
+"out": [
+[
+"n",
+"courses",
+"['pain', 'lait', 'oeufs', 'café']"
+]
+]
+},
+"modifier-liste#4": {
+"ctx": "courses = [\"pain\", \"lait\", \"oeufs\", \"café\", \"riz\"]",
+"out": [
+[
+"n",
+"retire",
+"'pain'"
+],
+[
+"n",
+"courses",
+"['lait', 'oeufs', 'café', 'riz']"
+]
+]
+},
+"modifier-liste#5": {
+"ctx": "courses = [\"pain\", \"lait\", \"oeufs\", \"café\", \"riz\"]",
+"out": [
+[
+"n",
+"courses",
+"['lait', 'oeufs', 'café', 'riz']"
+]
+]
+},
+"liste-none#0": {
+"ctx": "courses = [\"pain\", \"lait\"]",
+"out": [
+[
+"n",
+"courses",
+"['pain', 'lait', 'riz']"
+]
+]
+},
+"trier-liste#0": {
+"ctx": "notes = [12, 15, 8, 19, 14]",
+"out": [
+[
+"n",
+"triee",
+"[8, 12, 14, 15, 19]"
+],
+[
+"n",
+"notes",
+"[12, 15, 8, 19, 14]"
+]
+]
+},
+"trier-liste#1": {
+"ctx": "notes = [12, 15, 8, 19, 14]",
+"out": [
+[
+"n",
+"notes",
+"[8, 12, 14, 15, 19]"
+]
+]
+},
+"trier-liste#2": {
+"ctx": "notes = [12, 15, 8, 19, 14]",
+"out": [
+[
+"v",
+"[19, 15, 14, 12, 8]"
+]
+]
+},
+"trier-liste#3": {
+"ctx": "scores = [45, 92, 67, 88, 12, 79, 95, 33]",
+"out": [
+[
+"v",
+"[95, 92, 88]"
+]
+]
+},
+"parcourir-liste#0": {
+"ctx": "notes = [12, 15, 8]",
+"out": [
+[
+"o",
+"12\n15\n8"
+]
+]
+},
+"parcourir-liste#1": {
+"ctx": "notes = [12, 15, 8]",
+"out": [
+[
+"o",
+"0 12\n1 15\n2 8"
+]
+]
+},
+"parcourir-liste#2": {
+"ctx": "notes = [12, 15, 8]",
+"out": [
+[
+"o",
+"Note n°1 : 12\nNote n°2 : 15\nNote n°3 : 8"
+]
+]
+},
+"copier-liste#0": {
+"ctx": "original = [\"a\", \"b\", \"c\"]",
+"out": [
+[
+"n",
+"copie",
+"['a', 'b', 'c']"
+],
+[
+"a",
+"copie.append(\"d\")\nprint(copie, original)"
+],
+[
+"o",
+"['a', 'b', 'c', 'd'] ['a', 'b', 'c']"
+],
+[
+"i",
+"On ajoute « d » à la copie : l'original ne bouge pas."
+]
+]
+},
+"copier-liste#1": {
+"ctx": "original = [\"a\", \"b\", \"c\"]",
+"out": [
+[
+"n",
+"copie",
+"['a', 'b', 'c']"
+],
+[
+"a",
+"copie.append(\"d\")\nprint(copie, original)"
+],
+[
+"o",
+"['a', 'b', 'c', 'd'] ['a', 'b', 'c']"
+]
+]
+},
+"liste-de-listes#0": {
+"out": [
+[
+"n",
+"ventes",
+"[['janvier', 120, 340], ['février', 95, 410],\n ['mars', 180, 260]]"
+]
+]
+},
+"liste-de-listes#1": {
+"out": [
+[
+"v",
+"410"
+]
+]
+},
+"liste-de-listes#2": {
+"out": [
+[
+"o",
+"janvier : 460\nfévrier : 505\nmars : 440"
+]
+]
+},
+"filtrer-liste#0": {
+"ctx": "temperatures = [12, 18, 25, 31, 9, 22, 35, 15]",
+"out": [
+[
+"n",
+"chaudes",
+"[25, 31, 22, 35]"
+]
+]
+},
+"filtrer-liste#1": {
+"ctx": "temperatures = [12, 18, 25, 31, 9, 22, 35, 15]",
+"out": [
+[
+"n",
+"chaudes",
+"[25, 31, 22, 35]"
+]
+]
+},
+"outils-liste#0": {
+"ctx": "notes = [12, 15, 8, 19, 14, 8]",
+"out": [
+[
+"v",
+"(76, 19, 8)"
+]
+]
+},
+"outils-liste#1": {
+"ctx": "notes = [12, 15, 8, 19, 14, 8]",
+"out": [
+[
+"v",
+"12.666666666666666"
+]
+]
+},
+"outils-liste#2": {
+"ctx": "notes = [12, 15, 8, 19, 14, 8]",
+"out": [
+[
+"v",
+"2"
+]
+]
+},
+"outils-liste#3": {
+"ctx": "notes = [12, 15, 8, 19, 14, 8]",
+"out": [
+[
+"v",
+"[1, 2, 3, 4]"
+]
+]
+},
+"outils-liste#4": {
+"ctx": "notes = [12, 15, 8, 19, 14, 8]",
+"out": [
+[
+"v",
+"[0, 0, 0, 0]"
+]
+]
+},
+"outils-liste#5": {
+"ctx": "notes = [12, 15, 8, 19, 14, 8]",
+"out": [
+[
+"v",
+"[0, 1, 2, 3, 4]"
+]
+]
+},
+"creer-dict#0": {
+"out": [
+[
+"n",
+"prix",
+"{'Burger': 12.5, 'Salade': 9.0}"
+]
+]
+},
+"creer-dict#1": {
+"out": [
+[
+"v",
+"12.5"
+]
+]
+},
+"creer-dict#2": {
+"out": [
+[
+"v",
+"None"
+],
+[
+"i",
+"None : Colab n'affiche rien, mais il n'y a pas d'erreur."
+]
+]
+},
+"creer-dict#3": {
+"out": [
+[
+"v",
+"0"
+]
+]
+},
+"creer-dict#4": {
+"out": [
+[
+"v",
+"True"
+]
+]
+},
+"modifier-dict#0": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0}",
+"out": [
+[
+"n",
+"prix",
+"{'Burger': 12.5,\n 'Salade': 9.0,\n 'Tiramisu': 6.5}"
+]
+]
+},
+"modifier-dict#1": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0}",
+"out": [
+[
+"n",
+"prix",
+"{'Burger': 12.5,\n 'Salade': 9.0,\n 'Café': 2.0,\n 'Thé': 2.5}"
+]
+]
+},
+"modifier-dict#2": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0}",
+"out": [
+[
+"n",
+"retire",
+"9.0"
+],
+[
+"n",
+"prix",
+"{'Burger': 12.5}"
+]
+]
+},
+"modifier-dict#3": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"('Tiramisu', 6.5)"
+],
+[
+"n",
+"prix",
+"{'Burger': 12.5, 'Salade': 9.0}"
+]
+]
+},
+"modifier-dict#4": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0}",
+"out": [
+[
+"n",
+"prix",
+"{'Salade': 9.0}"
+]
+]
+},
+"modifier-dict#5": {
+"ctx": "d1 = {\"Burger\": 12.5, \"Salade\": 9.0}\nd2 = {\"Salade\": 9.5, \"Café\": 2.0}",
+"out": [
+[
+"n",
+"fusion",
+"{'Burger': 12.5, 'Salade': 9.5, 'Café': 2.0}"
+]
+]
+},
+"parcourir-dict#0": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0, \"Tiramisu\": 6.5}",
+"out": [
+[
+"o",
+"Burger\nSalade\nTiramisu"
+]
+]
+},
+"parcourir-dict#1": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"28.0"
+]
+]
+},
+"parcourir-dict#2": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0, \"Tiramisu\": 6.5}",
+"out": [
+[
+"o",
+"Burger coûte 12.5 €\nSalade coûte 9.0 €\nTiramisu coûte 6.5 €"
+]
+]
+},
+"compter-dict#0": {
+"ctx": "liste = [\"Burger\", \"Salade\", \"Burger\", \"Tiramisu\", \"Burger\"]",
+"out": [
+[
+"n",
+"comptes",
+"{'Burger': 3, 'Salade': 1, 'Tiramisu': 1}"
+]
+]
+},
+"compter-dict#1": {
+"ctx": "liste = [\"Burger\", \"Salade\", \"Burger\", \"Tiramisu\", \"Burger\"]",
+"out": [
+[
+"v",
+"[('Burger', 3)]"
+]
+]
+},
+"dict-imbrique#0": {
+"ctx": "maison = {\"mobilier\": {\"salon\": [\"canapé\", \"table basse\"], \"cuisine\": [\"chaises\"]}}",
+"out": [
+[
+"v",
+"['canapé', 'table basse']"
+]
+]
+},
+"dict-imbrique#1": {
+"ctx": "salons = {\"salon_bleu\": [\"Adele\", \"Marc-Antoine\"],\n          \"salon_vert\": [\"Sonia\", \"Karl\", \"Noah\"]}",
+"out": [
+[
+"v",
+"'Sonia'"
+]
+]
+},
+"trier-dict#0": {
+"ctx": "prix = {\"Burger\": 13.0, \"Salade Cesar\": 11.5, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"['Burger', 'Salade Cesar', 'Tiramisu']"
+]
+]
+},
+"trier-dict#1": {
+"ctx": "prix = {\"Burger\": 13.0, \"Salade Cesar\": 11.5, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"['Tiramisu', 'Salade Cesar', 'Burger']"
+]
+]
+},
+"trier-dict#2": {
+"ctx": "prix = {\"Burger\": 13.0, \"Salade Cesar\": 11.5, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"[('Burger', 13.0), ('Salade Cesar', 11.5),\n ('Tiramisu', 6.5)]"
+]
+]
+},
+"creer-tuple#0": {
+"out": [
+[
+"n",
+"plat",
+"('Burger', 13.0)"
+]
+]
+},
+"creer-tuple#1": {
+"out": [
+[
+"n",
+"un_tuple",
+"('Burger',)"
+]
+]
+},
+"creer-tuple#2": {
+"ctx": "ma_liste = [\"Burger\", 13.0]",
+"out": [
+[
+"v",
+"('Burger', 13.0)"
+]
+]
+},
+"depaqueter#0": {
+"ctx": "plat = (\"Burger\", 13.0)",
+"out": [
+[
+"n",
+"nom",
+"'Burger'"
+],
+[
+"n",
+"prix",
+"13.0"
+]
+]
+},
+"depaqueter#1": {
+"ctx": "a = 1\nb = 2",
+"out": [
+[
+"n",
+"a",
+"2"
+],
+[
+"n",
+"b",
+"1"
+]
+]
+},
+"depaqueter#2": {
+"ctx": "plats = [\"Burger\", \"Salade\"]\ntarifs = [13.0, 11.5]",
+"out": [
+[
+"o",
+"Burger : 13.0 €\nSalade : 11.5 €"
+]
+]
+},
+"remplacer-tuple#0": {
+"ctx": "inventaire = (2024, 48, 7, \"entrepot\", \"Nantes\", \"actif\")",
+"out": [
+[
+"n",
+"inventaire",
+"(2024, 48, 7, 'atelier', 'Nantes', 'actif')"
+]
+]
+},
+"set-doublons#0": {
+"ctx": "commandes = [\"Burger\", \"Salade\", \"Burger\", \"Tiramisu\", \"Salade\"]",
+"out": [
+[
+"v",
+"{'Tiramisu', 'Salade', 'Burger'}"
+],
+[
+"i",
+"L'ordre d'affichage d'un set peut changer d'une exécution à l'autre."
+]
+]
+},
+"set-doublons#1": {
+"ctx": "commandes = [\"Burger\", \"Salade\", \"Burger\", \"Tiramisu\", \"Salade\"]",
+"out": [
+[
+"v",
+"3"
+]
+]
+},
+"set-doublons#2": {
+"ctx": "commandes = [\"Burger\", \"Salade\", \"Burger\", \"Tiramisu\", \"Salade\"]",
+"out": [
+[
+"n",
+"vide",
+"set()"
+]
+]
+},
+"set-modifier#0": {
+"ctx": "clients = {\"Nadia\", \"Yann\", \"Léa\"}\nnouveaux = {\"Sam\", \"Léa\"}",
+"out": [
+[
+"n",
+"clients",
+"{'Léa', 'Nadia', 'Yann', 'Tom'}"
+]
+]
+},
+"set-modifier#1": {
+"ctx": "clients = {\"Nadia\", \"Yann\", \"Léa\"}\nnouveaux = {\"Sam\", \"Léa\"}",
+"out": [
+[
+"n",
+"clients",
+"{'Nadia', 'Yann', 'Léa', 'Sam'}"
+]
+]
+},
+"set-modifier#2": {
+"ctx": "clients = {\"Nadia\", \"Yann\", \"Léa\"}\nnouveaux = {\"Sam\", \"Léa\"}",
+"out": [
+[
+"n",
+"clients",
+"{'Léa', 'Yann'}"
+]
+]
+},
+"set-modifier#3": {
+"ctx": "clients = {\"Nadia\", \"Yann\", \"Léa\"}\nnouveaux = {\"Sam\", \"Léa\"}",
+"out": [
+[
+"n",
+"clients",
+"{'Léa', 'Nadia'}"
+]
+]
+},
+"set-comparer#0": {
+"ctx": "aout = {\"Nadia\", \"Yann\", \"Léa\"}\nseptembre = {\"Léa\", \"Tom\", \"Nadia\"}",
+"out": [
+[
+"v",
+"{'Léa', 'Nadia'}"
+]
+]
+},
+"set-comparer#1": {
+"ctx": "aout = {\"Nadia\", \"Yann\", \"Léa\"}\nseptembre = {\"Léa\", \"Tom\", \"Nadia\"}",
+"out": [
+[
+"v",
+"{'Nadia', 'Yann', 'Tom', 'Léa'}"
+]
+]
+},
+"set-comparer#2": {
+"ctx": "aout = {\"Nadia\", \"Yann\", \"Léa\"}\nseptembre = {\"Léa\", \"Tom\", \"Nadia\"}",
+"out": [
+[
+"v",
+"{'Yann'}"
+]
+]
+},
+"set-comparer#3": {
+"ctx": "aout = {\"Nadia\", \"Yann\", \"Léa\"}\nseptembre = {\"Léa\", \"Tom\", \"Nadia\"}",
+"out": [
+[
+"v",
+"{'Yann', 'Tom'}"
+]
+]
+},
+"set-comparer#4": {
+"ctx": "commande = {\"Burger\", \"Tiramisu\"}\ncarte = {\"Burger\", \"Salade Cesar\", \"Tiramisu\", \"Entrecote\"}",
+"out": [
+[
+"v",
+"True"
+]
+]
+},
+"creer-fonction#0": {
+"out": [
+[
+"i",
+"La fonction est créée : rien ne s'affiche tant qu'on ne l'appelle pas."
+]
+]
+},
+"creer-fonction#1": {
+"out": [
+[
+"n",
+"resultat",
+"11"
+]
+]
+},
+"plusieurs-retours#0": {
+"out": [
+[
+"i",
+"La fonction est créée : rien ne s'affiche tant qu'on ne l'appelle pas."
+]
+]
+},
+"plusieurs-retours#1": {
+"out": [
+[
+"n",
+"produit",
+"42"
+],
+[
+"n",
+"mot",
+"'data'"
+]
+]
+},
+"selon-cas#0": {
+"out": [
+[
+"i",
+"La fonction est créée : rien ne s'affiche tant qu'on ne l'appelle pas."
+],
+[
+"a",
+"somme_et_situation(5, 5)"
+],
+[
+"v",
+"(10, 'La somme est entre 10 et 50.')"
+]
+]
+},
+"docstring#0": {
+"out": [
+[
+"i",
+"La fonction est créée : rien ne s'affiche tant qu'on ne l'appelle pas."
+],
+[
+"a",
+"moyenne([12, 15, 8])"
+],
+[
+"v",
+"11.67"
+]
+]
+},
+"lambda#0": {
+"out": [
+[
+"i",
+"La fonction est créée : rien ne s'affiche tant qu'on ne l'appelle pas."
+],
+[
+"a",
+"carre(4)"
+],
+[
+"v",
+"16"
+]
+]
+},
+"lambda#1": {
+"out": [
+[
+"i",
+"La fonction est créée : rien ne s'affiche tant qu'on ne l'appelle pas."
+],
+[
+"a",
+"total(2.5, 4)"
+],
+[
+"v",
+"10.0"
+]
+]
+},
+"lambda#2": {
+"out": [
+[
+"v",
+"<function <lambda> at 0x7fbea6263920>"
+],
+[
+"a",
+"categorie = lambda x: \"Gros\" if x >= 100 else \"Petit\"\ncategorie(150), categorie(40)"
+],
+[
+"v",
+"('Gros', 'Petit')"
+],
+[
+"i",
+"Une lambda seule ne s'affiche pas joliment : on la range dans un nom pour l'essayer."
+]
+]
+},
+"comprehension#0": {
+"out": [
+[
+"v",
+"[0, 3, 6, 9, 12, 15, 18, 21, 24, 27]"
+]
+]
+},
+"comprehension#1": {
+"out": [
+[
+"v",
+"[0, 3, 6, 9, 12, 18, 21, 24, 27]"
+]
+]
+},
+"comprehension#2": {
+"out": [
+[
+"v",
+"[0, 1, 4, 27, 16, 125]"
+]
+]
+},
+"comprehension-dict#0": {
+"ctx": "plats = [\"Burger\", \"Salade\", \"Tiramisu\"]\ntarifs = [13.0, 9.0, 6.5]",
+"out": [
+[
+"n",
+"carte",
+"{'Burger': 13.0,\n 'Salade': 9.0,\n 'Tiramisu': 6.5}"
+]
+]
+},
+"comprehension-dict#1": {
+"ctx": "carte = {\"Burger\": 13.0, \"Salade\": 9.0, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"{'Salade': 9.0, 'Tiramisu': 6.5}"
+]
+]
+},
+"comprehension-dict#2": {
+"ctx": "commandes = [\"nadia\", \"yann\", \"nadia\"]",
+"out": [
+[
+"v",
+"{'NADIA', 'YANN'}"
+]
+]
+},
+"map-filter#0": {
+"ctx": "nombres = [-3, 4, -1, 6]",
+"out": [
+[
+"v",
+"[3, 4, 1, 6]"
+]
+]
+},
+"map-filter#1": {
+"ctx": "tarifs = [13.0, 9.0, 6.5, 21.0]",
+"out": [
+[
+"v",
+"[9.0, 6.5]"
+]
+]
+},
+"map-filter#2": {
+"ctx": "nombres = [-3, 4, -1, 6]",
+"out": [
+[
+"v",
+"10"
+]
+]
+},
+"key#0": {
+"ctx": "carte = {\"Burger\": 13.0, \"Salade Cesar\": 11.5, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"['Tiramisu', 'Salade Cesar', 'Burger']"
+]
+]
+},
+"key#1": {
+"ctx": "carte = {\"Burger\": 13.0, \"Salade Cesar\": 11.5, \"Tiramisu\": 6.5}",
+"out": [
+[
+"v",
+"'Burger'"
+]
+]
+},
+"key#2": {
+"ctx": "ventes = [{\"month\": \"20130101\", \"sales\": 56},\n          {\"month\": \"20130201\", \"sales\": 78},\n          {\"month\": \"20130301\", \"sales\": 61}]",
+"out": [
+[
+"v",
+"{'month': '20130201', 'sales': 78}"
+]
+]
+},
+"importer#0": {
+"out": [
+[
+"v",
+"4.0"
+]
+]
+},
+"importer#1": {
+"out": [
+[
+"i",
+"Import fait : rien ne s'affiche, c'est normal."
+],
+[
+"a",
+"sqrt(16)"
+],
+[
+"v",
+"4.0"
+]
+]
+},
+"importer#2": {
+"out": [
+[
+"i",
+"Import fait : rien ne s'affiche, c'est normal."
+]
+]
+},
+"importer#3": {
+"out": [
+[
+"i",
+"Import fait : rien ne s'affiche, c'est normal."
+],
+[
+"a",
+"pi"
+],
+[
+"v",
+"3.141592653589793"
+]
+]
+},
+"bibliotheque-standard#0": {
+"out": [
+[
+"i",
+"Import fait : rien ne s'affiche, c'est normal."
+]
+]
+},
+"bibliotheque-standard#1": {
+"out": [
+[
+"v",
+"(4.0, 5, 4)"
+]
+]
+},
+"bibliotheque-standard#2": {
+"out": [
+[
+"v",
+"6"
+],
+[
+"i",
+"Au hasard : le résultat change à chaque exécution."
+]
+]
+},
+"bibliotheque-standard#3": {
+"out": [
+[
+"v",
+"'pomme'"
+],
+[
+"i",
+"Au hasard : le résultat change à chaque exécution."
+]
+]
+},
+"bibliotheque-standard#4": {
+"ctx": "ventes = [120, 340, 85, 210]",
+"out": [
+[
+"v",
+"(188.75, 165.0, 113.75228935425139)"
+]
+]
+},
+"bibliotheque-standard#5": {
+"out": [
+[
+"v",
+"'22/11/2026'"
+],
+[
+"i",
+"La date du jour : elle change chaque jour."
+]
+]
+},
+"creer-module#0": {
+"out": [
+[
+"o",
+"Writing data_utils.py"
+]
+]
+},
+"creer-module#1": {
+"out": [
+[
+"i",
+"Import fait : rien ne s'affiche, c'est normal."
+]
+]
+},
+"creer-module#2": {
+"out": [
+[
+"v",
+"49"
+]
+]
+},
+"reload#0": {
+"out": [
+[
+"v",
+"<module 'data_utils' from '/content/data_utils.py'>"
+],
+[
+"i",
+"Colab confirme le module rechargé : la prochaine utilisation lit le fichier modifié."
+]
+]
+},
+"name-main#0": {
+"out": [
+[
+"i",
+"Lancé directement (!python data_utils.py) :"
+],
+[
+"o",
+"Test carré : 49"
+],
+[
+"i",
+"Importé (import data_utils) : rien ne s'affiche."
+]
+]
+},
+"try-except#0": {
+"ctx": "recette = 850\ncouverts = 0",
+"out": [
+[
+"o",
+"Aucun couvert servi."
+]
+]
+},
+"try-except#1": {
+"ctx": "prix = {\"Burger\": 12.5, \"Salade\": 9.0}",
+"out": [
+[
+"o",
+"Plat inconnu : 'Pizza'"
+]
+]
+},
+"except-nu#0": {
+"ctx": "total = 850\ncouverts = 0",
+"out": [
+[
+"o",
+"Aucun couvert servi."
+],
+[
+"i",
+"Le message est faux : la vraie panne est la faute de frappe totl."
+]
+]
+},
+"except-nu#1": {
+"ctx": "total = 850\ncouverts = 0",
+"out": [
+[
+"e",
+"NameError: name 'totl' is not defined"
+],
+[
+"i",
+"Le vrai problème s'affiche : on peut le corriger."
+]
+]
+},
+"else-finally-raise#0": {
+"ctx": "n = -3",
+"out": [
+[
+"e",
+"ValueError: nombre de couverts négatif : -3"
+]
+]
+},
+"couper-ligne#0": {
+"ctx": "salaire_brut = 36000\ninterets = 500\ndeductions = 2000",
+"out": [
+[
+"n",
+"revenu",
+"34500"
+]
+]
+},
+"couper-ligne#1": {
+"ctx": "nom_client = \"Nadia\"\ntable = 4\nreglement = \"CB\"",
+"out": [
+[
+"o",
+"Ticket pour Nadia table 4 réglé par CB"
+]
+]
+},
+"flake8#0": {
+"out": [
+[
+"i",
+"-q (quiet) : l'installation se fait sans rien afficher."
+]
+]
+},
+"flake8#1": {
+"ctx": "%%writefile caisse.py\nimport math\ndef PrixTTC(prix_ht) :\n    return prix_ht*1.2",
+"out": [
+[
+"o",
+"caisse.py:1:1: F401 'math' imported but unused\ncaisse.py:2:1: E302 expected 2 blank lines, found 0\ncaisse.py:2:21: E203 whitespace before ':'"
+],
+[
+"i",
+"Chaque ligne : fichier:ligne:colonne, le code de l'erreur, puis l'explication."
+]
+]
+},
+"black#0": {
+"out": [
+[
+"i",
+"-q (quiet) : l'installation se fait sans rien afficher."
+]
+]
+},
+"black#1": {
+"ctx": "%%writefile caisse.py\nimport math\ndef PrixTTC(prix_ht) :\n    return prix_ht*1.2",
+"out": [
+[
+"o",
+"reformatted caisse.py\n\nAll done! ✨ 🍰 ✨\n1 file reformatted."
+],
+[
+"a",
+"!cat caisse.py"
+],
+[
+"o",
+"import math\n\n\ndef PrixTTC(prix_ht):\n    return prix_ht * 1.2"
+]
+]
+},
+"fonction-methode#0": {
+"ctx": "plat = \"burger\"",
+"out": [
+[
+"v",
+"6"
+]
+]
+},
+"fonction-methode#1": {
+"ctx": "plat = \"burger\"",
+"out": [
+[
+"v",
+"'BURGER'"
+]
+]
+},
+"explorer-objet#0": {
+"ctx": "objet = \"Burger\"",
+"out": [
+[
+"v",
+"<class 'str'>"
+]
+]
+},
+"explorer-objet#1": {
+"ctx": "objet = \"Burger\"",
+"out": [
+[
+"v",
+"['capitalize', 'casefold', 'center', 'count',\n 'encode', 'endswith', 'expandtabs', 'find',\n 'format', 'format_map', 'index', 'isalnum',\n 'isalpha', 'isascii', 'isdecimal', 'isdigit',\n 'isidentifier', 'islower', 'isnumeric',\n 'isprintable', 'isspace', 'istitle',\n 'isupper', 'join', 'ljust', 'lower',\n 'lstrip', 'maketrans', 'partition',\n 'removeprefix', 'removesuffix', 'replace',\n 'rfind', 'rindex', 'rjust', 'rpartition',\n 'rsplit', 'rstrip', 'split', 'splitlines',\n 'startswith', 'strip', 'swapcase', 'title',\n 'translate', 'upper', 'zfill']"
+]
+]
+},
+"explorer-objet#2": {
+"ctx": "objet = \"Burger\"",
+"out": [
+[
+"o",
+"Help on method_descriptor:\n\nstrip(self, chars=None, /) unbound builtins.str method\n    Return a copy of the string with leading and trailing whitespace removed.\n\n    If chars is given and not None, remove characters in chars instead."
+]
+]
+},
+"boite-outils#0": {
+"ctx": "commande = [\"Burger\", \"Salade Cesar\", \"Tiramisu\"]",
+"out": [
+[
+"o",
+"1. Burger\n2. Salade Cesar\n3. Tiramisu"
+]
+]
+},
+"boite-outils#1": {
+"ctx": "carte = {\"Burger\": 13.0, \"Salade Cesar\": 11.5, \"Entrecote\": 21.0}",
+"out": [
+[
+"v",
+"True"
+]
+]
+},
+"boite-outils#2": {
+"ctx": "compteur = {\"Burger\": 2}\nplat = \"Burger\"",
+"out": [
+[
+"n",
+"compteur",
+"{'Burger': 3}"
+],
+[
+"n",
+"plat",
+"'Burger'"
+]
+]
+},
+"boite-outils#3": {
+"ctx": "from collections import Counter\nliste = [\"Burger\", \"Salade\", \"Burger\", \"Tiramisu\", \"Burger\", \"Salade\", \"Café\"]",
+"out": [
+[
+"v",
+"[('Burger', 3), ('Salade', 2),\n ('Tiramisu', 1)]"
+]
+]
+},
+"json-load#0": {
+"ctx": "%%writefile restoclic.json\n{\n  \"restaurant\": \"RestoClic\",\n  \"couverts_par_jour\": 42,\n  \"carte\": [\n    {\n      \"nom\": \"Burger\",\n      \"prix\": 13.0,\n      \"vegetarien\": false\n    },\n    {\n      \"nom\": \"Salade Cesar\",\n      \"prix\": 11.5,\n      \"vegetarien\": false\n    },\n    {\n      \"nom\": \"Soupe du jour\",\n      \"prix\": 7.5,\n      \"vegetarien\": true\n    }\n  ]\n}",
+"out": [
+[
+"n",
+"resto",
+"{'restaurant': 'RestoClic',\n 'couverts_par_jour': 42,\n 'carte': [{'nom': 'Burger',\n            'prix': 13.0,\n            'vegetarien': False},\n           {'nom': 'Salade Cesar',\n            'prix': 11.5,\n            'vegetarien': False},\n           {'nom': 'Soupe du jour',\n            'prix': 7.5,\n            'vegetarien': True}]}"
+]
+]
+},
+"json-loads#0": {
+"ctx": "import json\ntexte = '{\"restaurant\": \"RestoClic\", \"couverts_par_jour\": 42}'",
+"out": [
+[
+"n",
+"data",
+"{'restaurant': 'RestoClic',\n 'couverts_par_jour': 42}"
+]
+]
+},
+"json-naviguer#0": {
+"ctx": "import json\ndata = {\n    \"restaurant\": \"RestoClic\",\n    \"couverts_par_jour\": 42,\n    \"carte\": [\n        {\"nom\": \"Burger\", \"prix\": 13.0, \"vegetarien\": False},\n        {\"nom\": \"Salade Cesar\", \"prix\": 11.5, \"vegetarien\": False},\n        {\"nom\": \"Soupe du jour\", \"prix\": 7.5, \"vegetarien\": True},\n    ],\n}",
+"out": [
+[
+"o",
+"<class 'dict'> ['restaurant', 'couverts_par_jour', 'carte']"
+]
+]
+},
+"json-naviguer#1": {
+"ctx": "resto = {\n    \"restaurant\": \"RestoClic\",\n    \"couverts_par_jour\": 42,\n    \"carte\": [\n        {\"nom\": \"Burger\", \"prix\": 13.0, \"vegetarien\": False},\n        {\"nom\": \"Salade Cesar\", \"prix\": 11.5, \"vegetarien\": False},\n        {\"nom\": \"Soupe du jour\", \"prix\": 7.5, \"vegetarien\": True},\n    ],\n}",
+"out": [
+[
+"v",
+"7.5"
+]
+]
+},
+"json-naviguer#2": {
+"ctx": "resto = {\n    \"restaurant\": \"RestoClic\",\n    \"couverts_par_jour\": 42,\n    \"carte\": [\n        {\"nom\": \"Burger\", \"prix\": 13.0, \"vegetarien\": False},\n        {\"nom\": \"Salade Cesar\", \"prix\": 11.5, \"vegetarien\": False},\n        {\"nom\": \"Soupe du jour\", \"prix\": 7.5, \"vegetarien\": True},\n    ],\n}",
+"out": [
+[
+"o",
+"7.5"
+]
+]
+},
+"json-naviguer#3": {
+"ctx": "import json\ndata = {\n    \"restaurant\": \"RestoClic\",\n    \"couverts_par_jour\": 42,\n    \"carte\": [\n        {\"nom\": \"Burger\", \"prix\": 13.0, \"vegetarien\": False},\n        {\"nom\": \"Salade Cesar\", \"prix\": 11.5, \"vegetarien\": False},\n        {\"nom\": \"Soupe du jour\", \"prix\": 7.5, \"vegetarien\": True},\n    ],\n}",
+"out": [
+[
+"o",
+"{\n  \"restaurant\": \"RestoClic\",\n  \"couverts_par_jour\": 42,\n  \"carte\": [\n    {\n      \"nom\": \"Burger\",\n      \"prix\": 13.0,\n      \"vegetarien\": false\n    },\n    {\n      \"nom\": \"Salade Cesar\",\n      \"prix\": 11.5,\n      \"vegetarien\": false\n    },\n    {\n      \"nom\": \"Soupe du jour\",\n      \"prix\": 7.5,\n      \"vegetarien\": true\n    }\n  ]\n}"
+]
+]
+},
+"json-dump#0": {
+"ctx": "import json\nsynthese = {\"Furniture\": {\"total\": 805, \"nb_mois\": 12},\n            \"Technology\": {\"total\": 756, \"nb_mois\": 12}}",
+"out": [
+[
+"i",
+"Rien ne s'affiche à l'écriture : le fichier synthese.json est créé."
+],
+[
+"a",
+"!cat synthese.json"
+],
+[
+"o",
+"{\n  \"Furniture\": {\n    \"total\": 805,\n    \"nb_mois\": 12\n  },\n  \"Technology\": {\n    \"total\": 756,\n    \"nb_mois\": 12\n  }\n}"
+]
+]
+},
+"json-erreurs#0": {
+"ctx": "data = {\"restaurant\": \"RestoClic\"}",
+"out": [
+[
+"v",
+"0"
+]
+]
+},
+"gold#0": {
+"ctx": "nom = \"  Marco  \"",
+"out": [
+[
+"n",
+"nom",
+"'Marco'"
+]
+]
+},
+"gold#1": {
+"ctx": "courses = [\"pain\", \"lait\"]",
+"out": [
+[
+"n",
+"courses",
+"['pain', 'lait', 'riz']"
+]
+]
+}
+};
+/*/OUT*/
+const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmt = (s) => esc(s).split(/(`[^`]+`)/).map((p) => p.startsWith("`") && p.endsWith("`") && p.length > 1 ? "<code>" + p.slice(1, -1) + "</code>" : p.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")).join("");
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function hl(src){
+  const re = /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|\b(from|import|as|def|return|if|elif|else|and|or|not|in|is|for|while|break|continue|try|except|finally|raise|with|del|lambda|True|False|None)\b|\b(\d+(?:\.\d+)?)\b|\b(print|len|range|type|int|float|str|list|dict|set|tuple|sorted|sum|max|min|input|round|enumerate|zip)\b/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    out += '<span class="' + (m[1] ? "ts" : m[2] ? "tk" : m[3] ? "tn" : "tf") + '">' + esc(m[0]) + "</span>";
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+const P = {file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',grid:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 4v16"/>',filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',dots:'<circle cx="5" cy="16" r="1.8"/><circle cx="9" cy="13" r="1.8"/><circle cx="13" cy="15" r="1.8"/><circle cx="20" cy="5" r="2"/>',cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/>',pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h1M14 12h1M9 16h1M14 16h1"/>',tag:'<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',text:'<path d="M4 7V5h16v2M12 5v14M9 19h6"/>',group:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-6h8v6"/>',check:'<path d="M4 12l5 5L20 6"/>',list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',code:'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',branch:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4-6 3-11 7"/>',loop:'<path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/>',bug:'<rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 7V4M9 4l1.5 3M15 4l-1.5 3M3 12h4M17 12h4M4 18l3-2M20 18l-3-2M4 7l3 2M20 7l-3 2"/>',key:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',venn:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>',fx:'<path d="M14 4c-3 0-4 2-4 5v11M7 10h7M15 13l5 6M20 13l-5 6"/>',bolt:'<path d="M13 3L4 14h7l-1 7 9-11h-7z"/>',pkg:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/>',brush:'<path d="M4 20c3 0 5-1 5-4a3 3 0 0 1 3-3l8-8-2-2-8 8a3 3 0 0 1-3-3"/>',tool:'<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19l-3 1 1-3 7.5-7.5a4 4 0 0 1-3-3z"/><path d="M5 5l4 4"/>',braces:'<path d="M8 4c-2 0-3 1-3 3v2c0 1.5-1 3-2 3 1 0 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 3 2 3-1 0-2 1.5-2 3v2c0 2-1 3-3 3"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',scale:'<path d="M12 3v18M5 21h14M4 8h16"/><path d="M4 8l-2 6a3 3 0 0 0 4 0zM20 8l-2 6a3 3 0 0 0 4 0z"/>'};
+const icon = (k, s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (P[k] || "") + "</svg>";
+const ICON_DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
+const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
+const ICON_RUN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l11 7-11 7z"/></svg>';
+function result(key){
+  const r = OUT[key]; if (!r) return "";
+  let h = '<p class="rt">Résultat</p>';
+  if (r.ctx) h += '<div class="ctx"><span class="tag">Avec</span><pre>' + hl(r.ctx) + "</pre></div>";
+  r.out.forEach((o) => {
+    if (o[0] === "o" || o[0] === "v") h += "<pre>" + esc(o[1]) + "</pre>";
+    else if (o[0] === "n") h += '<div class="nv"><b>' + esc(o[1]) + "</b><pre>" + esc(o[2]) + "</pre></div>";
+    else if (o[0] === "e") h += '<pre class="err">' + esc(o[1]) + "</pre>";
+    else if (o[0] === "a") h += '<div class="alt"><span class="tag">Essai</span><pre>' + hl(o[1]) + "</pre></div>";
+    else if (o[0] === "i") h += '<p class="info">' + fmt(o[1]) + "</p>";
+  });
+  return h;
+}
+let nRes = 0;
+function snip([lab, code], key){
+  const id = "r" + (nRes++), has = !!OUT[key];
+  return '<div class="snip"><p class="lab">' + fmt(lab) + '</p><div class="cl"' + (has ? ' data-r="' + id + '"' : "") + '><pre><code>' + hl(code) + "</code></pre>"
+    + (has ? '<button class="run" type="button" aria-expanded="false" aria-controls="' + id + '" title="Voir le résultat" aria-label="Voir le résultat : ' + esc(lab) + '">' + ICON_RUN + "</button>" : "")
+    + "</div>" + (has ? '<div class="res" id="' + id + '" hidden>' + result(key) + "</div>" : "") + "</div>";
+}
+function venn(kind){
+  const L = '<circle cx="17" cy="14" r="11"', R = '<circle cx="31" cy="14" r="11"', f = ' fill="var(--teal)" fill-opacity=".45"', o = ' fill="none" stroke="var(--teal)" stroke-width="1.6"/>';
+  const fill = kind === "left" ? L + f + "/>" : kind === "right" ? R + f + "/>" : kind === "inner" ? R + f + ' clip-path="url(#cpL)"/>' : L + f + "/>" + R + f + "/>";
+  return '<svg width="48" height="28" viewBox="0 0 48 28" aria-label="' + kind + '">' + fill + L + o + R + o + "</svg>";
+}
+const cell = (v) => v.startsWith("@venn:") ? venn(v.slice(6)) : fmt(v);
+const table = (rows) => '<div class="tbl"><table><thead><tr>' + rows[0].map((h) => "<th>" + fmt(h) + "</th>").join("") + "</tr></thead><tbody>"
+  + rows.slice(1).map((r) => "<tr>" + r.map((v, j) => '<td data-l="' + esc(rows[0][j].replace(/`/g, "")) + '">' + cell(v) + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+
+const FIGS = {};
+
+/* ---------------- Rendu ---------------- */
+const main = document.getElementById("main"), tocEl = document.getElementById("toc");
+document.getElementById("goldsnips").innerHTML = GOLD.map((p, i) => snip(p, "gold#" + i)).join("");
+let html = "", toc = "";
+const ALL = [];
+GROUPS.forEach((G, gi) => {
+  const gc = "--gc:var(--" + G.col + ")";
+  const isSteps = G.sections.some((s) => s.step);
+  const pdf = "pdf/memo-python-" + (gi + 1) + "-" + norm(G.g).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".pdf";
+  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + '<a href="' + pdf.replace(".pdf", "-court.pdf") + '" download title="Cette partie en PDF, version courte">' + ICON_DL + 'PDF court</a><a href="' + pdf + '" download title="Cette partie en PDF, avec les « Pourquoi ? »">' + ICON_DL + "PDF complet</a></p>";
+  toc += '<div class="tg" style="' + gc + '"><h4>' + esc(G.g) + "</h4>" + (G.note ? '<p class="gnote">' + esc(G.note) + "</p>" : "") + '<ol class="' + (isSteps ? "steps" : "") + '">';
+  G.sections.forEach((s) => {
+    s.g = gi;
+    const badge = s.step ? "<b>" + s.step + "</b>" : icon(s.ic, 20);
+    html += '<section class="sec" id="' + s.id + '" style="' + gc + '"><div class="sh"><span class="ic">' + badge + "</span><h2>" + esc(s.t) + "</h2>" + (s.step ? '<span class="step">Étape ' + s.step + " du nettoyage</span>" : "") + "</div>";
+    s.cards.forEach((cd) => {
+      cd.hay = norm([cd.t, cd.k, cd.lead || "", (cd.s || []).map((x) => x.join(" ")).join(" "), cd.why || "", cd.tip || "", cd.trap || "", s.t].join(" "));
+      html += '<article class="card" id="' + cd.id + '"><h3><a href="#' + cd.id + '">' + esc(cd.t) + "</a>" + (cd.comp ? '<span class="comp">Complément</span>' : "") + "</h3>"
+        + (cd.lead ? '<p class="lead">' + fmt(cd.lead) + "</p>" : "")
+        + (cd.fig ? FIGS[cd.fig]() : "")
+        + (cd.s || []).map((p, i) => snip(p, cd.id + "#" + i)).join("")
+        + (cd.tab ? table(cd.tab) : "")
+        + ((cd.why || cd.tip || cd.trap) ? '<div class="notes">'
+          + (cd.tip ? '<div class="note tip">' + ICON_TIP + "<div><strong>Astuce.</strong> " + fmt(cd.tip) + "</div></div>" : "")
+          + (cd.trap ? '<div class="note trap">' + ICON_TRAP + "<div><strong>Piège.</strong> " + fmt(cd.trap) + "</div></div>" : "")
+          + (cd.why ? '<details class="why"><summary>Pourquoi ?</summary><div>' + fmt(cd.why) + "</div></details>" : "")
+          + "</div>" : "")
+        + "</article>";
+    });
+    html += "</section>";
+    toc += '<li data-s="' + s.id + '"><a href="#' + s.id + '"><span class="ic">' + (s.step ? s.step : icon(s.ic, 15)) + "</span><span>" + esc(s.t) + "</span></a></li>";
+    ALL.push(s);
+  });
+  toc += "</ol></div>";
+});
+main.insertAdjacentHTML("beforeend", html);
+tocEl.innerHTML = toc;
+
+/* ---------------- Résultats : un clic sur le code ---------------- */
+function toggleRes(cl, on){
+  const res = document.getElementById(cl.dataset.r), b = cl.querySelector(".run");
+  if (on === undefined) on = res.hidden;
+  res.hidden = !on; b.setAttribute("aria-expanded", on); cl.parentElement.classList.toggle("open", on);
+}
+document.addEventListener("click", (e) => {
+  const cl = e.target.closest(".cl[data-r]"); if (!cl) return;
+  if (!e.target.closest(".run") && String(getSelection()).trim()) return; // on sélectionne du texte : ne rien faire
+  toggleRes(cl);
+});
+const resBtn = document.getElementById("resall");
+resBtn.addEventListener("click", () => {
+  const on = resBtn.getAttribute("aria-pressed") !== "true";
+  resBtn.setAttribute("aria-pressed", on);
+  document.querySelectorAll(".cl[data-r]").forEach((cl) => toggleRes(cl, on));
+});
+
+/* ---------------- Menu PDF ---------------- */
+const pdfm = document.querySelector(".pdfm");
+document.addEventListener("click", (e) => { if (pdfm.open && !pdfm.contains(e.target)) pdfm.open = false; });
+pdfm.addEventListener("click", (e) => { if (e.target.closest("a")) pdfm.open = false; });
+
+/* ---------------- Recherche ---------------- */
+const q = document.getElementById("q"), emptyEl = document.getElementById("empty");
+const gold = document.querySelector(".gold");
+function search(){
+  const words = norm(q.value.trim()).split(/\s+/).filter(Boolean);
+  let shown = 0; const gCount = {};
+  ALL.forEach((s) => {
+    let inSec = 0;
+    s.cards.forEach((cd) => {
+      const ok = words.every((w) => cd.hay.includes(w));
+      document.getElementById(cd.id).classList.toggle("hide", !ok);
+      if (ok) inSec++;
+    });
+    document.getElementById(s.id).classList.toggle("hide", !inSec);
+    tocEl.querySelector('li[data-s="' + s.id + '"]').classList.toggle("hide", !inSec);
+    gCount[s.g] = (gCount[s.g] || 0) + inSec;
+    shown += inSec;
+  });
+  document.querySelectorAll(".grp").forEach((el) => el.classList.toggle("hide", !gCount[el.dataset.g]));
+  gold.style.display = words.length ? "none" : "";
+  emptyEl.classList.toggle("show", shown === 0);
+}
+let wasSearching = false;
+q.addEventListener("input", () => {
+  search();
+  const s = q.value.trim() !== "";
+  if (s && !wasSearching) window.scrollTo({top: document.querySelector(".bar").offsetTop});
+  wasSearching = s;
+});
+q.addEventListener("keydown", (e) => { if (e.key === "Escape") { q.value = ""; search(); wasSearching = false; } });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  if (e.key === "Escape") document.body.classList.remove("tocopen");
+});
+
+/* ---------------- Tous les pourquoi ---------------- */
+const whyBtn = document.getElementById("whyall");
+whyBtn.addEventListener("click", () => {
+  const on = whyBtn.getAttribute("aria-pressed") !== "true";
+  whyBtn.setAttribute("aria-pressed", on);
+  document.querySelectorAll("details.why").forEach((d) => { d.open = on; });
+});
+
+/* ---------------- Sommaire : tiroir sur téléphone, section active ---------------- */
+document.getElementById("menu").addEventListener("click", () => document.body.classList.add("tocopen"));
+document.getElementById("scrim").addEventListener("click", () => document.body.classList.remove("tocopen"));
+tocEl.addEventListener("click", (e) => { if (e.target.closest("a")) document.body.classList.remove("tocopen"); });
+const secObserver = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) tocEl.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+  });
+}, {rootMargin: "-90px 0px -65% 0px"});
+document.querySelectorAll("section.sec").forEach((s) => secObserver.observe(s));
+
+/* ---------------- Thème ---------------- */
+const root = document.documentElement, themeBtn = document.getElementById("theme");
+try { const t = localStorage.getItem("memo-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+themeBtn.addEventListener("click", () => {
+  root.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("memo-theme", root.dataset.theme); } catch (e) {}
+});
+
+/* ---------------- PDF dans la version Claude ----------------
+   Sur GitHub Pages, les liens « download » marchent tout seuls.
+   Dans la version Claude, la page passe par la fenêtre de confirmation de téléchargement. */
+if (window.claude && typeof window.claude.use === "function") {
+  window.claude.use("downloads").then((dl) => {
+    if (!dl) return;
+    document.addEventListener("click", async (e) => {
+      const a = e.target.closest("a[download]"); if (!a) return;
+      e.preventDefault();
+      try {
+        const blob = await (await fetch(a.href)).blob();
+        await dl.save({filename: a.getAttribute("href").split("/").pop(), data: blob});
+      } catch (err) { /* refusé ou indisponible : rien à faire */ }
+    });
+  }).catch(() => {});
+}
+}
+</script>
+</body>
+</html>

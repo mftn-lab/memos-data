@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mémo pandas nettoyage</title>
+<title>Mémo Pandas nettoyage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -81,6 +81,18 @@ main{max-width:880px}
 .gold p{margin:0 0 6px;font-size:15px}
 .grp{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:var(--gc);margin:46px 0 14px}
 .grp::after{content:"";flex:1;height:2px;background:color-mix(in srgb,var(--gc) 25%,transparent)}
+.grp a{order:2;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--gc);text-decoration:none;border:1.5px solid color-mix(in srgb,var(--gc) 40%,transparent);border-radius:999px;padding:2px 10px}
+.grp a:hover{background:color-mix(in srgb,var(--gc) 12%,transparent)}
+a.tb{text-decoration:none}
+.pdfm{position:relative}
+.pdfm summary{list-style:none}.pdfm summary::-webkit-details-marker{display:none}
+.pdfm[open] summary{border-color:var(--blue);color:var(--blue)}
+.pdfm div{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:240px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 30px -12px rgba(0,0,0,.35)}
+.pdfm div a{display:block;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink)}
+.pdfm div a:hover{background:var(--bg2)}
+.pdfm div b{display:block;font-size:14.5px}
+.pdfm div span{display:block;font-size:13px;color:var(--mute)}
+.grp a + a{margin-left:-2px}
 .grp:first-of-type{margin-top:0}
 section.sec{margin-bottom:32px}
 .sec.hide,.card.hide,.grp.hide{display:none}
@@ -165,6 +177,10 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
  .hero{justify-self:start}
 }
 @media (max-width:600px){
+ html{scroll-padding-top:130px}
+ .bar .wrap{flex-wrap:wrap;justify-content:flex-end}
+ .search{order:9;flex-basis:100%}
+ #menu{margin-right:auto}
  .tb .tx{display:none}
  .legend{display:none}
  .mini{grid-template-columns:repeat(4,18px)}
@@ -188,7 +204,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
   <div class="wrap">
     <div>
       <a class="back" href="index.html">← Tous les mémos</a>
-      <h1>pandas : nettoyer et préparer ses données</h1>
+      <h1>Pandas : nettoyer et préparer ses données</h1>
       <p class="sub">Une envie, une phrase, une ligne de code à copier. Exemples sur le Titanic (<code>df</code>).</p>
     </div>
     <div class="hero" aria-hidden="true">
@@ -208,6 +224,8 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
       <input id="q" type="search" placeholder="Je veux… (doublons, remplir, fusionner)" autocomplete="off" aria-label="Rechercher">
     </div>
     <button class="tb" id="whyall" type="button" aria-pressed="false" title="Afficher ou masquer toutes les explications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span class="tx">Tous les pourquoi</span></button>
+    <details class="pdfm"><summary class="tb" title="Télécharger le mémo en PDF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="tx">PDF</span></summary>
+      <div><a href="pdf/memo-pandas-court.pdf" download><b>Version courte</b><span>le code, les astuces, les pièges</span></a><a href="pdf/memo-pandas.pdf" download><b>Version complète</b><span>avec tous les « Pourquoi ? »</span></a></div></details>
     <button class="tb" id="theme" type="button" aria-label="Changer de thème" title="Clair / sombre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
   </div>
 </div>
@@ -277,6 +295,16 @@ import numpy as np`]],
    s:[["Les 5 premières lignes", c`df.head()`],["Le nombre de lignes et de colonnes", c`df.shape`],["Le type de chaque colonne", c`df.dtypes`],["Résumé : types et nombre de cases remplies", c`df.info()`],["Statistiques des colonnes de nombres", c`df.describe()`],["Le nombre de cases vides par colonne", c`df.isna().sum()`]],
    why:"En 30 secondes, tu connais la taille, les types, les trous et les ordres de grandeur. On ne nettoie rien avant de savoir ce qu'il y a.",
    tip:"`df.describe().T` tourne le tableau des statistiques : plus lisible quand il y a beaucoup de colonnes."},
+  {id:"display", t:"Afficher de vrais tableaux : display", comp:true, lead:"Dans un notebook (Colab, Jupyter), à la place de `print`.", k:"display print afficher tableau plusieurs cellule notebook colab jupyter joli",
+   s:[["Afficher un tableau mis en forme", c`display(df.head())`],["Plusieurs tableaux dans la même cellule", c`display(df.head())
+display(df.describe().T)
+display(df.isna().sum())`]],
+   why:"Une cellule n'affiche que le résultat de sa dernière ligne. `print` affiche les autres, mais en texte brut, mal aligné. `display` affiche chaque tableau comme le dernier : propre, avec ses colonnes alignées.",
+   trap:"`display` existe dans Colab et Jupyter, sans import. Dans un script `.py` lancé hors notebook, il faut d'abord `from IPython.display import display`."},
+  {id:"transposer", t:"Tourner un tableau : .T", k:"T transposer tourner lignes colonnes describe large beaucoup de colonnes lisible",
+   s:[["Les statistiques, une ligne par colonne", c`df.describe().T`],["Les 3 premières lignes, en colonnes", c`df.head(3).T`],["Avec display, dans la même cellule", c`display(df.describe().T)`]],
+   why:"`.T` (comme « transposer ») échange les lignes et les colonnes. Avec beaucoup de colonnes, le tableau déborde à droite ; tourné, il se lit de haut en bas, une colonne du fichier par ligne.",
+   tip:"`.T` ne modifie pas `df` : c'est seulement une autre façon de le regarder."},
   {id:"taille", t:"La fin du tableau, ses colonnes, sa taille", k:"tail fin derniere lignes columns liste colonnes shape nombre lignes colonnes phrase f-string",
    s:[["Les 5 dernières lignes", c`df.tail()`],["La liste des noms de colonnes", c`df.columns`],["Le nombre de lignes seulement", c`df.shape[0]`],["Le nombre de colonnes seulement", c`df.shape[1]`],["Une phrase prête à lire", c`f"Nous avons {df.shape[0]} lignes et {df.shape[1]} colonnes."`]],
    why:"`df.shape` donne un couple (lignes, colonnes). `[0]` prend le premier nombre, `[1]` le second, comme dans une liste. Dans un f-string, ce qui est entre accolades est remplacé par sa valeur."},
@@ -463,6 +491,14 @@ borne_haute = Q3 + 1.5 * IQR`],["Afficher les lignes signalées", c`df[(df["Fare
   {id:"to-datetime", t:"Transformer une colonne de texte en vraies dates", k:"date dates to_datetime convertir texte datetime64 trier format",
    s:[["Convertir la colonne", c`df["date_event"] = pd.to_datetime(df["date_event"])`],["En précisant le format (jour/mois/année)", c`df["date_event"] = pd.to_datetime(df["date_event"], format="%d/%m/%Y")`],["Vérifier que le type est devenu datetime64", c`df.dtypes`]],
    why:"Pour Python, « 2024-06-15 » n'est que du texte. Tant qu'elle n'est pas convertie, une date ne se trie pas correctement et on ne peut ni en extraire le mois ni calculer un délai."},
+  {id:"dates-melangees", t:"Des dates écrites dans plusieurs formats", lead:"Une même colonne mélange « 2024-06-15 » et « 15/06/2024 ». `pd.to_datetime` seul plante, avec un message d'erreur qui propose ce raccourci.", k:"date dates melangees plusieurs formats mixed dayfirst jour mois inverse sens erreur doesn't match format",
+   s:[["Laisser pandas deviner le format ligne par ligne, jour en premier", c`df["date"] = pd.to_datetime(df["date"], format="mixed", dayfirst=True)`],["Vérifier ensuite quelques dates converties", c`df[["date"]].head(10)`]],
+   why:"Sans `format=\"mixed\"`, pandas déduit le format de la première ligne et refuse toutes celles qui ne le suivent pas (`ValueError: time data ... doesn't match format`). `dayfirst=True` lui dit qu'en cas de doute, le jour vient en premier, à la française.",
+   trap:"Testé : avec `dayfirst=True`, « 2024-01-03 » est lu comme le 1er mars au lieu du 3 janvier. Et sans `dayfirst`, « 05/06/2024 » devient le 6 mai. Aucun message d'erreur : les dates sont fausses en silence. Vérifie toujours le résultat, ou utilise la méthode sûre juste en dessous."},
+  {id:"dates-melangees-sur", t:"La méthode sûre : un format à la fois", comp:true, k:"date dates melangees plusieurs formats coerce fillna sur explicite",
+   s:[["Les dates écrites année-mois-jour (les autres deviennent vides)", c`d1 = pd.to_datetime(df["date"], format="%Y-%m-%d", errors="coerce")`],["Les dates écrites jour/mois/année", c`d2 = pd.to_datetime(df["date"], format="%d/%m/%Y", errors="coerce")`],["Assembler : les trous de d1 sont bouchés par d2", c`df["date"] = d1.fillna(d2)`],["Vérifier qu'il ne reste aucune date non lue", c`df["date"].isna().sum()`]],
+   why:"Chaque date est lue avec son format exact : pandas ne devine rien. `errors=\"coerce\"` met une case vide quand la date n'a pas le bon format, et `fillna` la remplace par la lecture avec l'autre format.",
+   tip:"S'il reste des cases vides à la fin, un troisième format traîne (par exemple « 3 janvier 2024 ») : ajoute un `d3`, puis `d1.fillna(d2).fillna(d3)`."},
   {id:"dt", t:"Extraire le mois, l'année, le jour", k:"date dt month year day mois annee jour day_name semaine extraire filtrer groupby",
    s:[["Le mois (1 à 12)", c`df["mois"] = df["date_event"].dt.month`],["L'année", c`df["annee"] = df["date_event"].dt.year`],["Le jour du mois", c`df["jour"] = df["date_event"].dt.day`],["Le nom du jour (en anglais : Monday…)", c`df["nom_du_jour"] = df["date_event"].dt.day_name()`],["Garder seulement les événements de juin", c`df[df["date_event"].dt.month == 6]`],["Exemple du live code : le total d'heures par jour", c`df_sessions.groupby("Jour")["Duree_h"].sum().sort_values(ascending=False)`]],
    why:"`.dt` donne accès aux morceaux d'une date, comme `.str` pour le texte. Une fois le mois ou le jour extrait, on peut filtrer ou grouper dessus."},
@@ -576,6 +612,7 @@ const P = {file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',eye:'<path d
 const icon = (k, s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (P[k] || "") + "</svg>";
 const ICON_COPY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
 const ICON_OK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5 9-10"/></svg>';
+const ICON_DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
 const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
 const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
 const SNIPS = [];
@@ -617,7 +654,8 @@ const ALL = [];
 GROUPS.forEach((G, gi) => {
   const gc = "--gc:var(--" + G.col + ")";
   const isSteps = G.sections.some((s) => s.step);
-  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + "</p>";
+  const pdf = "pdf/memo-pandas-" + (gi + 1) + "-" + norm(G.g).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".pdf";
+  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + '<a href="' + pdf.replace(".pdf", "-court.pdf") + '" download title="Cette partie en PDF, version courte">' + ICON_DL + 'PDF court</a><a href="' + pdf + '" download title="Cette partie en PDF, avec les « Pourquoi ? »">' + ICON_DL + "PDF complet</a></p>";
   toc += '<div class="tg" style="' + gc + '"><h4>' + esc(G.g) + "</h4>" + (G.note ? '<p class="gnote">' + esc(G.note) + "</p>" : "") + '<ol class="' + (isSteps ? "steps" : "") + '">';
   G.sections.forEach((s) => {
     s.g = gi;
@@ -663,6 +701,11 @@ document.addEventListener("click", async (e) => {
   b.innerHTML = ICON_OK + "<span>Copié</span>"; b.classList.add("ok");
   setTimeout(() => { b.innerHTML = ICON_COPY + "<span>Copié</span>"; b.classList.remove("ok"); }, 1400);
 });
+
+/* ---------------- Menu PDF ---------------- */
+const pdfm = document.querySelector(".pdfm");
+document.addEventListener("click", (e) => { if (pdfm.open && !pdfm.contains(e.target)) pdfm.open = false; });
+pdfm.addEventListener("click", (e) => { if (e.target.closest("a")) pdfm.open = false; });
 
 /* ---------------- Recherche ---------------- */
 const q = document.getElementById("q"), emptyEl = document.getElementById("empty");
@@ -726,6 +769,23 @@ themeBtn.addEventListener("click", () => {
   root.dataset.theme = isDark() ? "light" : "dark";
   try { localStorage.setItem("memo-theme", root.dataset.theme); } catch (e) {}
 });
+
+/* ---------------- PDF dans la version Claude ----------------
+   Sur GitHub Pages, les liens « download » marchent tout seuls.
+   Dans la version Claude, la page passe par la fenêtre de confirmation de téléchargement. */
+if (window.claude && typeof window.claude.use === "function") {
+  window.claude.use("downloads").then((dl) => {
+    if (!dl) return;
+    document.addEventListener("click", async (e) => {
+      const a = e.target.closest("a[download]"); if (!a) return;
+      e.preventDefault();
+      try {
+        const blob = await (await fetch(a.href)).blob();
+        await dl.save({filename: a.getAttribute("href").split("/").pop(), data: blob});
+      } catch (err) { /* refusé ou indisponible : rien à faire */ }
+    });
+  }).catch(() => {});
+}
 }
 </script>
 </body>
