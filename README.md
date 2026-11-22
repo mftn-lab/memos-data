@@ -19,7 +19,7 @@ Chaque fiche donne le code ligne par ligne, avec une phrase simple pour dire ce 
 ## Ce qu'on trouve sur chaque page
 
 - une recherche (« doublons », « remplir », « date »…) et un sommaire cliquable ;
-- Pandas : un bouton **Copier** sur chaque ligne de code ;
+- Pandas : un bouton **Copier** sur chaque ligne de code, et le **résultat** sur le Titanic quand il aide ;
 - Python : un clic sur le code affiche son **résultat**, comme dans Colab ;
 - des encadrés **Pourquoi ?**, **Astuce** et **Piège** ;
 - des mémos **PDF** à télécharger, en version courte (le code, les astuces, les pièges) ou complète (avec les « Pourquoi »), pour tout le mémo ou une seule partie (dossier `pdf/`) ;
