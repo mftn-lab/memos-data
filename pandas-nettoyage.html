@@ -27,7 +27,8 @@
 html{scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
 a{color:var(--blue)}
-pre,code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+/* Pas de ligatures : != reste != (et non ≠), >= reste >= */
+pre,code,table.dfr{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
 p code,td code,.note code,.lead code,.why code,.gold p code{background:var(--bg2);border:1px solid var(--line);padding:0 5px;border-radius:5px;font-size:.86em;overflow-wrap:anywhere}
 .wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,4vw)}
 .top{background:linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);color:#fff}
@@ -303,9 +304,10 @@ import numpy as np`]],
 })`]],
    tip:"Pratique pour tester un code sur un petit exemple avant de le lancer sur le vrai fichier.",
    trap:"Toutes les listes doivent avoir la même longueur, sinon pandas renvoie une erreur."},
-  {id:"lire", t:"Lire un fichier", k:"charger lire ouvrir csv excel json read_csv read_excel fichier",
-   s:[["Un fichier CSV", c`df = pd.read_csv("../data/titanic.csv")`],["Un fichier Excel", c`df = pd.read_excel("fichier.xlsx")`],["Un fichier JSON", c`df = pd.read_json("fichier.json")`]],
-   tip:"`../` veut dire « remonte d'un dossier » : le notebook est dans `notebooks/`, les données dans `data/`."},
+  {id:"lire", t:"Lire un fichier", k:"charger lire ouvrir csv excel json read_csv read_excel fichier url adresse lien internet web github zip telecharger dataframe",
+   s:[["Un fichier CSV", c`df = pd.read_csv("../data/titanic.csv")`],["Directement depuis une adresse internet (même un fichier .zip)", c`tweets = pd.read_csv("https://github.com/murpi/wilddata/raw/master/quests/tweets.zip")`],["Un fichier Excel", c`df = pd.read_excel("fichier.xlsx")`],["Un fichier JSON", c`df = pd.read_json("fichier.json")`]],
+   tip:"`../` veut dire « remonte d'un dossier » : le notebook est dans `notebooks/`, les données dans `data/`. Avec une adresse internet, pas besoin de télécharger le fichier avant : pandas le lit directement.",
+   trap:"`read_csv` renvoie déjà un DataFrame : `pd.DataFrame(pd.read_csv(...))` transforme un tableau… en tableau, c'est inutile. Et `pd.read_csv(...)` seul, sans `tweets =` devant, lit le fichier puis le perd aussitôt (la règle d'or)."},
   {id:"lecture-difficile", t:"Le fichier se lit mal", lead:"Tout arrive dans une seule colonne, ou les cases vides ne sont pas reconnues.", k:"read_csv sep separateur point-virgule tabulation tsv na_values imdb une seule colonne",
    s:[["Les colonnes sont séparées par des ; (fréquent en France)", c`df = pd.read_csv("fichier.csv", sep=";")`],
       ["Les colonnes sont séparées par des tabulations (fichiers .tsv, comme IMDb)", c`df = pd.read_csv("fichier.tsv", sep="\t")`],

@@ -27,7 +27,8 @@
 html{scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
 a{color:var(--blue)}
-pre,code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+/* Pas de ligatures : != reste != (et non ≠), >= reste >= */
+pre,code,table.dfr{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
 p code,td code,.note code,.lead code,.why code,.gold p code{background:var(--bg2);border:1px solid var(--line);padding:0 5px;border-radius:5px;font-size:.86em;overflow-wrap:anywhere}
 .wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,4vw)}
 .top{background:linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);color:#fff}
