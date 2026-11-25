@@ -72,18 +72,39 @@ a.dom{border-top:4px solid var(--blue)}
 a.dom:hover{transform:translateY(-3px);box-shadow:0 16px 34px -18px rgba(36,87,197,.6)}
 .dom h2{font-size:22px}
 /*/SKIN*/
+/*FAV*/
+.favs{border-top:1px solid var(--line);padding:30px 0 34px;scroll-margin-top:10px}
+.favs h2{display:flex;align-items:center;gap:10px;font-size:clamp(24px,3vw,30px);margin:0 0 6px;letter-spacing:-.01em}
+.favs .lead{margin:0 0 18px;color:var(--mute);max-width:75ch}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;align-items:start}
+.fm{border:1px solid var(--line);border-top:4px solid #e8a400;border-radius:14px;padding:14px 16px;background:var(--bg);box-shadow:0 1px 2px rgba(15,25,50,.05),0 10px 28px -18px rgba(15,25,50,.35)}
+.fm h3{margin:0 0 8px;font-size:16px}
+.fm h3 a{color:var(--ink);text-decoration:none}
+.fm ul{list-style:none;margin:0;padding:0}
+.fm li{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:7px 0}
+.fm li a{flex:1;min-width:0;color:var(--ink);text-decoration:none;font-weight:600;font-size:14.5px}
+.fm li a small{display:block;font-weight:400;color:var(--mute);font-size:12.5px}
+.fm li a:hover{color:var(--blue)}
+.fm li button{flex:none;border:0;background:transparent;color:var(--mute);cursor:pointer;border-radius:8px;width:30px;height:30px;font-size:18px;line-height:1}
+.fm li button:hover{background:color-mix(in srgb,var(--red,#c62828) 12%,transparent);color:var(--red,#c62828)}
+/*/FAV*/
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><span class="acts"><a class="btn" href="#pdf" id="topdf">Tous les PDF</a><button class="btn" id="theme" type="button">Mode sombre</button></span></div>
+    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><span class="acts"><a class="btn" id="tofav" href="#favs">Mes favoris</a><a class="btn" href="#pdf" id="topdf">Tous les PDF</a><button class="btn" id="theme" type="button">Mode sombre</button></span></div>
     <h1>Mes mémos Data Analyst</h1>
     <p class="sub">Une page par domaine : le code, ce qu'il fait et pourquoi. Construit à partir de mes cours, pour retrouver une méthode en quelques secondes.</p>
   </div>
 </header>
 <main class="wrap">
   <div class="grid" id="grid"></div>
+  <section class="favs" id="favs">
+    <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="#e8a400" stroke="#e8a400" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris</h2>
+    <p class="lead" id="favlead"></p>
+    <div class="fgrid" id="favlist"></div>
+  </section>
   <section class="pdfs" id="pdf">
     <h2>Tous les mémos en PDF</h2>
     <p class="lead">Deux versions de chaque mémo. <b>Courte</b> : le code, les astuces et les pièges, pour coder. <b>Complète</b> : avec tous les « Pourquoi ? », pour réviser l'oral. Chaque partie se télécharge aussi seule, depuis la page du mémo.</p>
@@ -144,5 +165,33 @@ if (window.claude && typeof window.claude.use === "function") {
 }
 }
 </script>
+<script>/*FAV*/
+(function(){
+const KEY = "memos-favoris", list = document.getElementById("favlist"), lead = document.getElementById("favlead");
+const ORDER = ["python.html", "pandas-nettoyage.html", "git.html"];
+const e = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (x) { return {}; } }
+function draw(){
+  const f = load(), by = {};
+  Object.keys(f).forEach((key) => { const v = f[key]; (by[v.page] = by[v.page] || {memo: v.memo, items: []}).items.push([key, v]); });
+  const pages = Object.keys(by).sort((a, b) => (ORDER.indexOf(a) + 99 * (ORDER.indexOf(a) < 0)) - (ORDER.indexOf(b) + 99 * (ORDER.indexOf(b) < 0)));
+  const n = Object.keys(f).length;
+  lead.innerHTML = n ? n + (n > 1 ? " fiches mises de côté" : " fiche mise de côté") + ", tous mémos confondus. Clique sur une fiche pour l'ouvrir dans son mémo."
+    : "Aucun favori pour l'instant. Dans un mémo, clique sur l'étoile en haut à droite d'une fiche : elle apparaîtra ici. Le bouton « Favoris » d'un mémo n'affiche que ses fiches favorites.";
+  list.innerHTML = pages.map((p) => '<div class="fm"><h3><a href="' + e(p) + '">' + e(by[p].memo) + "</a></h3><ul>"
+    + by[p].items.sort((a, b) => a[1].at - b[1].at).map(([key, v]) => '<li><a href="' + e(p) + '" data-go="' + e(v.id) + '">' + e(v.t) + (v.sec ? "<small>" + e(v.sec) + "</small>" : "") + '</a><button type="button" data-del="' + e(key) + '" title="Retirer des favoris" aria-label="Retirer des favoris">×</button></li>').join("")
+    + "</ul></div>").join("");
+}
+list.addEventListener("click", (ev) => {
+  const d = ev.target.closest("[data-del]");
+  if (d) { const f = load(); delete f[d.dataset.del]; try { localStorage.setItem(KEY, JSON.stringify(f)); } catch (x) {} draw(); return; }
+  const a = ev.target.closest("[data-go]");
+  if (a) { try { sessionStorage.setItem("memos-goto", a.dataset.go); } catch (x) {} }
+});
+document.getElementById("tofav").addEventListener("click", (ev) => { ev.preventDefault(); document.getElementById("favs").scrollIntoView({behavior: "smooth"}); });
+addEventListener("storage", draw); addEventListener("pageshow", draw);
+draw();
+})();
+/*/FAV*/</script>
 </body>
 </html>

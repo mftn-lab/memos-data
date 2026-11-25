@@ -224,7 +224,44 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{.bar,.toc,.cp,.run,.hero{display:none}.layout{display:block}.card{break-inside:avoid}}
-mark.hl{background:#ffd54f;color:#141922;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px #e0b000}/*SKIN*/
+mark.hl{background:#ffd54f;color:#141922;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px #e0b000}
+/*UX*/
+.grp a{display:none}
+.grp::after{display:none}
+.mcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.mcol{display:flex;flex-direction:column;gap:18px;min-width:0}
+.mcol>.card{margin-bottom:0}
+.card h3{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.card h3>a{flex:0 1 auto}
+.fav{margin-left:auto;order:9;flex:none;width:32px;height:32px;margin-top:-4px;margin-right:-6px;border:0;border-radius:10px;background:transparent;color:var(--mute);cursor:pointer;display:grid;place-items:center;opacity:.55;transition:opacity .15s,color .15s,background .15s,transform .15s}
+.card:hover .fav,.fav:focus-visible{opacity:1}
+.fav:hover{background:color-mix(in srgb,#e8a400 14%,transparent);color:#c98a00}
+.fav.on{opacity:1;color:#e8a400}
+.fav.on svg{fill:currentColor}
+.fav.pop{transform:scale(1.25)}
+.card.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,40%{box-shadow:0 0 0 4px color-mix(in srgb,#e8a400 55%,transparent)}}
+#favall .fc{font-size:12px;font-weight:800;min-width:18px;padding:0 5px;border-radius:999px;background:color-mix(in srgb,#e8a400 22%,transparent);color:inherit}
+#favall .fc:empty{display:none}
+#favall[aria-pressed=true]{background:color-mix(in srgb,#e8a400 18%,var(--bg));border-color:#e8a400}
+#favall[aria-pressed=true] svg{fill:#e8a400;stroke:#e8a400}
+.tpdf{margin:22px 0 10px;padding:14px 12px 12px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--blue) 5%,var(--bg))}
+.tpdf h4{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:13px;font-weight:800;color:var(--ink)}
+.prow{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px}
+.prow .pn{flex:1;min-width:0;color:var(--mute);display:flex;align-items:center;gap:7px}
+.prow .pn::before{content:"";flex:none;width:8px;height:8px;border-radius:3px;background:var(--gc)}
+.prow.all .pn{color:var(--ink);font-weight:700}
+.prow.all .pn::before{background:linear-gradient(135deg,var(--blue),var(--teal))}
+.prow a{flex:none;font-size:12px;font-weight:700;text-decoration:none;color:var(--gc);border:1.5px solid color-mix(in srgb,var(--gc) 35%,transparent);border-radius:999px;padding:1px 8px}
+.prow.all a{--gc:var(--blue)}
+.prow a:hover{background:color-mix(in srgb,var(--gc) 12%,transparent)}
+footer .fpdf{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+footer .fpdf .prow{padding:12px 14px;border:1px solid var(--line);border-top:4px solid var(--gc);border-radius:14px;background:var(--bg);font-size:14px}
+footer .fpdf .prow.all{border-top-color:var(--blue)}
+footer h2{font-size:20px;margin:0 0 4px;color:var(--ink)}
+footer .fsub{margin:0 0 16px}
+/*/UX*/
+/*SKIN*/
 /* Pleine largeur sur grand écran */
 .wrap{max-width:2400px}
 .layout{grid-template-columns:300px minmax(0,1fr);gap:40px}
@@ -246,12 +283,6 @@ body{background-color:var(--bg);background-image:radial-gradient(1100px 520px at
 .card h3{font-size:18px}
 .cl{box-shadow:0 6px 18px -12px rgba(0,0,0,.6)}
 .gold{box-shadow:0 12px 30px -22px rgba(15,25,50,.5)}
-/* Grand écran : les fiches d'une section côte à côte */
-@media (min-width:1400px){
- section.sec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
- section.sec>.sh{grid-column:1/-1;margin-bottom:0}
- section.sec>.card{margin-bottom:0}
-}
 @media (prefers-reduced-motion:reduce){.card:hover{transform:none}}
 /*/SKIN*/
 </style>
@@ -284,6 +315,7 @@ body{background-color:var(--bg);background-image:radial-gradient(1100px 520px at
     </div>
     <button class="tb" id="whyall" type="button" aria-pressed="false" title="Afficher ou masquer toutes les explications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span class="tx">Tous les pourquoi</span></button>
     <button class="tb" id="resall" type="button" aria-pressed="false" title="Afficher ou masquer tous les résultats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l11 7-11 7z"/></svg><span class="tx">Tous les résultats</span></button>
+    <button class="tb" id="favall" type="button" aria-pressed="false" title="N'afficher que mes fiches favorites"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg><span class="tx">Favoris</span><span class="fc" id="favcount"></span></button>
     <details class="pdfm"><summary class="tb" title="Télécharger le mémo en PDF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="tx">PDF</span></summary>
       <div><a href="pdf/memo-pandas-court.pdf" download><b>Version courte</b><span>le code, les astuces, les pièges</span></a><a href="pdf/memo-pandas.pdf" download><b>Version complète</b><span>avec tous les « Pourquoi ? »</span></a></div></details>
     <button class="tb" id="theme" type="button" aria-label="Changer de thème" title="Clair / sombre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
@@ -738,7 +770,8 @@ GROUPS.forEach((G, gi) => {
   const gc = "--gc:var(--" + G.col + ")";
   const isSteps = G.sections.some((s) => s.step);
   const pdf = "pdf/memo-pandas-" + (gi + 1) + "-" + norm(G.g).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".pdf";
-  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + '<a href="' + pdf.replace(".pdf", "-court.pdf") + '" download title="Cette partie en PDF, version courte">' + ICON_DL + 'PDF court</a><a href="' + pdf + '" download title="Cette partie en PDF, avec les « Pourquoi ? »">' + ICON_DL + "PDF complet</a></p>";
+  (window.PDFP = window.PDFP || []).push([G.g, pdf, G.col]);
+  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + "</p>";
   toc += '<div class="tg" style="' + gc + '"><h4>' + esc(G.g) + "</h4>" + (G.note ? '<p class="gnote">' + esc(G.note) + "</p>" : "") + '<ol class="' + (isSteps ? "steps" : "") + '">';
   G.sections.forEach((s) => {
     s.g = gi;
@@ -922,6 +955,127 @@ if (window.claude && typeof window.claude.use === "function") {
     });
   }).catch(() => {});
 }
+/*UXJS*/
+(function(){
+/* ---------- Favoris (communs à tous les mémos) ---------- */
+const KEY = "memos-favoris";
+let mem = {};
+function loadF(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { return mem; } }
+function saveF(f){ mem = f; try { localStorage.setItem(KEY, JSON.stringify(f)); } catch (e) {} }
+const memoA = document.querySelector('.pdfm a[href*="pdf/memo-"]');
+const MEMO = memoA ? memoA.getAttribute("href").match(/memo-([a-z]+)/)[1] : "memo";
+const PAGE = {python: "python.html", pandas: "pandas-nettoyage.html", git: "git.html"}[MEMO] || location.pathname.split("/").pop();
+const TITLE = document.querySelector(".top h1") ? document.querySelector(".top h1").textContent.trim() : document.title;
+const STAR = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
+const k = (id) => PAGE + "#" + id;
+const secOf = {};
+ALL.forEach((s) => s.cards.forEach((cd) => { secOf[cd.id] = s; }));
+document.querySelectorAll(".card").forEach((cd) => {
+  const h = cd.querySelector("h3"); if (!h || h.querySelector(".fav")) return;
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "fav"; b.innerHTML = STAR;
+  h.appendChild(b);
+});
+document.querySelectorAll(".comp").forEach((c) => { c.title = "Ne vient pas de mes cours : ajout utile"; });
+let favMode = false;
+function paint(){
+  const f = loadF(); let n = 0;
+  document.querySelectorAll(".card").forEach((cd) => {
+    const on = !!f[k(cd.id)]; if (on) n++;
+    const b = cd.querySelector(".fav"); if (!b) return;
+    b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+    b.title = on ? "Retirer des favoris" : "Ajouter aux favoris";
+  });
+  const fc = document.getElementById("favcount"); if (fc) fc.textContent = n || "";
+  return f;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest(".fav"); if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const cd = b.closest(".card"), f = loadF(), key = k(cd.id);
+  if (f[key]) delete f[key];
+  else { const s = secOf[cd.id]; f[key] = {page: PAGE, memo: TITLE, id: cd.id, t: cd.querySelector("h3 a").textContent, sec: s ? s.t : "", at: Date.now()}; }
+  saveF(f); paint();
+  b.classList.add("pop"); setTimeout(() => b.classList.remove("pop"), 180);
+  if (favMode) search();
+}, true);
+
+/* ---------- Filtre « Favoris » branché sur la recherche ---------- */
+const emptyP = document.getElementById("empty"), emptyTxt = emptyP ? emptyP.innerHTML : "";
+const baseSearch = search;
+search = function(){
+  baseSearch();
+  if (favMode) {
+    const f = loadF(), gCount = {}; let shown = 0;
+    ALL.forEach((s) => {
+      let inSec = 0;
+      s.cards.forEach((cd) => {
+        const el = document.getElementById(cd.id);
+        if (!f[k(cd.id)]) el.classList.add("hide");
+        if (!el.classList.contains("hide")) inSec++;
+      });
+      document.getElementById(s.id).classList.toggle("hide", !inSec);
+      const li = tocEl.querySelector('li[data-s="' + s.id + '"]'); if (li) li.classList.toggle("hide", !inSec);
+      gCount[s.g] = (gCount[s.g] || 0) + inSec; shown += inSec;
+    });
+    document.querySelectorAll(".grp").forEach((el) => el.classList.toggle("hide", !gCount[el.dataset.g]));
+    gold.style.display = "none";
+    if (emptyP) {
+      emptyP.innerHTML = Object.keys(f).some((x) => x.indexOf(PAGE + "#") === 0) ? "Aucun favori ne correspond à ta recherche." : "Pas encore de favori dans ce mémo : clique sur l'étoile en haut à droite d'une fiche.";
+      emptyP.classList.toggle("show", shown === 0);
+    }
+  } else if (emptyP) emptyP.innerHTML = emptyTxt;
+  layout();
+};
+const favBtn = document.getElementById("favall");
+if (favBtn) favBtn.addEventListener("click", () => {
+  favMode = !favMode; favBtn.setAttribute("aria-pressed", favMode);
+  search(); window.scrollTo({top: document.querySelector(".bar").offsetTop});
+});
+
+/* ---------- Fiches en colonnes sans trous ---------- */
+const mq = matchMedia("(min-width:1400px)");
+function layout(){
+  const two = mq.matches;
+  document.querySelectorAll("section.sec").forEach((sec) => {
+    if (!sec._cards) sec._cards = Array.from(sec.querySelectorAll(".card"));
+    const old = sec.querySelector(".mcols");
+    if (!two || sec._cards.length < 2) {
+      if (old) { sec._cards.forEach((c) => sec.appendChild(c)); old.remove(); }
+      return;
+    }
+    const box = document.createElement("div"); box.className = "mcols";
+    const cols = [document.createElement("div"), document.createElement("div")];
+    cols.forEach((c) => { c.className = "mcol"; box.appendChild(c); });
+    if (old) old.replaceWith(box); else sec.appendChild(box);
+    sec._cards.forEach((c) => {
+      const t = c.classList.contains("hide") ? cols[0] : (cols[1].offsetHeight < cols[0].offsetHeight ? cols[1] : cols[0]);
+      t.appendChild(c);
+    });
+  });
+}
+let rt; let lastW = innerWidth;
+addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lastW) > 40 || mq.matches !== (lastW >= 1400)) { lastW = innerWidth; layout(); } }, 200); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+
+/* ---------- PDF : en bas du sommaire et en bas de page ---------- */
+const parts = window.PDFP || [];
+const whole = document.querySelector('.pdfm a[href$="-court.pdf"]') ? document.querySelector('.pdfm a[href$="-court.pdf"]').getAttribute("href").replace("-court.pdf", ".pdf") : null;
+const DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+const row = (name, pdf, col, all) => '<div class="prow' + (all ? " all" : "") + '" style="--gc:var(--' + col + ')"><span class="pn">' + name + '</span><a href="' + pdf.replace(".pdf", "-court.pdf") + '" download title="Version courte">court</a><a href="' + pdf + '" download title="Version complète, avec les « Pourquoi ? »">complet</a></div>';
+const rows = (whole ? row("Tout le mémo", whole, "blue", true) : "") + parts.map((p) => row(esc(p[0]), p[1], p[2])).join("");
+if (rows && !tocEl.querySelector(".tpdf")) tocEl.insertAdjacentHTML("beforeend", '<div class="tpdf"><h4>' + DL + "Télécharger en PDF</h4>" + rows + "</div>");
+const foot = document.querySelector("footer .wrap");
+if (foot && rows) foot.innerHTML = '<h2>Ce mémo en PDF</h2><p class="fsub"><b>Court</b> : le code, les astuces et les pièges. <b>Complet</b> : avec tous les « Pourquoi ? », pour réviser l\'oral.</p><div class="fpdf">' + rows + "</div>";
+
+/* ---------- Arrivée depuis la liste des favoris ---------- */
+paint(); layout();
+let go = null; try { go = sessionStorage.getItem("memos-goto"); sessionStorage.removeItem("memos-goto"); } catch (e) {}
+const target = go || (location.hash ? location.hash.slice(1) : "");
+const el = target && document.getElementById(target);
+if (el) setTimeout(() => { el.scrollIntoView({block: "center"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1700); }, 250);
+})();
+/*/UXJS*/
 }
 </script>
 </body>
