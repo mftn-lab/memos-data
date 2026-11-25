@@ -235,8 +235,6 @@ mark.hl{background:#ffd54f;color:#141922;border-radius:3px;padding:0 1px;box-sha
 @keyframes flash{0%,40%{box-shadow:0 0 0 4px color-mix(in srgb,#e8a400 55%,transparent)}}
 #favall .fc{font-size:12px;font-weight:800;min-width:18px;padding:0 5px;border-radius:999px;background:color-mix(in srgb,#e8a400 22%,transparent);color:inherit}
 #favall .fc:empty{display:none}
-#favall[aria-pressed=true]{background:color-mix(in srgb,#e8a400 18%,var(--bg));border-color:#e8a400}
-#favall[aria-pressed=true] svg{fill:#e8a400;stroke:#e8a400}
 .tpdf{margin:22px 0 10px;padding:14px 12px 12px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--blue) 5%,var(--bg))}
 .tpdf h4{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:13px;font-weight:800;color:var(--ink)}
 .prow{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px}
@@ -272,13 +270,33 @@ footer .fsub{margin:0 0 16px}
 .tg.empty{display:none}
 .lab{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .lab .lang{margin-left:auto;flex:none;font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;padding:4px 8px;border-radius:6px;color:var(--lc);background:color-mix(in srgb,var(--lc) 13%,transparent);white-space:nowrap}
-.lang.py{--lc:#2f6fd6}.lang.sh{--lc:#c25410}.lang.nb{--lc:#7a4cc9}.lang.fi{--lc:#5a6475}
+.lang.lpy{--lc:#2f6fd6}.lang.lsh{--lc:#c25410}.lang.lnb{--lc:#7a4cc9}.lang.lfi{--lc:#5a6475}
 .sh{padding-bottom:12px;border-bottom:2px solid color-mix(in srgb,var(--gc) 30%,transparent);margin-bottom:18px}
 .favbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 22px;padding:12px 16px;border:1px solid color-mix(in srgb,#e8a400 45%,var(--line));border-left:5px solid #e8a400;border-radius:14px;background:color-mix(in srgb,#e8a400 9%,var(--bg))}
 .favbar b{font-size:16px}
 .favbar span{color:var(--mute);font-size:14px}
 .favbar a{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:14px;text-decoration:none;color:var(--bg);background:var(--blue);border-radius:10px;padding:8px 14px}
 .favbar a:hover{filter:brightness(1.1)}
+.bar .tb{--tc:var(--blue);color:var(--tc);border-color:color-mix(in srgb,var(--tc) 35%,var(--line));background:color-mix(in srgb,var(--tc) 9%,var(--bg));box-shadow:0 1px 2px rgba(15,25,50,.06);transition:background .15s,border-color .15s,color .15s}
+.bar .tb:hover{color:var(--tc);border-color:var(--tc);background:color-mix(in srgb,var(--tc) 17%,var(--bg))}
+.bar .tb[aria-pressed=true],.bar .pdfm[open] summary.tb{background:var(--tc);border-color:var(--tc);color:var(--bg)}
+.bar .tb[aria-pressed=true] .fc{background:color-mix(in srgb,var(--bg) 30%,transparent)}
+.bar .tb.home,#menu{--tc:var(--blue)}
+#whyall{--tc:var(--whyl)}
+#resall{--tc:var(--violet)}
+#favall{--tc:var(--amberl)}
+.bar .pdfm summary.tb{--tc:var(--redl)}
+#theme{--tc:var(--orange)}
+#favall[aria-pressed=true] svg{fill:currentColor}
+.pnav{display:flex;align-items:center;gap:12px;margin:34px 0 10px;padding:14px 0 0;border-top:1px solid var(--line)}
+.pnav .pc{flex:1;text-align:center;font-size:13.5px;font-weight:600;color:var(--mute)}
+.pnav button{font:inherit;font-size:15px;font-weight:700;color:var(--gc);background:color-mix(in srgb,var(--gc) 9%,var(--bg));border:1.5px solid color-mix(in srgb,var(--gc) 35%,var(--line));border-radius:12px;padding:10px 16px;cursor:pointer;max-width:42%;text-align:left}
+.pnav button.nx{text-align:right}
+.pnav button:hover{background:color-mix(in srgb,var(--gc) 17%,var(--bg));border-color:var(--gc)}
+.pnav button small{display:block;font-size:12px;font-weight:600;color:var(--mute)}
+.partoff{display:none!important}
+.grp.gfirst{margin-top:0}
+footer{display:none}
 /*/UX*/
 /*SKIN*/
 /* Pleine largeur sur grand écran */
@@ -3322,6 +3340,7 @@ search = function(){
       emptyP.classList.toggle("show", shown === 0);
     }
   } else if (emptyP) emptyP.innerHTML = emptyTxt;
+  applyPart();
   layout();
   if (typeof openG !== "undefined") { openG = null; if (typeof spy === "function") spy(); }
   tocEl.querySelectorAll(".tg").forEach((g) => g.classList.toggle("empty", !g.querySelector("li[data-s]:not(.hide)")));
@@ -3375,8 +3394,7 @@ const DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="
 const row = (name, pdf, col, all) => '<div class="prow' + (all ? " all" : "") + '" style="--gc:var(--' + col + ')"><span class="pn">' + name + '</span><a href="' + pdf.replace(".pdf", "-court.pdf") + '" download title="Version courte">court</a><a href="' + pdf + '" download title="Version complète, avec les « Pourquoi ? »">complet</a></div>';
 const rows = (whole ? row("Tout le mémo", whole, "blue", true) : "") + parts.map((p) => row(esc(p[0]), p[1], p[2])).join("");
 if (rows && !tocEl.querySelector(".tpdf")) tocEl.insertAdjacentHTML("beforeend", '<div class="tpdf"><h4>' + DL + "Télécharger en PDF</h4>" + rows + "</div>");
-const foot = document.querySelector("footer .wrap");
-if (foot && rows) foot.innerHTML = '<h2>Ce mémo en PDF</h2><p class="fsub"><b>Court</b> : le code, les astuces et les pièges. <b>Complet</b> : avec tous les « Pourquoi ? », pour réviser l\'oral.</p><div class="fpdf">' + rows + "</div>";
+
 
 /* ---------- Voir aussi ---------- */
 const SEE = window.SEE || {};
@@ -3386,7 +3404,7 @@ Object.keys(SEE).forEach((id) => {
   const cd = document.getElementById(id); if (!cd || cd.querySelector(".see")) return;
   cd.insertAdjacentHTML("beforeend", '<div class="see"><span>' + LINK + "Voir aussi</span>" + SEE[id].map((l) => '<a href="' + (l[0] === PAGE ? "#" + l[1] : l[0]) + '" data-page="' + l[0] + '" data-go="' + l[1] + '" style="--mc:' + (MC[l[0]] || "var(--blue)") + '">' + (l[0] === PAGE ? "" : "<b>" + esc(l[3]) + "</b>") + esc(l[2]) + "</a>").join("") + "</div>");
 });
-function flashTo(el){ el.scrollIntoView({block: "center", behavior: "smooth"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1700); }
+function flashTo(el){ reveal(el); el.scrollIntoView({block: "center", behavior: "smooth"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1700); }
 document.addEventListener("click", (e) => {
   const a = e.target.closest(".see a"); if (!a) return;
   if (a.dataset.page === PAGE) {
@@ -3423,13 +3441,13 @@ addEventListener("scroll", () => {
 const SHELL = /^(git|pip|cd|python|py|ls|mkdir|uv|echo|rm|rmdir|grep|pwd|touch|cat|mv|cp|code|source|explorer|history|head|tail|find|clear|bash|deactivate|which|where|chmod|flake8|black|jupyter|Username:)(\s|$)/;
 function langOf(code){
   const t = code.trimStart();
-  if (/^[!%]pip\b/.test(t)) return ["Notebook", "nb"];
-  if (/^\.venv\\Scripts\\/.test(t)) return ["PowerShell", "sh"];
-  if (/^"terminal\./.test(t)) return ["settings.json", "fi"];
-  if (/^(<{7}|# Portfolio)/.test(t)) return ["README.md", "fi"];
-  if (/^\.(env|venv\/)/.test(t)) return [".gitignore", "fi"];
-  if (SHELL.test(t)) return ["Git Bash", "sh"];
-  return ["Python", "py"];
+  if (/^[!%]pip\b/.test(t)) return ["Notebook", "lnb"];
+  if (/^\.venv\\Scripts\\/.test(t)) return ["PowerShell", "lsh"];
+  if (/^"terminal\./.test(t)) return ["settings.json", "lfi"];
+  if (/^(<{7}|# Portfolio)/.test(t)) return ["README.md", "lfi"];
+  if (/^\.(env|venv\/)/.test(t)) return [".gitignore", "lfi"];
+  if (SHELL.test(t)) return ["Git Bash", "lsh"];
+  return ["Python", "lpy"];
 }
 document.querySelectorAll(".snip").forEach((sn) => {
   const lab = sn.querySelector(".lab"), code = sn.querySelector("pre code");
@@ -3443,7 +3461,7 @@ const groupsT = Array.from(tocEl.querySelectorAll(".tg"));
 groupsT.forEach((g) => {
   const h = g.querySelector("h4"), n = g.querySelectorAll("li[data-s]").length;
   if (h && !h.querySelector(".tgn")) h.insertAdjacentHTML("beforeend", '<span class="tgn">' + n + "</span>");
-  if (h) h.addEventListener("click", () => g.classList.toggle("shut"));
+  if (h) h.addEventListener("click", () => { if (filtering()) g.classList.toggle("shut"); else showGroup(groupsT.indexOf(g)); });
 });
 let openG = null;
 function accordion(id){
@@ -3471,8 +3489,8 @@ function spy(){
   if (pinned) { setActive(pinned); return; }
   const off = document.querySelector(".bar").offsetHeight + 40;
   let cur = null;
-  document.querySelectorAll("section.sec:not(.hide)").forEach((s) => { if (s.getBoundingClientRect().top <= off) cur = s; });
-  if (!cur) cur = document.querySelector("section.sec:not(.hide)");
+  document.querySelectorAll("section.sec:not(.hide):not(.partoff)").forEach((s) => { if (s.getBoundingClientRect().top <= off) cur = s; });
+  if (!cur) cur = document.querySelector("section.sec:not(.hide):not(.partoff)");
   if (cur) setActive(cur.id);
 }
 addEventListener("scroll", () => { if (!spyRaf) spyRaf = requestAnimationFrame(spy); }, {passive: true});
@@ -3480,11 +3498,51 @@ tocEl.addEventListener("click", (e) => { const a = e.target.closest("li[data-s] 
 ["wheel", "touchstart", "keydown"].forEach((ev) => addEventListener(ev, (e) => { if (ev === "keydown" && !/^(Arrow|Page|Home|End| )/.test(e.key)) return; pinned = null; }, {passive: true}));
 spy();
 
+/* ---------- Une partie à la fois ---------- */
+var curG = 0;
+const PKEY = "memos-partie-" + PAGE, NG = GROUPS.length;
+document.querySelectorAll("main section.sec").forEach((sec) => { const x = ALL.find((y) => y.id === sec.id); if (x) sec.dataset.g = x.g; });
+GROUPS.forEach((G, gi) => {
+  const secs = ALL.filter((x) => x.g === gi); if (!secs.length || document.getElementById("pnav" + gi)) return;
+  const btn = (to, cls, txt) => '<button type="button" class="' + cls + '" data-to="' + to + '" style="--gc:var(--' + GROUPS[to].col + ')"><small>' + (cls === "pv" ? "Partie précédente" : "Partie suivante") + "</small>" + txt + "</button>";
+  document.getElementById(secs[secs.length - 1].id).insertAdjacentHTML("afterend", '<nav class="pnav" id="pnav' + gi + '" data-g="' + gi + '">'
+    + (gi > 0 ? btn(gi - 1, "pv", "← " + esc(GROUPS[gi - 1].g)) : "<span></span>")
+    + '<span class="pc">Partie ' + (gi + 1) + " sur " + NG + "</span>"
+    + (gi < NG - 1 ? btn(gi + 1, "nx", esc(GROUPS[gi + 1].g) + " →") : "<span></span>") + "</nav>");
+});
+main.addEventListener("click", (e) => { const b = e.target.closest(".pnav button[data-to]"); if (b) showGroup(+b.dataset.to); });
+function filtering(){ return !!q.value.trim() || favMode; }
+function applyPart(){
+  const f = filtering();
+  main.querySelectorAll("[data-g]").forEach((el) => el.classList.toggle("partoff", el.classList.contains("pnav") ? (f || +el.dataset.g !== curG) : (!f && +el.dataset.g !== curG)));
+  if (!f) gold.style.display = curG === 0 ? "" : "none";
+  main.querySelectorAll(".grp").forEach((el) => el.classList.toggle("gfirst", !f && curG !== 0 && +el.dataset.g === curG));
+}
+function showGroup(g, noScroll){
+  curG = Math.max(0, Math.min(NG - 1, g)); try { localStorage.setItem(PKEY, curG); } catch (x) {}
+  applyPart(); layout();
+  const first = ALL.find((x) => x.g === curG);
+  if (first) { pinned = first.id; setActive(first.id); }
+  if (!noScroll) window.scrollTo({top: Math.max(0, main.getBoundingClientRect().top + scrollY - document.querySelector(".bar").offsetHeight - 14), behavior: "instant"});
+}
+function reveal(el){
+  const sec = el && el.closest("section.sec");
+  if (sec && sec.classList.contains("partoff")) showGroup(+sec.dataset.g, true);
+}
+tocEl.addEventListener("click", (e) => {
+  const a = e.target.closest("li[data-s] a"); if (!a || filtering()) return;
+  const x = ALL.find((y) => "#" + y.id === a.getAttribute("href"));
+  if (x && x.g !== curG) { e.preventDefault(); showGroup(x.g, true); const el = document.getElementById(x.id); el.scrollIntoView(); pinned = x.id; setActive(x.id); }
+}, true);
+try { const v = parseInt(localStorage.getItem(PKEY), 10); if (v >= 0 && v < NG) curG = v; } catch (x) {}
+applyPart(); spy();
+
 /* ---------- Arrivée depuis l'accueil (favoris, recherche, reprendre) ---------- */
 paint(); layout();
 let go = null; try { go = sessionStorage.getItem("memos-goto"); sessionStorage.removeItem("memos-goto"); } catch (e) {}
 const target = go || (location.hash ? location.hash.slice(1) : "");
 const el = target && document.getElementById(target);
+if (el) { reveal(el); layout(); }
 if (el) setTimeout(() => { el.scrollIntoView({block: "center"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1700); }, 250);
 })();
 /*/UXJS*/
