@@ -14,13 +14,9 @@
    COLOUR bleu (commencer), sarcelle (nettoyer), violet (transformer), orange (analyser) ; code sur fond nuit
    TYPE   Inter 800 pour les titres + JetBrains Mono
    LAYOUT sommaire coloré à gauche, fiches à droite ; tiroir sur téléphone */
-:root{color-scheme:light dark;
---bg:light-dark(#ffffff,#0d1220);--bg2:light-dark(#f4f6fa,#151c2c);--ink:light-dark(#141922,#e7ebf3);--mute:light-dark(#5b6576,#9ba7bb);
---line:light-dark(#e3e8ef,#263048);
---blue:light-dark(#2457c5,#7aa7ff);--teal:light-dark(#0f8a7e,#3fd1bf);--violet:light-dark(#6d3fd0,#b39bff);--orange:light-dark(#d4570f,#ff9d5c);
---amber:light-dark(#fff6dc,#2a2312);--amberl:light-dark(#c38d00,#e0b03a);--red:light-dark(#fdeeee,#301a1d);--redl:light-dark(#d03a3a,#ef7777);
---why:light-dark(#eaf6f2,#11241f);--whyl:light-dark(#0f7d6f,#4fd3c0);
---cbg:light-dark(#141b2d,#080c16);--cink:#e6ebf5;--cline:light-dark(#141b2d,#1f2940)}
+:root{color-scheme:light;--bg:#ffffff;--bg2:#f4f6fa;--ink:#141922;--mute:#5b6576;--line:#e3e8ef;--blue:#2457c5;--teal:#0f8a7e;--violet:#6d3fd0;--orange:#d4570f;--amber:#fff6dc;--amberl:#c38d00;--red:#fdeeee;--redl:#d03a3a;--why:#eaf6f2;--whyl:#0f7d6f;--cbg:#141b2d;--cink:#e6ebf5;--cline:#141b2d}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0d1220;--bg2:#151c2c;--ink:#e7ebf3;--mute:#9ba7bb;--line:#263048;--blue:#7aa7ff;--teal:#3fd1bf;--violet:#b39bff;--orange:#ff9d5c;--amber:#2a2312;--amberl:#e0b03a;--red:#301a1d;--redl:#ef7777;--why:#11241f;--whyl:#4fd3c0;--cbg:#080c16;--cline:#1f2940}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0d1220;--bg2:#151c2c;--ink:#e7ebf3;--mute:#9ba7bb;--line:#263048;--blue:#7aa7ff;--teal:#3fd1bf;--violet:#b39bff;--orange:#ff9d5c;--amber:#2a2312;--amberl:#e0b03a;--red:#301a1d;--redl:#ef7777;--why:#11241f;--whyl:#4fd3c0;--cbg:#080c16;--cline:#1f2940}
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
@@ -219,6 +215,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{.bar,.toc,.run,.hero{display:none}.layout{display:block}.card{break-inside:avoid}}
+mark.hl{background:#ffd54f;color:#141922;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px #e0b000}
 </style>
 </head>
 <body>
@@ -3014,6 +3011,40 @@ const pdfm = document.querySelector(".pdfm");
 document.addEventListener("click", (e) => { if (pdfm.open && !pdfm.contains(e.target)) pdfm.open = false; });
 pdfm.addEventListener("click", (e) => { if (e.target.closest("a")) pdfm.open = false; });
 
+/* ---------------- Surligner les mots cherchés (comme Ctrl + F) ---------------- */
+const fold1 = (ch) => ch.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+function clearMarks(){
+  document.querySelectorAll("mark.hl").forEach((m) => { const p = m.parentNode; p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); });
+  document.querySelectorAll("details.why[data-auto]").forEach((d) => { d.open = false; d.removeAttribute("data-auto"); });
+}
+function markIn(root, words){
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode: (n) => n.parentElement.closest("button, .res[hidden], .comp") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  let found = 0;
+  nodes.forEach((node) => {
+    const t = node.nodeValue; let f = ""; const map = [];
+    for (let i = 0; i < t.length; i++) { const c = fold1(t[i]); for (let k = 0; k < c.length; k++) { f += c[k]; map.push(i); } }
+    let r = [];
+    words.forEach((w) => { let i = f.indexOf(w); while (i !== -1) { r.push([map[i], map[i + w.length - 1] + 1]); i = f.indexOf(w, i + w.length); } });
+    if (!r.length) return;
+    r.sort((a, b) => a[0] - b[0]);
+    const merged = [r[0]]; r.slice(1).forEach((x) => { const l = merged[merged.length - 1]; if (x[0] <= l[1]) l[1] = Math.max(l[1], x[1]); else merged.push(x); });
+    const frag = document.createDocumentFragment(); let last = 0;
+    merged.forEach(([a, b]) => { frag.append(t.slice(last, a)); const m = document.createElement("mark"); m.className = "hl"; m.textContent = t.slice(a, b); frag.append(m); last = b; });
+    frag.append(t.slice(last)); node.replaceWith(frag); found += merged.length;
+  });
+  return found;
+}
+function highlight(words){
+  clearMarks();
+  words = words.filter((w) => w.length >= 2);
+  if (!words.length) return;
+  document.querySelectorAll(".card:not(.hide)").forEach((cd) => {
+    markIn(cd, words);
+    cd.querySelectorAll("details.why:not([open])").forEach((d) => { if (d.querySelector("mark.hl")) { d.open = true; d.setAttribute("data-auto", ""); } });
+  });
+}
+
 /* ---------------- Recherche ---------------- */
 const q = document.getElementById("q"), emptyEl = document.getElementById("empty");
 const gold = document.querySelector(".gold");
@@ -3035,6 +3066,7 @@ function search(){
   document.querySelectorAll(".grp").forEach((el) => el.classList.toggle("hide", !gCount[el.dataset.g]));
   gold.style.display = words.length ? "none" : "";
   emptyEl.classList.toggle("show", shown === 0);
+  highlight(words);
 }
 let wasSearching = false;
 q.addEventListener("input", () => {

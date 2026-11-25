@@ -14,7 +14,9 @@
    COLOUR blanc / nuit bleutée, le bleu des mémos
    TYPE   Inter, JetBrains Mono pour les noms de fonctions
    LAYOUT bandeau bleu, puis grille de fiches ; une colonne sur téléphone */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e1320);--bg2:light-dark(#f4f7fb,#151c2c);--ink:light-dark(#14181f,#e6eaf2);--mute:light-dark(#5a6475,#9aa6ba);--line:light-dark(#dde3ec,#273149);--blue:light-dark(#2457c5,#7aa7ff);--blue2:light-dark(#e8f0fb,#1a2a48)}
+:root{color-scheme:light;--bg:#ffffff;--bg2:#f4f7fb;--ink:#14181f;--mute:#5a6475;--line:#dde3ec;--blue:#2457c5;--blue2:#e8f0fb}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0e1320;--bg2:#151c2c;--ink:#e6eaf2;--mute:#9aa6ba;--line:#273149;--blue:#7aa7ff;--blue2:#1a2a48}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0e1320;--bg2:#151c2c;--ink:#e6eaf2;--mute:#9aa6ba;--line:#273149;--blue:#7aa7ff;--blue2:#1a2a48}
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
