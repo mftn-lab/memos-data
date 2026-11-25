@@ -17,7 +17,7 @@
 :root{color-scheme:light dark;
 --bg:light-dark(#ffffff,#0d1220);--bg2:light-dark(#f4f6fa,#151c2c);--ink:light-dark(#141922,#e7ebf3);--mute:light-dark(#5b6576,#9ba7bb);
 --line:light-dark(#e3e8ef,#263048);
---blue:light-dark(#2457c5,#7aa7ff);--teal:light-dark(#0f8a7e,#3fd1bf);--violet:light-dark(#6d3fd0,#b39bff);--orange:light-dark(#d4570f,#ff9d5c);--pink:light-dark(#c0306a,#ff8fbf);
+--blue:light-dark(#2457c5,#7aa7ff);--teal:light-dark(#0f8a7e,#3fd1bf);--violet:light-dark(#6d3fd0,#b39bff);--orange:light-dark(#d4570f,#ff9d5c);--pink:light-dark(#c0306a,#ff8fbf);--green:light-dark(#2e7d32,#7ed88a);
 --amber:light-dark(#fff6dc,#2a2312);--amberl:light-dark(#c38d00,#e0b03a);--red:light-dark(#fdeeee,#301a1d);--redl:light-dark(#d03a3a,#ef7777);
 --why:light-dark(#eaf6f2,#11241f);--whyl:light-dark(#0f7d6f,#4fd3c0);
 --cbg:light-dark(#141b2d,#080c16);--cink:#e6ebf5;--cline:light-dark(#141b2d,#1f2940)}
@@ -298,6 +298,128 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
 const c = String.raw;
 const GOLD = [["1. Récupérer la dernière version (en équipe)", c`git pull`], ["2. Voir ce qui a changé", c`git status`], ["3. Préparer les fichiers modifiés", c`git add .`], ["4. Enregistrer une étape", c`git commit -m "Ajoute le filtre sur les dates"`], ["5. Envoyer sur GitHub", c`git push`]];
 const GROUPS = [
+{g:"Guides pas à pas", col:"green", note:"Les marches à suivre complètes, du début à la fin. Un bloc = une étape.", sections:[
+ {id:"guide-projet", ic:"rocket", step:1, t:"Créer un projet Python et le mettre sur GitHub", cards:[
+  {id:"gp-dossier", t:"1. Le dossier du projet", k:"guide projet creer dossier code point vscode nouveau projet",
+   lead:"Les commandes sont pour Git Bash. Dans VS Code : terminal intégré (Ctrl + ù), puis Git Bash dans la petite flèche à droite du +.",
+   s:[["Créer le dossier, y entrer, l'ouvrir dans VS Code", c`cd ~/Documents
+mkdir nom-du-projet
+cd nom-du-projet
+code .`]],
+   why:"VS Code s'ouvre sur le dossier : reprends ensuite le terminal intégré de cette nouvelle fenêtre. Il s'ouvre directement au bon endroit.",
+   tip:"Nom sans accent ni espace (minuscules et tirets) : il servira aussi de nom au dépôt GitHub."},
+  {id:"gp-venv", t:"2. L'environnement virtuel, et la vérification", k:"guide venv creer activer verifier which python pip -V",
+   s:[["Créer et activer (Windows, Git Bash)", c`python -m venv .venv
+source .venv/Scripts/activate`],["Sur macOS / Linux, l'activation devient", c`source .venv/bin/activate`],["Vérifier : les deux chemins doivent contenir .venv", c`which python
+pip -V`]],
+   why:"Tu dois voir **(.venv)** au début de la ligne. `which python` dit quel Python répond, `pip -V` où pip installe : si le chemin ne contient pas `.venv`, l'activation n'a pas pris.",
+   trap:"Recommence l'activation avant d'installer quoi que ce soit : sinon tout part dans le Python global, sans aucun message."},
+  {id:"gp-deps", t:"3. Les bibliothèques et la structure", k:"guide pip install ipykernel notebook structure data notebooks pip list",
+   s:[["Installer ce dont le projet a besoin (ipykernel : pour les notebooks)", c`pip install pandas notebook ipykernel`],["Créer la structure", c`mkdir data notebooks src`],["Contrôler : une liste courte = environnement isolé", c`pip list`]],
+   trap:"Une liste de deux cents paquets veut dire que tu installes dans le Python global, pas dans ton projet."},
+  {id:"gp-kernel", t:"4. Le notebook et son noyau (kernel)", k:"guide notebook kernel select kernel sys executable getcwd chemin data",
+   lead:"Crée `notebooks/analyse.ipynb` dans l'explorateur de VS Code. En haut à droite : **Select Kernel** → celui dont le chemin contient `.venv`.",
+   s:[["Première cellule : vérifier le Python et le dossier de travail", c`import sys, os
+print(sys.executable)
+print(os.getcwd())`],["Le notebook tourne depuis notebooks/ : on remonte d'un dossier pour lire les données", c`df = pd.read_csv("../data/ventes.csv")`]],
+   why:"`sys.executable` doit contenir `.venv` ; `os.getcwd()` se termine par `notebooks`. Les deux points `..` remontent d'un dossier.",
+   trap:"Le noyau du notebook est indépendant du terminal. Oublié, il donne le symptôme le plus déroutant : `pip install` répond « Successfully installed », et la cellule suivante « No module named pandas »."},
+  {id:"gp-git-local", t:"5. Git en local : identité, .gitignore, premier commit", k:"guide git config gitignore init status premier commit requirements",
+   s:[["Git me connaît-il ? (rien ne s'affiche = pas configuré)", c`git config --global user.name
+git config --global user.email`],["Sinon, se présenter (avec l'adresse du compte GitHub)", c`git config --global user.name "Prénom Nom"
+git config --global user.email "ton.adresse@exemple.fr"`],["Contenu du fichier .gitignore, à la racine", c`.venv/
+__pycache__/
+.ipynb_checkpoints/
+.history/
+.env`],["Initialiser et contrôler : .venv/ ne doit PAS apparaître", c`git init
+git status`],["Figer les bibliothèques, puis le premier commit", c`pip freeze > requirements.txt
+git add .
+git commit -m "Mise en place du projet"`]],
+   trap:"Crée le `.gitignore` dans VS Code, pas avec le Bloc-notes, qui ajoute en silence `.txt` à la fin. Si `.venv/` apparaît dans `git status`, le `.gitignore` n'est pas à la racine ou contient une faute de frappe : corrige avant de continuer.",
+   tip:"Et `data/` ? Ça dépend du projet : on l'ignore si c'est lourd ou récupérable, on le garde si les CSV sont le résultat de ton travail."},
+  {id:"gp-github", t:"6. Le dépôt GitHub, strictement vide", k:"guide github new depot vide readme license public",
+   tab:[["Champ","Ce que tu mets"],["Repository name","le nom du dossier, sans accent ni espace (GitHub remplace le reste par des tirets)"],["Visibilité","Public"],["Add a README","décoché"],["Add .gitignore","None"],["Choose a license","None"]],
+   why:"Un dépôt qui contient déjà un fichier a son propre historique : ton push serait refusé pour « historiques divergents »."},
+  {id:"gp-push", t:"7. Relier et envoyer", k:"guide remote add origin branch main push u remote v chevrons",
+   s:[["Relier (URL copiée depuis GitHub, collée telle quelle), puis envoyer", c`git remote add origin URL_COPIEE_DEPUIS_GITHUB
+git branch -M main
+git push -u origin main`],["Contrôler : deux lignes commençant par origin", c`git remote -v`]],
+   trap:"Colle l'URL sans chevrons `< >` ni guillemets. Pour le terminal, `<` veut dire « lis ce fichier » : tu obtiendrais `bash: syntax error near unexpected token`, puis `fatal: 'origin' does not appear to be a git repository` au push.",
+   tip:"Au push, une fenêtre d'authentification s'ouvre : choisis **Sign in with your browser** si elle le propose. Sous Windows, le gestionnaire d'identification s'en souvient ensuite. Sinon, c'est le jeton (fiche « Le jeton »)."},
+  {id:"gp-quotidien", t:"8. Le quotidien, ensuite", k:"guide quotidien pull add commit push requirements binome",
+   s:[["Chaque séance", c`git pull
+git add .
+git commit -m "Message explicite"
+git push`],["J'installe une nouvelle bibliothèque : régénérer la liste, puis la pousser", c`pip freeze > requirements.txt
+git add requirements.txt
+git commit -m "Ajoute seaborn aux dépendances"
+git push`],["Mon binôme récupère et installe", c`git pull
+pip install -r requirements.txt`]],
+   why:"Le `git pull` d'ouverture, avant de coder, évite la grande majorité des conflits à plusieurs.",
+   trap:"`pip freeze >` écrase le fichier : si ton binôme avait une bibliothèque que tu n'as pas, elle disparaît de la liste sans un mot."}
+ ]},
+ {id:"guide-clone", ic:"download", step:2, t:"Récupérer un projet (clone) et le faire tourner", cards:[
+  {id:"gc-clone", t:"1. Cloner au bon endroit", k:"guide clone cloner projet camarade dossier neutre nom",
+   s:[["Se placer dans un dossier « neutre » (pas dans un autre dépôt)", c`cd ~/Documents
+pwd`],["Copier le projet et tout son historique", c`git clone URL_DU_DEPOT`],["Ou en choisissant le nom du dossier créé", c`git clone URL_DU_DEPOT python_test_clone`],["Entrer dans le dossier et contrôler le lien et l'historique", c`cd python_test_clone
+git remote -v
+git log --oneline -5`]],
+   why:"`clone` crée le dossier, télécharge tout l'historique et configure `origin` : pas de `git init` ni de `remote add` derrière.",
+   trap:"Jamais à l'intérieur d'un autre dépôt Git. Vérifie avec `pwd` avant de cloner."},
+  {id:"gc-venv", t:"2. Recréer l'environnement (il n'est pas sur GitHub)", k:"guide clone venv recreer requirements install -r",
+   s:[["Créer, activer, réinstaller la liste du projet", c`python -m venv .venv
+source .venv/Scripts/activate
+pip install -r requirements.txt`],["Contrôler le Python utilisé", c`python -c "import sys; print(sys.executable)"`],["Le projet a un pyproject.toml et pas de requirements.txt ? Il est géré avec uv", c`uv sync`]],
+   why:"Le `.venv` est dans le `.gitignore` : un clone ne le récupère jamais. C'est voulu : on partage la liste (`requirements.txt`), et chacun reconstruit sa bulle.",
+   tip:"Dans VS Code : **Python: Select Interpreter** et, pour un notebook, **Select Kernel** → le `.venv` du projet cloné."},
+  {id:"gc-travailler", t:"3. Travailler sans toucher à main", k:"guide clone branche travailler switch c premier push",
+   s:[["Partir de la dernière version, sur sa propre branche", c`git switch main
+git pull
+git switch -c ma-tache`],["Envoyer sa branche la première fois", c`git push -u origin ma-tache`]],
+   tip:"Pour pousser sur le dépôt d'un camarade, il doit t'ajouter : **Settings → Collaborators** (invitation à accepter par e-mail)."},
+  {id:"gc-pieges", t:"Les pièges du clone", k:"guide clone pieges mauvais dossier venv actif repositories collaborateur",
+   tab:[["Situation","Ce qui se passe"],["Un dépôt partagé n'est pas dans l'onglet « Repositories » de mon profil","normal : il ne liste que tes propres dépôts. Les autres sont sur la page d'accueil de GitHub, colonne de gauche. Mets l'URL en favori."],["`git add` ne prépare rien alors que j'ai modifié le fichier","ton terminal est dans un autre dossier (l'autre copie du projet) : chaque dépôt a son propre index → `pwd`"],["Le terminal affiche encore (.venv) dans le nouveau projet","`cd` ne change pas d'environnement : `deactivate`, puis active celui du projet"],["Download ZIP au lieu de clone","pas d'historique, pas de branches, impossible de contribuer"]],
+   comp:true}
+ ]},
+ {id:"guide-equipe", ic:"users", step:3, t:"Une tâche en équipe, de l'issue à la fusion", cards:[
+  {id:"ge-issue", t:"1. Une issue, une branche", k:"guide equipe issue branche switch pull tache",
+   lead:"Sur GitHub, onglet **Issues → New issue** : un titre précis (« Ajouter un script d'analyse des ventes »). Elle reçoit un numéro, par exemple #1.",
+   s:[["Partir de main à jour, créer la branche de la tâche", c`git switch main
+git pull
+git switch -c ajout-analyse-csv`]]},
+  {id:"ge-commit", t:"2. Travailler, enregistrer, envoyer la branche", k:"guide equipe add commit push u origin branche",
+   s:[["Préparer, relire, enregistrer", c`git status
+git add src/analyse_csv.py
+git diff --staged
+git commit -m "Ajoute un premier script d'analyse CSV"`],["Envoyer la branche sur GitHub", c`git push -u origin ajout-analyse-csv`]]},
+  {id:"ge-pr", t:"3. La Pull Request", k:"guide equipe pull request compare base files changed merge closes",
+   tab:[["Étape","Sur GitHub"],["Ouvrir","bandeau **Compare & pull request** (ou Pull requests → New)"],["Choisir","base = `main` ← compare = `ajout-analyse-csv`"],["Décrire","ce que tu as fait et pourquoi, + `Closes #1` pour fermer l'issue à la fusion"],["Relire","onglet **Files changed** (ex. 1 fichier, 4 lignes ajoutées)"],["Fusionner","**Merge pull request** puis **Confirm merge**"],["Nettoyer","**Delete branch**"]],
+   trap:"Ouvrir une Pull Request ne fusionne rien : le travail reste sur sa branche tant que le merge n'est pas validé."},
+  {id:"ge-apres", t:"4. Après la fusion : se remettre à jour et nettoyer", k:"guide equipe apres fusion pull branch d delete prune ls-remote",
+   s:[["Revenir sur main et récupérer la fusion faite sur GitHub", c`git switch main
+git pull`],["Supprimer la branche sur l'ordinateur, puis sur GitHub", c`git branch -d ajout-analyse-csv
+git push origin --delete ajout-analyse-csv`],["Oublier les références des branches supprimées", c`git fetch --prune`]],
+   why:"Supprimer la branche ne supprime pas son travail : la PR l'a intégré à `main`. Tu ne supprimes que l'étiquette."}
+ ]},
+ {id:"guide-diagnostic", ic:"search", step:4, t:"Diagnostic : Python ne trouve pas ma bibliothèque", cards:[
+  {id:"gd-trois", t:"Les trois vérifications qui tranchent", k:"diagnostic modulenotfounderror pip -V pip list sys executable pip show location",
+   s:[["Dans le terminal : où pip installe, et ce qui est installé ici", c`pip -V
+pip list`],["Dans le notebook : sur quel Python tourne le noyau", c`import sys; print(sys.executable)`],["Où est installée une bibliothèque précise (ligne Location)", c`pip show pandas`]],
+   why:"Si les trois chemins contiennent `.venv`, tout est en ordre. Dans neuf cas sur dix, `ModuleNotFoundError` après une installation réussie veut dire que le noyau du notebook ne pointe pas sur le `.venv` : corrige avec **Select Kernel**."},
+  {id:"gd-checklist", t:"La checklist complète", k:"diagnostic checklist pwd venv interpreteur kernel",
+   tab:[["#","Question","Vérification"],["1","Suis-je dans le bon projet ?","`pwd`"],["2","L'environnement est-il actif ?","`(.venv)` au début de la ligne"],["3","Quel Python répond ?","`python -c \"import sys; print(sys.executable)\"`"],["4","La bibliothèque est-elle là ?","`pip list`"],["5","VS Code utilise-t-il le même ?","interpréteur (barre d'état) et kernel du notebook"]],
+   tip:"Le dossier ouvert, l'interpréteur des scripts et le kernel du notebook sont trois réglages distincts : les trois doivent pointer sur le même projet.",
+   comp:true}
+ ]},
+ {id:"guide-commit", ic:"check", step:5, t:"Avant chaque commit et chaque push", cards:[
+  {id:"gk-checklist", t:"La checklist en six questions", k:"checklist avant commit push pwd branche status diff staged",
+   s:[["Où suis-je, sur quelle branche, qu'est-ce qui a changé ?", c`pwd
+git branch --show-current
+git status`],["Qu'est-ce qui va vraiment partir ?", c`git diff --staged`]],
+   tab:[["#","Question"],["1","`pwd` : suis-je dans le bon dossier ?"],["2","`git branch --show-current` : sur la bonne branche ?"],["3","`git status` : que vais-je enregistrer ?"],["4","`git diff --staged` : ai-je relu le contenu ?"],["5","`git add fichier` puis `git commit -m \"Message clair\"`"],["6","`git push` : ai-je besoin de publier maintenant ?"]],
+   why:"Avec deux copies d'un projet ouvertes, l'explorateur de VS Code peut afficher l'une pendant que le terminal est dans l'autre : chaque commande Git s'applique au dossier du terminal, pas au panneau de gauche."}
+ ]}
+]},
 {g:"Le terminal", col:"blue", note:"Lundi : parler à la machine sans la souris.", sections:[
  {id:"ouvrir", ic:"terminal", t:"Ouvrir son terminal", cards:[
   {id:"ouvrir-terminal", t:"Le bon terminal selon sa machine", k:"terminal ouvrir git bash mac windows zsh powershell mingw64 invite",
@@ -306,6 +428,12 @@ const GROUPS = [
    why:"Sous Windows, Git Bash parle la même langue que le terminal du Mac : mêmes commandes, mêmes messages d'erreur. PowerShell et l'invite de commandes ne la parlent pas.",
    trap:"Sous Windows, si ton invite affiche `PS C:\\Users\\…`, tu es dans PowerShell : change de terminal avec le petit v à côté du + du panneau Terminal.",
    tip:"Après toute installation, ferme et rouvre le terminal : il ne voit pas ce qui a été installé depuis son ouverture."},
+  {id:"installer-git", t:"Installer Git sous Windows : les options qui comptent", k:"installer git windows gitforwindows installation options vim vscode editeur credential manager",
+   lead:"Sur gitforwindows.org → Download, puis lance l'installateur. La plupart des écrans : Next. Ceux-ci méritent un choix :",
+   tab:[["Écran","Ce qu'on coche"],["Composants","Git Bash Here (Git Bash dans le clic droit de l'explorateur)"],["Éditeur","**Use Visual Studio Code as Git's default editor** (pas Vim)"],["Branche par défaut","Override… et garder `main`"],["Accès à Git","Git from the command line and also from 3rd-party software"],["Fins de ligne","Checkout Windows-style, commit Unix-style line endings"],["Terminal","Use MinTTY"],["git pull","Fast-forward or merge"],["Identifiants","Git Credential Manager (ne pas retaper son mot de passe)"]],
+   s:[["Vérifier à la fin", c`git --version`]],
+   why:"Avec VS Code comme éditeur, un `git commit` sans `-m` ouvre une fenêtre que tu sais utiliser, au lieu de Vim.",
+   tip:"Dans Git Bash, Ctrl + V ne colle pas toujours : utilise **Shift + Insert**."},
   {id:"lire-invite", t:"Lire son invite de commande", k:"invite prompt tilde dollar mingw64 utilisateur machine",
    lead:"Exemple : `Larbi@LAPTOP-EE5HL5VQ MINGW64 ~ $`",
    tab:[["Morceau","Ce qu'il dit"],["`Larbi@LAPTOP-EE5HL5VQ`","qui tu es, sur quelle machine"],["`MINGW64`","le shell : c'est la signature de Git Bash (vide sur Mac)"],["`~`","où tu es : `~` désigne ton dossier personnel"],["`$` (ou `%` sur Mac)","la machine attend : à toi de taper"]],
@@ -335,7 +463,7 @@ const GROUPS = [
   {id:"raccourcis-terminal", t:"Quatre gestes qui font gagner du temps", comp:true, k:"ctrl c arreter cd - precedent explorer open dossier history historique commandes",
    tab:[["Geste","Ce qu'il fait"],["Ctrl + C","arrête une commande qui tourne, ou qui ne rend pas la main"],["`cd -`","revient au dossier où tu étais juste avant"],["`history`","la liste des commandes déjà tapées"]],
    s:[["Revenir au dossier précédent", c`cd -`],["Ouvrir le dossier actuel dans l'explorateur de fichiers (Windows, Git Bash)", c`explorer .`],["La même chose sur Mac", c`open .`],["Les commandes déjà tapées", c`history`]],
-   tip:"Ctrl + C dans le terminal n'est pas « copier » : c'est « arrêter ». Pour copier dans Git Bash, sélectionne le texte à la souris (ou Ctrl + Inser)."}
+   tip:"Ctrl + C dans le terminal n'est pas « copier » : c'est « arrêter ». Dans Git Bash : sélectionner à la souris copie, **Shift + Insert** colle. **Ctrl + R** puis quelques lettres retrouve une ancienne commande."}
  ]},
  {id:"fichiers", ic:"folder", t:"Créer, lire, copier, supprimer", cards:[
   {id:"mkdir-touch", t:"Créer des dossiers et des fichiers", k:"mkdir touch creer dossier fichier arborescence projet collecte",
@@ -347,6 +475,16 @@ const GROUPS = [
 cd collecte`],["Créer les sous-dossiers et le README", c`mkdir data src notebooks
 touch README.md`],["Vérifier", c`ls`]],
    tip:"Note le résultat de `pwd` : c'est le chemin à ouvrir ensuite dans VS Code."},
+  {id:"ranger-projets", t:"Ranger tous ses projets : une base DATA", comp:true, k:"organiser ranger dossiers data formation projets portfolio ressources arborescence",
+   s:[["Créer la base une fois pour toutes", c`cd ~/Documents
+mkdir -p DATA/01_Formation DATA/02_Projets DATA/03_Portfolio DATA/04_Ressources`],["Un nouveau projet va dans 02_Projets", c`cd ~/Documents/DATA/02_Projets
+mkdir analyse_ventes
+cd analyse_ventes
+mkdir data notebooks
+touch README.md
+code .`]],
+   tab:[["Dossier","Ce qu'il contient"],["`01_Formation/`","supports de cours, exercices"],["`02_Projets/`","les projets en cours (un dossier par projet)"],["`03_Portfolio/`","les travaux présentables"],["`04_Ressources/`","fiches, modèles, mémos"]],
+   tip:"Ne crée pas tous les dossiers par automatisme : `src/` est inutile pour un exercice 100 % notebook, et `.venv/` pour un exercice SQL. `mkdir -p` crée aussi les dossiers parents qui manquent."},
   {id:"echo-cat", t:"Écrire et lire un fichier : echo, >, >>, cat", k:"echo cat chevron redirection ecrire lire fichier ajouter ecraser",
    s:[["Écrire une ligne dans un fichier (le crée au besoin)", c`echo "Semaine 8 - Terminal OK" > notes.txt`],["Lire son contenu", c`cat notes.txt`],["Ajouter une ligne à la fin", c`echo "Deuxième ligne" >> notes.txt`],["Les premières / dernières lignes d'un fichier", c`head notes.txt`]],
    trap:"Un seul `>` **écrase** tout le contenu, sans prévenir. Deux `>>` ajoutent à la fin.",
@@ -406,8 +544,9 @@ echo "Fin du script"`],["L'exécuter sous Windows (Git Bash)", c`bash script.sh`
    tip:"Le terminal intégré s'ouvre directement dans le dossier du projet : pas besoin de `cd`."},
   {id:"notebook-local", t:"Ses notebooks en local", k:"notebook ipynb jupyter local kernel select kernel chemin content colab",
    lead:"Un `.ipynb` de Colab s'ouvre tel quel dans VS Code. Nouveau notebook : palette → **Create: New Jupyter Notebook**, puis **Select Kernel** en haut à droite.",
-   s:[["Lire un fichier du projet : chemin relatif", c`df = pd.read_csv("data/mon_fichier.csv")`]],
-   trap:"Un chemin Colab comme `/content/mon_fichier.csv` ne marche plus en local : écris le chemin depuis la racine du projet.",
+   s:[["Où le notebook s'exécute-t-il ?", c`import os
+print(os.getcwd())`],["Lire un fichier depuis la racine du projet", c`df = pd.read_csv("data/mon_fichier.csv")`],["Lire un fichier quand le notebook est dans notebooks/", c`df = pd.read_csv("../data/mon_fichier.csv")`]],
+   trap:"Un chemin Colab comme `/content/mon_fichier.csv` ne marche plus en local. Et un notebook rangé dans `notebooks/` s'exécute depuis ce dossier : `data/…` y est introuvable, il faut `../data/…`. `os.getcwd()` te le dit.",
    why:"Plus besoin de réimporter tes fichiers à chaque session, et ce que tu enregistres reste sur ton disque. La limite : la puissance et la mémoire de ta machine."},
   {id:"git-bash-vscode", t:"Git Bash comme terminal par défaut (Windows)", k:"git bash defaut vscode powershell profile terminal windows",
    lead:"Palette → **Terminal: Select Default Profile** → **Git Bash**.",
@@ -451,6 +590,9 @@ print(f"La moyenne des notes est : {moyenne}")`],["L'exécuter", c`python src/mo
   {id:"pip", t:"Installer et regarder ses bibliothèques", k:"pip install list show version upgrade bibliotheque installer",
    s:[["La liste des bibliothèques installées", c`pip list`],["Installer", c`pip install pandas requests`],["Une version précise", c`pip install streamlit==1.41.1`],["Mettre à jour", c`pip install -U streamlit`],["La version installée d'une bibliothèque", c`pip show numpy`]],
    why:"Juste après l'activation, `pip list` est presque vide : c'est la preuve de l'isolation. Les bibliothèques installées ailleurs sur ta machine ne sont pas visibles ici."},
+  {id:"python-m-pip", t:"python -m pip : être sûr d'installer au bon endroit", comp:true, k:"python -m pip install bon python environnement plusieurs interpreteurs",
+   s:[["Installer avec le Python du terminal courant", c`python -m pip install pandas matplotlib`],["La liste, avec ce même Python", c`python -m pip list`],["Figer la liste", c`python -m pip freeze > requirements.txt`]],
+   why:"`pip` tout court peut appartenir à un autre Python que celui qui répond à `python`. `python -m pip` demande explicitement au Python actif de lancer pip : les bibliothèques arrivent forcément dans ce Python-là."},
   {id:"venv-vscode", t:"Faire reconnaître l'environnement par VS Code", k:"vscode interpreteur venv select kernel popup",
    lead:"Palette → **Python: Select Interpreter** → la ligne dont le chemin contient `.venv`. Dans un notebook : **Select Kernel** → le même `.venv`.",
    tip:"Souvent, VS Code propose lui-même le nouvel environnement dans une fenêtre : réponds Yes.",
@@ -484,7 +626,7 @@ print(f"La moyenne des notes est : {moyenne}")`],["L'exécuter", c`python src/mo
 {g:"Git en local", col:"orange", note:"Mercredi : la mémoire de ton travail.", sections:[
  {id:"git-config", ic:"tool", t:"Configurer Git (une seule fois)", cards:[
   {id:"config", t:"Se présenter à Git", k:"git config global user name email defaultbranch main list",
-   s:[["Ton nom", c`git config --global user.name "Prénom Nom"`],["Ton e-mail (le même que sur GitHub)", c`git config --global user.email "ton.email@exemple.fr"`],["Appeler la branche principale main", c`git config --global init.defaultBranch main`],["Vérifier", c`git config --global --list`]],
+   s:[["Ce qui est déjà enregistré (rien = pas configuré)", c`git config --global user.name`],["Ton nom", c`git config --global user.name "Prénom Nom"`],["Ton e-mail (le même que sur GitHub)", c`git config --global user.email "ton.email@exemple.fr"`],["Appeler la branche principale main", c`git config --global init.defaultBranch main`],["Vérifier", c`git config --global --list`]],
    why:"Git signe chaque commit avec ce nom et cette adresse : sans eux, ton premier commit s'arrête net (« Please tell me who you are »). `--global` veut dire « pour tous mes projets » : tu ne le retaperas jamais.",
    trap:"Utilise l'adresse de ton compte GitHub, sinon tes commits ne te seront pas attribués."}
  ]},
@@ -528,7 +670,7 @@ __pycache__/
 .ipynb_checkpoints/
 .history/`]],
    tab:[["Famille","Exemples","Pourquoi"],["Secrets","`.env`, clés d'API, mots de passe","compromis dès le premier push"],["Données","`data/`, gros CSV","trop lourd, et récupérable"],["Ce qui se recrée tout seul","`.venv/`, `__pycache__/`, `.ipynb_checkpoints/`","refait à chaque exécution"]],
-   tip:"La règle : secret, lourd, ou se recrée tout seul → `.gitignore`. Le nom au caractère près : un point devant, pas d'extension.",
+   tip:"La règle : secret, lourd, ou se recrée tout seul → `.gitignore`. Le nom au caractère près : un point devant, pas d'extension. Crée-le dans VS Code : le Bloc-notes ajoute `.txt` en silence.",
    trap:"Un fichier déjà commité ne disparaît pas de l'historique parce que tu l'ajoutes au `.gitignore` ensuite. Un mot de passe commité est compromis : on ne le rattrape pas, on le change. Et GitHub refuse les fichiers de plus de 100 Mo."},
   {id:"check-ignore", t:"Vérifier qu'une règle s'applique", k:"check-ignore verifier gitignore regle fichier",
    s:[["Quelle ligne du .gitignore filtre ces fichiers ?", c`git check-ignore -v .env data/brut.csv`]],
@@ -725,7 +867,7 @@ function hl(src){
   }
   return out + esc(src.slice(last));
 }
-const P = {file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',grid:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 4v16"/>',filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',dots:'<circle cx="5" cy="16" r="1.8"/><circle cx="9" cy="13" r="1.8"/><circle cx="13" cy="15" r="1.8"/><circle cx="20" cy="5" r="2"/>',cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/>',pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h1M14 12h1M9 16h1M14 16h1"/>',tag:'<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',text:'<path d="M4 7V5h16v2M12 5v14M9 19h6"/>',group:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-6h8v6"/>',check:'<path d="M4 12l5 5L20 6"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',scale:'<path d="M12 3v18M5 21h14M4 8h16"/><path d="M4 8l-2 6a3 3 0 0 0 4 0zM20 8l-2 6a3 3 0 0 0 4 0z"/>',list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',code:'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',branch:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4-6 3-11 7"/>',loop:'<path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/>',bug:'<rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 7V4M9 4l1.5 3M15 4l-1.5 3M3 12h4M17 12h4M4 18l3-2M20 18l-3-2M4 7l3 2M20 7l-3 2"/>',key:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',venn:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>',fx:'<path d="M14 4c-3 0-4 2-4 5v11M7 10h7M15 13l5 6M20 13l-5 6"/>',bolt:'<path d="M13 3L4 14h7l-1 7 9-11h-7z"/>',pkg:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/>',brush:'<path d="M4 20c3 0 5-1 5-4a3 3 0 0 1 3-3l8-8-2-2-8 8a3 3 0 0 1-3-3"/>',tool:'<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19l-3 1 1-3 7.5-7.5a4 4 0 0 1-3-3z"/><path d="M5 5l4 4"/>',braces:'<path d="M8 4c-2 0-3 1-3 3v2c0 1.5-1 3-2 3 1 0 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 3 2 3-1 0-2 1.5-2 3v2c0 2-1 3-3 3"/>',terminal:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',folder:'<path d="M3 6h6l2 2h10v11H3z"/>',window:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/>',history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',cloud:'<path d="M7 18a5 5 0 0 1-.5-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3-5.5 6.5-5.5s6 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.5 0 4.2 1.5 4.5 4"/>',refresh:'<path d="M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>'};
+const P = {file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',grid:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 4v16"/>',filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',dots:'<circle cx="5" cy="16" r="1.8"/><circle cx="9" cy="13" r="1.8"/><circle cx="13" cy="15" r="1.8"/><circle cx="20" cy="5" r="2"/>',cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/>',pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h1M14 12h1M9 16h1M14 16h1"/>',tag:'<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',text:'<path d="M4 7V5h16v2M12 5v14M9 19h6"/>',group:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-6h8v6"/>',check:'<path d="M4 12l5 5L20 6"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',scale:'<path d="M12 3v18M5 21h14M4 8h16"/><path d="M4 8l-2 6a3 3 0 0 0 4 0zM20 8l-2 6a3 3 0 0 0 4 0z"/>',list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',code:'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',branch:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4-6 3-11 7"/>',loop:'<path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/>',bug:'<rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 7V4M9 4l1.5 3M15 4l-1.5 3M3 12h4M17 12h4M4 18l3-2M20 18l-3-2M4 7l3 2M20 7l-3 2"/>',key:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',venn:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>',fx:'<path d="M14 4c-3 0-4 2-4 5v11M7 10h7M15 13l5 6M20 13l-5 6"/>',bolt:'<path d="M13 3L4 14h7l-1 7 9-11h-7z"/>',pkg:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/>',brush:'<path d="M4 20c3 0 5-1 5-4a3 3 0 0 1 3-3l8-8-2-2-8 8a3 3 0 0 1-3-3"/>',tool:'<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19l-3 1 1-3 7.5-7.5a4 4 0 0 1-3-3z"/><path d="M5 5l4 4"/>',braces:'<path d="M8 4c-2 0-3 1-3 3v2c0 1.5-1 3-2 3 1 0 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 3 2 3-1 0-2 1.5-2 3v2c0 2-1 3-3 3"/>',terminal:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',folder:'<path d="M3 6h6l2 2h10v11H3z"/>',window:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/>',history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',cloud:'<path d="M7 18a5 5 0 0 1-.5-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3-5.5 6.5-5.5s6 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.5 0 4.2 1.5 4.5 4"/>',refresh:'<path d="M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',rocket:'<path d="M5 15c-1.5 1.5-2 4-2 6 2 0 4.5-.5 6-2M9 13l2 2M14.5 4.5c3-1.5 5-1.5 5-1.5s0 2-1.5 5L12 14l-4-4z"/><circle cx="15" cy="9" r="1.5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
 const icon = (k, s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (P[k] || "") + "</svg>";
 const ICON_COPY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
 const ICON_OK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5 9-10"/></svg>';
@@ -733,6 +875,20 @@ const ICON_DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" str
 const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
 const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
 /*OUT*/const OUT = {
+ "gp-venv#2": {out:[["o", c`/c/Users/VotrePrenom/Documents/nom-du-projet/.venv/Scripts/python
+pip 24.0 from C:\Users\VotrePrenom\Documents\nom-du-projet\.venv\Lib\site-packages\pip (python 3.13)`], ["i", "Les deux chemins passent par .venv : l'environnement est le bon. Exemple : le reste du chemin dépend de ta machine."]]},
+ "gp-git-local#0": {out:[["i", "Rien ne s'affiche ? Git ne te connaît pas encore : passe au bloc suivant. Sinon, ton nom et ton e-mail s'affichent."]]},
+ "gp-push#1": {out:[["o", c`origin  https://github.com/ton-pseudo/nom-du-projet.git (fetch)
+origin  https://github.com/ton-pseudo/nom-du-projet.git (push)`]]},
+ "gc-clone#3": {out:[["o", c`origin  https://github.com/mftn-lab/python_test.git (fetch)
+origin  https://github.com/mftn-lab/python_test.git (push)`], ["i", "Puis git log --oneline -5 affiche les derniers commits : le clone a récupéré tout l'historique, et origin est déjà configuré."]]},
+ "ge-apres#0": {out:[["o", c`Updating 3f2a1c4..9b8e7d0
+Fast-forward
+ src/analyse_csv.py | 4 ++++
+ 1 file changed, 4 insertions(+)`], ["i", "Fast-forward : ton main local a simplement avancé jusqu'à la fusion faite sur GitHub."]]},
+ "gd-trois#2": {out:[["o", c`Name: pandas
+Version: 2.2.3
+Location: C:\Users\VotrePrenom\Documents\nom-du-projet\.venv\Lib\site-packages`], ["i", "Extrait. La ligne Location doit passer par le .venv du projet."]]},
  "raccourcis-terminal#0": {ctx:"# tu étais dans ~/Documents, puis cd collecte/data", out:[["o", c`/c/Users/VotrePrenom/Documents`], ["i", "cd - affiche le dossier où il te ramène."]]},
  "gitkeep#1": {out:[["o", c`?? notebooks/`], ["i", "Avant le .gitkeep, git status -s n'affichait rien pour ce dossier vide."]]},
  "oubli-commit#1": {out:[["o", c`[marco_b ee687bb] Recupere la version a jour
@@ -778,7 +934,7 @@ setuptools 65.5.0`], ["i", "Presque vide : la preuve de l'isolation."]]},
  "freeze#1": {out:[["o", c`matplotlib==3.10.0
 numpy==2.2.3
 pandas==2.2.3`], ["i", "Une ligne par bibliothèque, de la forme nom==version (extrait)."]]},
- "config#3": {out:[["o", c`user.name=Prénom Nom
+ "config#4": {out:[["o", c`user.name=Prénom Nom
 user.email=ton.email@exemple.fr
 init.defaultbranch=main`]]},
  "git-init#0": {out:[["o", c`Initialized empty Git repository in /c/Users/vous/Documents/collecte/.git/`]]},
