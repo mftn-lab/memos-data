@@ -3,6 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--PWA-->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c3f8f">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mémos Data">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!--/PWA-->
 <title>Mes fiches favorites</title>
 <style>
 @font-face{font-family:Inter;src:local("Inter")}
@@ -93,5 +103,10 @@ document.getElementById("print").disabled = !n;
 document.getElementById("why").addEventListener("change", (e) => document.body.classList.toggle("nowhy", !e.target.checked));
 document.getElementById("print").addEventListener("click", () => { try { window.print(); } catch (e) {} });
 </script>
+<script>/*PWA*/
+if ("serviceWorker" in navigator && /(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) {
+  addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
+/*/PWA*/</script>
 </body>
 </html>

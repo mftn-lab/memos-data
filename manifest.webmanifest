@@ -1,0 +1,47 @@
+{
+  "name": "Mémos Data Analyst",
+  "short_name": "Mémos Data",
+  "lang": "fr",
+  "description": "Mes fiches mémo du bootcamp Data Analyst : Python, Pandas, Terminal, Git et GitHub.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1c3f8f",
+  "theme_color": "#1c3f8f",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Python : les bases",
+      "url": "./python.html"
+    },
+    {
+      "name": "Pandas : nettoyer",
+      "url": "./pandas-nettoyage.html"
+    },
+    {
+      "name": "Terminal, Git et GitHub",
+      "url": "./git.html"
+    },
+    {
+      "name": "Réviser",
+      "url": "./index.html#hasard"
+    }
+  ]
+}

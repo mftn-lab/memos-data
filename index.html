@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--PWA-->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c3f8f">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mémos Data">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!--/PWA-->
 <title>Mémos Data Analyst</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,12 +237,17 @@ body.searching .memos,body.searching .duo,body.searching .resume{display:none}
 @media (max-width:1100px){.duo{grid-template-columns:1fr}}
 @media (max-width:700px){.fbtns{margin-left:0}.fmenu{left:0;right:auto;width:min(320px,86vw)}.glist{grid-template-columns:1fr}.gs input{font-size:16px}.gs kbd{display:none}.toprow{flex-wrap:wrap;gap:10px}.acts{display:flex;gap:6px}.acts .btn{white-space:nowrap;font-size:13px;padding:6px 10px;min-height:36px}}
 /*/FAV*/
+/*INSTALLCSS*/
+.instip{position:fixed;z-index:60;width:min(320px,86vw);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 18px 40px -16px rgba(0,0,0,.5);font-size:14.5px;line-height:1.5}
+.instip ol{margin:8px 0 0;padding-left:20px}
+.instip li{margin:4px 0}
+/*/INSTALLCSS*/
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><span class="acts"><a class="btn" id="tofav" href="#favs"><svg width="17" height="17" viewBox="0 0 24 24" fill="#ffd25a" stroke="#ffd25a" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris</a><button class="btn" id="theme" type="button">Mode sombre</button><button class="btn" id="son" type="button"></button></span></div>
+    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><span class="acts"><button class="btn" id="install" type="button" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8v6M9.5 11.5L12 14l2.5-2.5M10.5 18.5h3"/></svg>Installer l'appli</button><a class="btn" id="tofav" href="#favs"><svg width="17" height="17" viewBox="0 0 24 24" fill="#ffd25a" stroke="#ffd25a" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris</a><button class="btn" id="theme" type="button">Mode sombre</button><button class="btn" id="son" type="button"></button></span></div>
     <div class="hwrap"><div>
     <h1>Mes mémos Data Analyst</h1>
     <p class="sub">Une page par domaine : le code, ce qu'il fait et pourquoi. Construit à partir de mes cours, pour retrouver une méthode en quelques secondes.</p>
@@ -578,5 +593,34 @@ document.addEventListener("keydown", (ev) => { if (ev.key === "/" && document.ac
   }, true);
 })();
 /*/SON*/</script>
+<script>/*PWA*/
+if ("serviceWorker" in navigator && /(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) {
+  addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
+/*/PWA*/</script>
+<script>/*INSTALL*/
+(function(){
+  const btn = document.getElementById("install"); if (!btn) return;
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const ok = /(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+  if (standalone || !ok) return;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  let evt = null;
+  addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); evt = e; btn.hidden = false; });
+  addEventListener("appinstalled", () => { btn.hidden = true; });
+  if (ios) btn.hidden = false;
+  const tip = document.createElement("div"); tip.className = "instip"; tip.hidden = true;
+  tip.innerHTML = "<b>Installer sur iPhone ou iPad</b><ol><li>Ouvre ce site dans <b>Safari</b>.</li><li>Touche le bouton <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Choisis <b>« Sur l'écran d'accueil »</b>, puis <b>Ajouter</b>.</li></ol>";
+  document.body.appendChild(tip);
+  const place = () => { const r = btn.getBoundingClientRect(); tip.style.top = (r.bottom + 8) + "px"; tip.style.left = Math.max(12, Math.min(r.left, innerWidth - tip.offsetWidth - 12)) + "px"; };
+  btn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    if (evt) { evt.prompt(); try { await evt.userChoice; } catch (x) {} evt = null; btn.hidden = true; return; }
+    tip.hidden = !tip.hidden; if (!tip.hidden) place();
+  });
+  document.addEventListener("click", (e) => { if (!tip.hidden && !tip.contains(e.target)) tip.hidden = true; });
+  addEventListener("scroll", () => { tip.hidden = true; }, {passive: true});
+})();
+/*/INSTALL*/</script>
 </body>
 </html>
