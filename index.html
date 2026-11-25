@@ -143,6 +143,10 @@ a.dom:hover{transform:translateY(-3px);box-shadow:0 16px 34px -18px rgba(36,87,1
 .fact{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}
 .ob{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:14px;font-weight:600;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
 .ob:hover{border-color:var(--blue);color:var(--blue)}
+.ob{text-decoration:none}
+.pdfb{background:var(--blue);border-color:var(--blue);color:#fff}
+.pdfb:hover{color:#fff;filter:brightness(1.1)}
+.pdfb.off{opacity:.45;pointer-events:none}
 #fmsg{font-size:14px;color:var(--teal);font-weight:600}
 .fnote{margin:10px 0 0;font-size:13.5px;color:var(--mute);max-width:80ch}
 .gs{display:flex;align-items:center;gap:10px;margin-top:24px;max-width:760px;background:#fff;color:#4b5568;border-radius:14px;padding:0 14px;box-shadow:0 14px 34px -14px rgba(0,0,0,.5)}
@@ -197,7 +201,7 @@ body.searching .memos,body.searching .hasard,body.searching .favs,body.searching
     <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="#e8a400" stroke="#e8a400" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris</h2>
     <p class="lead" id="favlead"></p>
     <div class="fgrid" id="favlist"></div>
-    <div class="fact"><button type="button" class="ob" id="fexp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Sauvegarder mes favoris dans un fichier</button><label class="ob"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg>Restaurer depuis un fichier<input type="file" id="fimp" accept=".json,application/json" hidden></label><span id="fmsg"></span></div>
+    <div class="fact"><button type="button" class="ob" id="fexp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Sauvegarder mes favoris dans un fichier</button><label class="ob"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg>Restaurer depuis un fichier<input type="file" id="fimp" accept=".json,application/json" hidden></label><a class="ob pdfb" id="fpdf" href="favoris.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>Télécharger mes favoris en PDF</a><span id="fmsg"></span></div>
     <p class="fnote">Les favoris restent dans ce navigateur. Pour les retrouver sur un autre appareil, ou entre le site GitHub et la version Claude : sauvegarde le fichier ici, puis restaure-le là-bas.</p>
   </section>
 </main>
@@ -289,6 +293,7 @@ function draw(){
   Object.keys(f).forEach((key) => { const v = f[key]; (by[v.page] = by[v.page] || {memo: v.memo, items: []}).items.push([key, v]); });
   const pages = Object.keys(by).sort((a, b) => (ORDER.indexOf(a) + 99 * (ORDER.indexOf(a) < 0)) - (ORDER.indexOf(b) + 99 * (ORDER.indexOf(b) < 0)));
   const n = Object.keys(f).length;
+  document.getElementById("fpdf").classList.toggle("off", !n);
   lead.innerHTML = n ? n + (n > 1 ? " fiches mises de côté" : " fiche mise de côté") + ", tous mémos confondus. Clique sur une fiche pour l'ouvrir dans son mémo."
     : "Aucun favori pour l'instant. Dans un mémo, clique sur l'étoile en haut à droite d'une fiche : elle apparaîtra ici. Le bouton « Favoris » d'un mémo n'affiche que ses fiches favorites.";
   list.innerHTML = pages.map((p) => '<div class="fm"><h3><a href="' + e(p) + '">' + e(by[p].memo) + "</a></h3><ul>"
