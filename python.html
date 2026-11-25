@@ -296,6 +296,8 @@ footer .fsub{margin:0 0 16px}
 .pnav button small{display:block;font-size:12px;font-weight:600;color:var(--mute)}
 .partoff{display:none!important}
 .grp.gfirst{margin-top:0}
+.nopart{display:none;margin:10px 0;padding:22px;border:1.5px dashed var(--line);border-radius:16px;color:var(--mute);text-align:center;font-size:16px}
+.nopart.show{display:block}
 footer{display:none}
 /*/UX*/
 /*SKIN*/
@@ -3461,15 +3463,10 @@ const groupsT = Array.from(tocEl.querySelectorAll(".tg"));
 groupsT.forEach((g) => {
   const h = g.querySelector("h4"), n = g.querySelectorAll("li[data-s]").length;
   if (h && !h.querySelector(".tgn")) h.insertAdjacentHTML("beforeend", '<span class="tgn">' + n + "</span>");
-  if (h) h.addEventListener("click", () => { if (filtering()) g.classList.toggle("shut"); else showGroup(groupsT.indexOf(g)); });
+  if (h) h.addEventListener("click", () => { if (filtering()) g.classList.toggle("shut"); else toggleGroup(groupsT.indexOf(g)); });
 });
-let openG = null;
-function accordion(id){
-  if (q.value.trim() || favMode) { groupsT.forEach((g) => g.classList.remove("shut")); openG = null; return; }
-  const li = tocEl.querySelector('li[data-s="' + id + '"]'), g = li && li.closest(".tg");
-  if (!g || g === openG) return;
-  openG = g; groupsT.forEach((x) => x.classList.toggle("shut", x !== g));
-}
+var openG = null;
+function accordion(){ if (typeof syncToc === "function" && typeof openSet !== "undefined") syncToc(); }
 
 /* ---------- Sommaire : surligner la bonne section ---------- */
 if (typeof secObserver !== "undefined") secObserver.disconnect();
@@ -3498,9 +3495,9 @@ tocEl.addEventListener("click", (e) => { const a = e.target.closest("li[data-s] 
 ["wheel", "touchstart", "keydown"].forEach((ev) => addEventListener(ev, (e) => { if (ev === "keydown" && !/^(Arrow|Page|Home|End| )/.test(e.key)) return; pinned = null; }, {passive: true}));
 spy();
 
-/* ---------- Une partie à la fois ---------- */
-var curG = 0;
-const PKEY = "memos-partie-" + PAGE, NG = GROUPS.length;
+/* ---------- Parties ouvertes dans le sommaire = parties affichées ---------- */
+var openSet = new Set([0]);
+const PKEY = "memos-parties-" + PAGE, NG = GROUPS.length;
 document.querySelectorAll("main section.sec").forEach((sec) => { const x = ALL.find((y) => y.id === sec.id); if (x) sec.dataset.g = x.g; });
 GROUPS.forEach((G, gi) => {
   const secs = ALL.filter((x) => x.g === gi); if (!secs.length || document.getElementById("pnav" + gi)) return;
@@ -3510,31 +3507,42 @@ GROUPS.forEach((G, gi) => {
     + '<span class="pc">Partie ' + (gi + 1) + " sur " + NG + "</span>"
     + (gi < NG - 1 ? btn(gi + 1, "nx", esc(GROUPS[gi + 1].g) + " →") : "<span></span>") + "</nav>");
 });
+if (!document.getElementById("nopart")) main.insertAdjacentHTML("beforeend", '<p class="nopart" id="nopart">Toutes les parties sont repliées. Ouvre une partie dans le sommaire, à gauche, pour l\'afficher ici.</p>');
 main.addEventListener("click", (e) => { const b = e.target.closest(".pnav button[data-to]"); if (b) showGroup(+b.dataset.to); });
 function filtering(){ return !!q.value.trim() || favMode; }
+function saveOpen(){ try { localStorage.setItem(PKEY, JSON.stringify(Array.from(openSet))); } catch (x) {} }
+function syncToc(){
+  if (filtering()) { groupsT.forEach((g) => g.classList.remove("shut")); return; }
+  groupsT.forEach((g, i) => g.classList.toggle("shut", !openSet.has(i)));
+}
 function applyPart(){
   const f = filtering();
-  main.querySelectorAll("[data-g]").forEach((el) => el.classList.toggle("partoff", el.classList.contains("pnav") ? (f || +el.dataset.g !== curG) : (!f && +el.dataset.g !== curG)));
-  if (!f) gold.style.display = curG === 0 ? "" : "none";
-  main.querySelectorAll(".grp").forEach((el) => el.classList.toggle("gfirst", !f && curG !== 0 && +el.dataset.g === curG));
+  main.querySelectorAll("[data-g]").forEach((el) => {
+    const g = +el.dataset.g;
+    el.classList.toggle("partoff", el.classList.contains("pnav") ? (f || openSet.size !== 1 || !openSet.has(g)) : (!f && !openSet.has(g)));
+  });
+  document.getElementById("nopart").classList.toggle("show", !f && openSet.size === 0);
+  if (!f) gold.style.display = openSet.has(0) ? "" : "none";
+  const firstG = f ? -1 : Math.min(...openSet);
+  main.querySelectorAll(".grp").forEach((el) => el.classList.toggle("gfirst", !f && !openSet.has(0) && +el.dataset.g === firstG));
+  syncToc();
+}
+function toggleGroup(i){
+  if (openSet.has(i)) openSet.delete(i); else openSet.add(i);
+  saveOpen(); applyPart(); layout(); spy();
 }
 function showGroup(g, noScroll){
-  curG = Math.max(0, Math.min(NG - 1, g)); try { localStorage.setItem(PKEY, curG); } catch (x) {}
+  openSet = new Set([Math.max(0, Math.min(NG - 1, g))]); saveOpen();
   applyPart(); layout();
-  const first = ALL.find((x) => x.g === curG);
+  const first = ALL.find((x) => openSet.has(x.g));
   if (first) { pinned = first.id; setActive(first.id); }
   if (!noScroll) window.scrollTo({top: Math.max(0, main.getBoundingClientRect().top + scrollY - document.querySelector(".bar").offsetHeight - 14), behavior: "instant"});
 }
 function reveal(el){
   const sec = el && el.closest("section.sec");
-  if (sec && sec.classList.contains("partoff")) showGroup(+sec.dataset.g, true);
+  if (sec && sec.classList.contains("partoff")) { openSet.add(+sec.dataset.g); saveOpen(); applyPart(); layout(); }
 }
-tocEl.addEventListener("click", (e) => {
-  const a = e.target.closest("li[data-s] a"); if (!a || filtering()) return;
-  const x = ALL.find((y) => "#" + y.id === a.getAttribute("href"));
-  if (x && x.g !== curG) { e.preventDefault(); showGroup(x.g, true); const el = document.getElementById(x.id); el.scrollIntoView(); pinned = x.id; setActive(x.id); }
-}, true);
-try { const v = parseInt(localStorage.getItem(PKEY), 10); if (v >= 0 && v < NG) curG = v; } catch (x) {}
+try { const v = JSON.parse(localStorage.getItem(PKEY) || "null"); if (Array.isArray(v)) openSet = new Set(v.filter((x) => x >= 0 && x < NG)); } catch (x) {}
 applyPart(); spy();
 
 /* ---------- Arrivée depuis l'accueil (favoris, recherche, reprendre) ---------- */
