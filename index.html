@@ -120,6 +120,31 @@ html{scroll-behavior:smooth}
 .hzo:hover{text-decoration:underline}
 .hzr{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:14px;font-weight:600;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer}
 .hzr:hover{border-color:var(--c);color:var(--c)}
+.hzm{display:flex;flex-wrap:wrap;gap:6px;padding:12px 20px 0}
+.hzm button{font:inherit;font-size:12.5px;font-weight:700;color:var(--mute);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer}
+.hzm button:hover{color:var(--c);border-color:var(--c)}
+.hzm button.on{color:var(--bg);background:var(--c);border-color:var(--c)}
+.hzj{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.hzj span{font-size:14px;font-weight:700;color:var(--mute);margin-right:2px}
+.hzj button{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:14px;font-weight:700;border-radius:10px;padding:8px 13px;cursor:pointer;margin:0}
+.hok{color:#1f7a3a;background:color-mix(in srgb,#1f9d4a 12%,var(--bg));border:1.5px solid color-mix(in srgb,#1f9d4a 45%,var(--line))}
+.hko{color:#c0392b;background:color-mix(in srgb,#d64535 10%,var(--bg));border:1.5px solid color-mix(in srgb,#d64535 45%,var(--line))}
+:root[data-theme=dark] .hok{color:#6fdc8c}:root[data-theme=dark] .hko{color:#ff8a7a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .hok{color:#6fdc8c}:root:not([data-theme=light]) .hko{color:#ff8a7a}}
+.hok:hover,.hko:hover{filter:brightness(1.05)}
+.hzj .hzr{margin-left:0}
+.hzo{display:inline-block;margin-top:10px;font-size:14px}
+.hzf{display:block;padding:12px 20px 14px}
+.hzp{display:flex;gap:14px;align-items:center;font-size:13.5px;font-weight:700}
+.pok{color:#1f9d4a}.pko{color:#d64535}.ptot{margin-left:auto;color:var(--mute);font-weight:600}
+.hzbar{height:6px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,var(--bg));margin:8px 0 4px;overflow:hidden}
+.hzbar i{display:block;height:100%;background:#1f9d4a;border-radius:99px}
+.hzl{margin-top:10px;font-size:14px}
+.hzl summary{cursor:pointer;font-weight:700;color:#d64535}
+.hzl ul{list-style:none;margin:8px 0 0;padding:0;max-height:220px;overflow:auto}
+.hzl li button{display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;color:var(--ink);background:none;border:0;border-top:1px solid var(--line);padding:7px 2px;cursor:pointer}
+.hzl li button:hover{color:var(--c)}
+.hzreset{display:block;margin-top:10px;font:inherit;font-size:12.5px;color:var(--mute);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 @media (max-width:1100px){.hasard{position:static}}
 @media (max-width:1200px){.vit{display:none}.hwrap{grid-template-columns:1fr}}
 @media (max-width:700px){.mcb{height:140px}.pdfl{margin-left:0}}
@@ -281,21 +306,71 @@ document.getElementById("memostat").textContent = "Toutes les fiches se cherchen
 const COLS = {}; DOMAINS.forEach((m) => { COLS[m.href] = m.c; });
 const has = document.getElementById("hasard");
 const fmtA = (t) => esc(t).split(/(`[^`]+`)/).map((x) => x.startsWith("`") && x.endsWith("`") && x.length > 1 ? "<code>" + x.slice(1, -1) + "</code>" : x.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")).join("");
-function tire(){
-  const pool = IDXA.filter((x) => x.q); if (!pool.length) { has.innerHTML = ""; return; }
-  const c = pool[Math.floor(Math.random() * pool.length)], m = DOMAINS.find((d) => d.href === c.p) || DOMAINS[0];
-  has.innerHTML = '<div class="hz" style="--c:' + m.c + ";--g:" + m.g + '">'
-    + '<div class="hzh"><span class="hzk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.3" fill="currentColor"/><circle cx="15" cy="15" r="1.3" fill="currentColor"/><circle cx="15" cy="9" r="1.3" fill="currentColor"/><circle cx="9" cy="15" r="1.3" fill="currentColor"/></svg>Une question au hasard</span><b class="mb">' + esc(c.m) + "</b></div>"
-    + '<div class="hzb"><p class="hzs">' + esc(c.s) + '</p><h3 class="hzt">' + esc(c.q) + "</h3>"
-    + (c.a ? '<button type="button" class="hzv" id="voir"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Voir la réponse</button><div class="hza" id="rep" hidden><p class="hzal">Élément de réponse</p><p>' + fmtA(c.a) + "</p></div>" : "")
-    + '</div><div class="hzf"><a class="hzo" href="' + c.p + '" data-go="' + esc(c.i) + '">Ouvrir la fiche →</a><button type="button" class="hzr" id="retire" title="Tirer une autre question"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Une autre</button></div></div>';
+/* ---------------- Révision : une question au hasard, avec suivi ---------------- */
+const RKEY = "memos-revision";
+const QS = IDXA.filter((x) => x.q), QK = (x) => x.p + "#" + x.i, QMAP = {}; QS.forEach((x) => { QMAP[QK(x)] = x; });
+function rload(){ let s = null; try { s = JSON.parse(localStorage.getItem(RKEY) || "null"); } catch (x) {} s = s || {}; s.res = s.res || {}; s.memo = s.memo || "all"; return s; }
+function rsave(s){ try { localStorage.setItem(RKEY, JSON.stringify(s)); } catch (x) {} }
+function pick(s){
+  const pool = QS.filter((x) => s.memo === "all" || x.p === s.memo); if (!pool.length) return null;
+  const notCur = (x) => QK(x) !== s.cur;
+  let c = pool.filter((x) => !s.res[QK(x)] && notCur(x));
+  if (!c.length) c = pool.filter((x) => s.res[QK(x)] === "ko" && notCur(x));
+  if (!c.length) c = pool.filter(notCur);
+  if (!c.length) c = pool;
+  return QK(c[Math.floor(Math.random() * c.length)]);
 }
+const ICO = {
+  dice: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.3" fill="currentColor"/><circle cx="15" cy="15" r="1.3" fill="currentColor"/><circle cx="15" cy="9" r="1.3" fill="currentColor"/><circle cx="9" cy="15" r="1.3" fill="currentColor"/></svg>',
+  eye: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  ok: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  ko: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 7v6M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>',
+  skip: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 5l8 7-8 7zM15 5v14"/></svg>'
+};
+function tire(){
+  const s = rload();
+  if (!s.cur || !QMAP[s.cur] || (s.memo !== "all" && QMAP[s.cur].p !== s.memo)) { s.cur = pick(s); s.shown = false; rsave(s); }
+  if (!s.cur) { has.innerHTML = ""; return; }
+  const c = QMAP[s.cur], m = DOMAINS.find((d) => d.href === c.p) || DOMAINS[0];
+  const inMemo = (k) => s.memo === "all" || k.indexOf(s.memo + "#") === 0;
+  const keys = Object.keys(s.res).filter((k) => QMAP[k] && inMemo(k));
+  const nOk = keys.filter((k) => s.res[k] === "ok").length, kos = keys.filter((k) => s.res[k] === "ko");
+  const total = QS.filter((x) => s.memo === "all" || x.p === s.memo).length;
+  const chips = [["all", "Tous"]].concat(DOMAINS.map((d) => [d.href, d.t.split(" : ")[0].split(",")[0]]));
+  has.innerHTML = '<div class="hz" style="--c:' + m.c + ";--g:" + m.g + '">'
+    + '<div class="hzh"><span class="hzk">' + ICO.dice + 'Révision</span><b class="mb">' + esc(c.m) + "</b></div>"
+    + '<div class="hzm">' + chips.map(([v, l]) => '<button type="button" data-memo="' + v + '"' + (s.memo === v ? ' class="on"' : "") + ">" + esc(l) + "</button>").join("") + "</div>"
+    + '<div class="hzb"><p class="hzs">' + esc(c.s) + '</p><h3 class="hzt">' + esc(c.q) + "</h3>"
+    + (s.shown ? (c.a ? '<div class="hza"><p class="hzal">Élément de réponse</p><p>' + fmtA(c.a) + "</p></div>" : "")
+        + '<a class="hzo" href="' + c.p + '" data-go="' + esc(c.i) + '">Lire la fiche complète →</a>'
+        + '<div class="hzj"><span>Tu savais ?</span><button type="button" class="hok" data-r="ok">' + ICO.ok + 'Je savais</button><button type="button" class="hko" data-r="ko">' + ICO.ko + "À revoir</button></div>"
+      : '<div class="hzj"><button type="button" class="hzv" data-act="voir">' + ICO.eye + 'Voir la réponse</button><button type="button" class="hzr" data-act="passer" title="Passer cette question">' + ICO.skip + "Passer</button></div>")
+    + "</div>"
+    + '<div class="hzf"><div class="hzp"><span class="pok">✓ ' + nOk + (nOk > 1 ? " sues" : " sue") + '</span><span class="pko">✗ ' + kos.length + ' à revoir</span><span class="ptot">' + keys.length + " / " + total + '</span></div><div class="hzbar"><i style="width:' + (total ? Math.round(100 * nOk / total) : 0) + '%"></i></div>'
+    + (kos.length ? '<details class="hzl"' + (s.openList ? " open" : "") + '><summary>Mes questions à revoir (' + kos.length + ")</summary><ul>" + kos.map((k) => '<li><button type="button" data-q="' + esc(k) + '">' + esc(QMAP[k].q) + "</button></li>").join("") + "</ul></details>" : "")
+    + (keys.length ? '<button type="button" class="hzreset" data-act="reset">Recommencer à zéro</button>' : "")
+    + "</div></div>";
+}
+let resetArmed = 0;
 has.addEventListener("click", (e) => {
-  if (e.target.closest("#retire")) { tire(); return; }
-  if (e.target.closest("#voir")) { document.getElementById("rep").hidden = false; e.target.closest("#voir").remove(); return; }
-  const a = e.target.closest("[data-go]"); if (a) { try { sessionStorage.setItem("memos-goto", a.dataset.go); } catch (x) {} }
+  const s = rload(), t = e.target;
+  const mb = t.closest("[data-memo]"); if (mb) { s.memo = mb.dataset.memo; s.cur = null; rsave(s); tire(); return; }
+  const act = t.closest("[data-act]");
+  if (act && act.dataset.act === "voir") { s.shown = true; rsave(s); tire(); return; }
+  if (act && act.dataset.act === "passer") { s.cur = pick(s); s.shown = false; rsave(s); tire(); return; }
+  if (act && act.dataset.act === "reset") {
+    if (Date.now() - resetArmed < 4000) { s.res = {}; s.cur = pick(s); s.shown = false; rsave(s); tire(); }
+    else { resetArmed = Date.now(); act.textContent = "Clique encore pour confirmer"; }
+    return;
+  }
+  const r = t.closest("[data-r]"); if (r) { s.res[s.cur] = r.dataset.r; s.cur = pick(s); s.shown = false; rsave(s); tire(); return; }
+  const qb = t.closest("[data-q]"); if (qb) { s.cur = qb.dataset.q; s.shown = false; s.openList = true; rsave(s); tire(); return; }
+  const a = t.closest("[data-go]"); if (a) { try { sessionStorage.setItem("memos-goto", a.dataset.go); sessionStorage.setItem("memos-quiz", "1"); } catch (x) {} }
 });
+has.addEventListener("toggle", (e) => { if (e.target.classList && e.target.classList.contains("hzl")) { const s = rload(); s.openList = e.target.open; rsave(s); } }, true);
 tire();
+try { if (sessionStorage.getItem("memos-retour-quiz")) { sessionStorage.removeItem("memos-retour-quiz"); setTimeout(() => has.scrollIntoView({block: "center"}), 60); } } catch (x) {}
+
 
 const root = document.documentElement, btn = document.getElementById("theme");
 const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
