@@ -16,15 +16,22 @@ Chaque fiche donne le code ligne par ligne, avec une phrase simple pour dire ce 
 | Terminal, VS Code, Git et GitHub | terminal, VS Code, environnement virtuel, Git en local, branches et conflits, GitHub, travail en équipe | ✅ disponible |
 | Graphiques | df.plot, Matplotlib, Seaborn, lire un graphique | à venir |
 
-## Ce qu'on trouve sur chaque page
+## Ce qu'on trouve sur le site
 
-- une recherche (« doublons », « remplir », « date »…) et un sommaire cliquable ;
-- Pandas : un bouton **Copier** sur chaque ligne de code, et le **résultat** sur le Titanic quand il aide ;
-- Python : un clic sur le code affiche son **résultat**, comme dans Colab ;
-- Terminal et Git : un bouton **Copier** par commande, et ce que le terminal répond, tel que le montre le cours ;
-- des encadrés **Pourquoi ?**, **Astuce** et **Piège** ;
-- des mémos **PDF** à télécharger, en version courte (le code, les astuces, les pièges) ou complète (avec les « Pourquoi »), pour tout le mémo ou une seule partie (dossier `pdf/`) ;
+**Sur chaque mémo**
+- un sommaire où l'on ouvre les parties à afficher (une ou plusieurs), et une recherche qui surligne les mots trouvés ;
+- Pandas et Git : un bouton **Copier** sur chaque bloc de code ; Python, Pandas et Git : le **résultat** au clic quand il aide ;
+- une étiquette sur chaque bloc (Python, Git Bash, Notebook…) pour savoir où taper la commande ;
+- des encadrés **Pourquoi ?**, **Astuce** et **Piège**, et des liens **Voir aussi** entre les fiches qui se répondent ;
+- une **étoile** pour mettre une fiche en favori, et le filtre **Favoris** ;
+- des mémos **PDF** à télécharger, en version courte (le code, les astuces, les pièges) ou complète (avec les « Pourquoi »), pour tout le mémo ou une seule partie ;
 - un mode clair et sombre, lisible sur téléphone.
+
+**Sur l'accueil**
+- une recherche dans tous les mémos à la fois ;
+- **Reprendre** : retour à la dernière fiche lue ;
+- **Mes favoris**, avec leur PDF (fiches complètes) et une sauvegarde dans un fichier pour les retrouver sur un autre appareil ;
+- **Révision** : une question d'oral par fiche (277), la réponse, « Je savais » ou « À revoir », et le suivi de la progression.
 
 ## Technique
 
