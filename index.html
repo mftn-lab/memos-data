@@ -274,7 +274,7 @@ body.searching .memos,body.searching .duo,body.searching .resume{display:none}
       <h2><svg width="22" height="22" viewBox="0 0 24 24" fill="#e8a400" stroke="#e8a400" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris<span class="fcnt" id="fcnt"></span></h2>
       <span id="fmsg"></span>
       <div class="fbtns">
-        <a class="ob pdfb" id="fpdf" href="favoris.html" title="Toutes mes fiches favorites, complètes, en PDF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>En PDF</a>
+        <a class="ob pdfb" id="fpdf" href="favoris.html" title="Toutes mes fiches favorites, complètes, sur une page (avec export PDF)"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor"/></svg>Voir mes fiches</a>
         <details class="fsave"><summary class="ob" title="Sauvegarder ou restaurer mes favoris"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Sauvegarde</summary>
           <div class="fmenu">
             <button type="button" id="fexp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Sauvegarder dans un fichier</button>
@@ -438,10 +438,10 @@ function draw(){
   const n = Object.keys(f).length;
   document.getElementById("fpdf").classList.toggle("off", !n);
   document.getElementById("fcnt").textContent = n || "";
-  lead.innerHTML = n ? "Clique sur une fiche pour l'ouvrir dans son mémo."
+  lead.innerHTML = n ? "Clique sur une fiche pour la voir avec toutes tes fiches favorites, ou sur « Voir mes fiches »."
     : "Aucun favori pour l'instant. Dans un mémo, clique sur l'étoile ☆ en haut à droite d'une fiche : elle apparaîtra ici.";
-  list.innerHTML = pages.map((p) => '<div class="fm" style="--mc:' + (COLF[p] || "#e8a400") + '"><h3><a href="' + e(p) + '">' + e(by[p].memo) + "</a></h3><ul>"
-    + by[p].items.sort((a, b) => a[1].at - b[1].at).map(([key, v]) => '<li><a href="' + e(p) + '" data-go="' + e(v.id) + '">' + e(v.t) + (v.sec ? "<small>" + e(v.sec) + "</small>" : "") + '</a><button type="button" data-del="' + e(key) + '" title="Retirer des favoris" aria-label="Retirer des favoris">×</button></li>').join("")
+  list.innerHTML = pages.map((p) => '<div class="fm" style="--mc:' + (COLF[p] || "#e8a400") + '"><h3><a href="favoris.html?memo=' + e(p) + '">' + e(by[p].memo) + "</a></h3><ul>"
+    + by[p].items.sort((a, b) => a[1].at - b[1].at).map(([key, v]) => '<li><a href="favoris.html?f=' + encodeURIComponent(key) + '">' + e(v.t) + (v.sec ? "<small>" + e(v.sec) + "</small>" : "") + '</a><button type="button" data-del="' + e(key) + '" title="Retirer des favoris" aria-label="Retirer des favoris">×</button></li>').join("")
     + "</ul></div>").join("");
 }
 list.addEventListener("click", (ev) => {
