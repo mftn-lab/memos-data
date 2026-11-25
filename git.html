@@ -308,8 +308,7 @@ header.top .wrap{padding-top:22px;padding-bottom:30px}
 .stats b{font-size:15px;font-weight:800}
 .stats svg{opacity:.85}
 header.top .hero{background:none;border:0;padding:0}
-.win{min-width:420px;background:rgba(11,16,32,.82);border:1px solid rgba(255,255,255,.22);border-radius:14px;overflow:hidden;color:#e6eaf2;box-shadow:0 28px 60px -24px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.15);transform:rotate(-1.2deg);transition:transform .3s}
-.win:hover{transform:rotate(0)}
+.win{min-width:420px;background:rgba(11,16,32,.82);border:1px solid rgba(255,255,255,.22);border-radius:14px;overflow:hidden;color:#e6eaf2;box-shadow:0 28px 60px -24px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.15)}
 .wbar{display:flex;align-items:center;gap:8px;padding:8px 6px 8px 12px;background:rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.1);font-size:12.5px;color:#c3cce0}
 .wdot{width:9px;height:9px;border-radius:3px;background:var(--hc,#7aa7ff)}
 .wc{margin-left:auto;display:flex}
@@ -319,24 +318,17 @@ header.top .hero{background:none;border:0;padding:0}
 .cv{color:#e6eaf2}.cn{color:#ffb86b}.cf{color:#7fd6ff}.ck{color:#c792ea}.cs{color:#9fe3b0}
 .wout{display:flex;align-items:center;gap:10px;padding:9px 16px 11px;border-top:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.22);font:13.5px "DejaVu Sans Mono",ui-monospace,monospace;color:#9fe3b0}
 .wl{font:700 11px Inter,system-ui,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:#8b95b0}
-.caret{display:inline-block;width:8px;height:16px;background:#9fe3b0;margin-left:-6px;animation:blink 1.1s steps(1) infinite}
-@keyframes blink{50%{opacity:0}}
+.caret{display:inline-block;width:8px;height:16px;background:#9fe3b0;margin-left:-6px}
 .pdhero{display:flex;align-items:center;gap:14px;padding:16px 18px}
 .ggraph{display:block;margin:6px 4px 2px}
-.gl{fill:none;stroke-width:4;stroke-linecap:round;stroke-dasharray:420;stroke-dashoffset:420;animation:draw 1.4s ease forwards}
-.gm{stroke:#7aa7ff}.gb{stroke:#ffa45c;animation-delay:.5s}
-.gc circle{fill:#0b1020;stroke:#7aa7ff;stroke-width:3.5;opacity:0;animation:pop .35s ease forwards}
+.gl{fill:none;stroke-width:4;stroke-linecap:round}
+.gm{stroke:#7aa7ff}.gb{stroke:#ffa45c}
+.gc circle{fill:#0b1020;stroke:#7aa7ff;stroke-width:3.5}
 .gc.b circle{stroke:#ffa45c}
 .gc circle.mg{fill:#7aa7ff}
-.gc circle:nth-child(1){animation-delay:.2s}.gc circle:nth-child(2){animation-delay:.45s}.gc circle:nth-child(3){animation-delay:.9s}.gc circle:nth-child(4){animation-delay:1.5s}.gc circle:nth-child(5){animation-delay:1.75s}
-.gc.b circle:nth-child(1){animation-delay:1s}.gc.b circle:nth-child(2){animation-delay:1.2s}
 .gt1{font:700 13px Inter,system-ui,sans-serif;fill:#7aa7ff}.gt1.tb{fill:#ffa45c}
 .gt2{font:600 11px "DejaVu Sans Mono",monospace;fill:#aab4cc;text-anchor:middle}.gt2.tb{fill:#ffcfa6}
 .push path{fill:none;stroke:#9fe3b0;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.push text{fill:#9fe3b0;text-anchor:start}
-.push{opacity:0;animation:pop .4s ease 2s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes pop{to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.gl{animation:none;stroke-dashoffset:0}.gc circle,.push{animation:none;opacity:1}.caret{animation:none}.win{transform:none}}
 @media (max-width:1100px){.win{min-width:0}}
 @media (max-width:600px){header.top .hero{display:none}.stats span{font-size:12.5px}}
 header.top{background-image:radial-gradient(rgba(255,255,255,.12) 1.2px,transparent 1.3px),linear-gradient(135deg,#1e2350,#8a2f1c 58%,#e06a1b);background-size:18px 18px,auto}
@@ -1546,7 +1538,7 @@ if (el) setTimeout(() => { el.scrollIntoView({block: "center"}); el.classList.ad
   const el = document.getElementById("stats"); if (!el) return;
   const nCards = ALL.reduce((a, s) => a + s.cards.length, 0), nRun = document.querySelectorAll("main .run").length, nComp = document.querySelectorAll("main .comp").length;
   const I = {"sec": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"><path d=\"M4 6h16M4 12h16M4 18h10\"/></svg>", "card": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"3\"/><path d=\"M8 9h8M8 13h5\"/></svg>", "run": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M8 5l11 7-11 7z\"/></svg>", "comp": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"><path d=\"M12 5v14M5 12h14\"/></svg>"};
-  el.innerHTML = '<span>' + I.sec + "<b>" + ALL.length + "</b> sections</span><span>" + I.card + "<b>" + nCards + "</b> fiches</span>" + (nRun ? "<span>" + I.run + "<b>" + nRun + "</b> résultats à afficher</span>" : "") + (nComp ? "<span>" + I.comp + "<b>" + nComp + "</b> compléments</span>" : "");
+  el.innerHTML = '<span>' + I.sec + "<b>" + ALL.length + "</b> sections</span><span>" + I.card + "<b>" + nCards + "</b> fiches</span>";
 })();
 /*/STATSJS*/
 }
