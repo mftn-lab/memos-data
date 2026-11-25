@@ -1119,6 +1119,32 @@ addEventListener("scroll", () => {
   clearTimeout(st); st = setTimeout(() => { if (scrollY > 300) saveLast(); }, 700);
 }, {passive: true});
 
+/* ---------- Sommaire : surligner la bonne section ---------- */
+if (typeof secObserver !== "undefined") secObserver.disconnect();
+const tocLinks = Array.from(tocEl.querySelectorAll("li[data-s] a"));
+let pinned = null, spyRaf = 0;
+function setActive(id){
+  tocLinks.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+  const a = tocLinks.find((x) => x.getAttribute("href") === "#" + id);
+  if (a && tocEl.scrollHeight > tocEl.clientHeight) {
+    const r = a.getBoundingClientRect(), t = tocEl.getBoundingClientRect();
+    if (r.top < t.top + 10 || r.bottom > t.bottom - 10) tocEl.scrollTop += r.top - t.top - t.height / 3;
+  }
+}
+function spy(){
+  spyRaf = 0;
+  if (pinned) { setActive(pinned); return; }
+  const off = document.querySelector(".bar").offsetHeight + 40;
+  let cur = null;
+  document.querySelectorAll("section.sec:not(.hide)").forEach((s) => { if (s.getBoundingClientRect().top <= off) cur = s; });
+  if (!cur) cur = document.querySelector("section.sec:not(.hide)");
+  if (cur) setActive(cur.id);
+}
+addEventListener("scroll", () => { if (!spyRaf) spyRaf = requestAnimationFrame(spy); }, {passive: true});
+tocEl.addEventListener("click", (e) => { const a = e.target.closest("li[data-s] a"); if (a) { pinned = a.getAttribute("href").slice(1); setActive(pinned); } });
+["wheel", "touchstart", "keydown"].forEach((ev) => addEventListener(ev, (e) => { if (ev === "keydown" && !/^(Arrow|Page|Home|End| )/.test(e.key)) return; pinned = null; }, {passive: true}));
+spy();
+
 /* ---------- Arrivée depuis l'accueil (favoris, recherche, reprendre) ---------- */
 paint(); layout();
 let go = null; try { go = sessionStorage.getItem("memos-goto"); sessionStorage.removeItem("memos-goto"); } catch (e) {}

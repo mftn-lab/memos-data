@@ -351,7 +351,7 @@ body{background-color:var(--bg);background-image:radial-gradient(1100px 520px at
 const c = String.raw;
 const GOLD = [["Une chaîne : la méthode renvoie une copie, on range le résultat", c`nom = nom.strip()`], ["Une liste : la méthode modifie sur place, on ne range rien", c`courses.append("riz")`]];
 const GROUPS = [
-{g:"Les bases", col:"blue", note:"Semaine 1 du cours : le langage, pas à pas.", sections:[
+{g:"Les bases", col:"blue", sections:[
  {id:"algo", ic:"list", t:"Algorithmique et pseudo-code", cards:[
   {id:"trois-briques", t:"Les trois briques de tout programme", lead:"Un algorithme est une suite d'opérations dans l'ordre, comme une recette de cuisine.", k:"algorithme algorithmique sequence boucle condition briques recette",
    tab:[["Brique","Ce qu'elle fait","En Python"],["La séquence","une opération après l'autre","des lignes l'une sous l'autre"],["La boucle","répéter sans réécrire","`for`, `while`"],["La condition","choisir selon la situation","`if`, `elif`, `else`"]],
@@ -527,7 +527,7 @@ print("total après :", total)`],["Voir les espaces cachées et les guillemets",
    trap:"`.split()` change le texte en liste : il vient **en dernier**. `entete.split(\";\").lower()` donne `AttributeError: 'list' object has no attribute 'lower'`."}
  ]}
 ]},
-{g:"Les structures de données", col:"violet", note:"Semaine 2 du cours : ranger plusieurs valeurs.", sections:[
+{g:"Les structures de données", col:"violet", sections:[
  {id:"chaines", ic:"text", t:"Les chaînes de caractères", cards:[
   {id:"creer-chaine", t:"Écrire une chaîne", k:"chaine str texte guillemets apostrophe triple ligne",
    s:[["Guillemets ou apostrophes : c'est pareil", c`str_1 = "Salut wilder !"`],["Une apostrophe dans le texte : entre guillemets", c`phrase = "Je pense qu'il a raison"`],["Sur plusieurs lignes : triples guillemets", c`texte = """Première ligne
@@ -3350,6 +3350,32 @@ addEventListener("scroll", () => {
   topBtn.classList.toggle("show", scrollY > 900);
   clearTimeout(st); st = setTimeout(() => { if (scrollY > 300) saveLast(); }, 700);
 }, {passive: true});
+
+/* ---------- Sommaire : surligner la bonne section ---------- */
+if (typeof secObserver !== "undefined") secObserver.disconnect();
+const tocLinks = Array.from(tocEl.querySelectorAll("li[data-s] a"));
+let pinned = null, spyRaf = 0;
+function setActive(id){
+  tocLinks.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+  const a = tocLinks.find((x) => x.getAttribute("href") === "#" + id);
+  if (a && tocEl.scrollHeight > tocEl.clientHeight) {
+    const r = a.getBoundingClientRect(), t = tocEl.getBoundingClientRect();
+    if (r.top < t.top + 10 || r.bottom > t.bottom - 10) tocEl.scrollTop += r.top - t.top - t.height / 3;
+  }
+}
+function spy(){
+  spyRaf = 0;
+  if (pinned) { setActive(pinned); return; }
+  const off = document.querySelector(".bar").offsetHeight + 40;
+  let cur = null;
+  document.querySelectorAll("section.sec:not(.hide)").forEach((s) => { if (s.getBoundingClientRect().top <= off) cur = s; });
+  if (!cur) cur = document.querySelector("section.sec:not(.hide)");
+  if (cur) setActive(cur.id);
+}
+addEventListener("scroll", () => { if (!spyRaf) spyRaf = requestAnimationFrame(spy); }, {passive: true});
+tocEl.addEventListener("click", (e) => { const a = e.target.closest("li[data-s] a"); if (a) { pinned = a.getAttribute("href").slice(1); setActive(pinned); } });
+["wheel", "touchstart", "keydown"].forEach((ev) => addEventListener(ev, (e) => { if (ev === "keydown" && !/^(Arrow|Page|Home|End| )/.test(e.key)) return; pinned = null; }, {passive: true}));
+spy();
 
 /* ---------- Arrivée depuis l'accueil (favoris, recherche, reprendre) ---------- */
 paint(); layout();
