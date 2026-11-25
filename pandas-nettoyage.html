@@ -552,7 +552,7 @@ df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 3
  ]}
 ]},
 {g:"Nettoyer", col:"teal", sections:[
- {id:"doublons", ic:"copy", step:1, t:"Doublons", cards:[
+ {id:"doublons", ic:"copy", t:"Doublons", cards:[
   {id:"doublons-compter", t:"Compter et voir les doublons", k:"doublon doublons double copie duplicated compter",
    s:[["Compter les lignes en double", c`df.duplicated().sum()`],["Les afficher", c`df[df.duplicated()]`]],
    why:"`duplicated()` répond Vrai quand la même ligne existe plus haut. La première reste Faux : c'est l'originale. `.sum()` compte les Vrai (Vrai vaut 1).",
@@ -565,7 +565,7 @@ df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 3
    why:"`subset` dit quelles colonnes définissent un doublon. Un numéro de commande ne doit jamais apparaître deux fois ; un même prénom, c'est juste un client qui revient.",
    trap:"Sans `df =`, rien ne change : la plupart des méthodes (`drop_duplicates`, `fillna`, `drop`, `rename`, `merge`…) fabriquent un nouveau tableau, qui s'affiche puis disparaît. Seules les écritures `df[\"col\"] = …` et `df.loc[…] = …` modifient directement le tableau."}
  ]},
- {id:"assembler", ic:"link", step:2, t:"Assembler deux tableaux", cards:[
+ {id:"assembler", ic:"link", t:"Assembler deux tableaux", cards:[
   {id:"merge", t:"Relier deux tableaux par une colonne commune (merge)", lead:"Comme un JOIN en SQL : la colonne commune s'appelle la clé.", k:"merge jointure join fusionner relier cle left right inner outer on left_on right_on sql",
    s:[["La clé a le même nom des deux côtés", c`df = pd.merge(films, notes, how="left", on="tconst")`],["La clé n'a pas le même nom", c`df = pd.merge(films, akas, how="inner", left_on="tconst", right_on="titleId")`],["La même chose, écrite à partir du premier tableau", c`df_merged = df_apprenants.merge(df_scores, on="id", how="left")`],["Relier sur deux colonnes à la fois", c`df = pd.merge(df_rh, df_paie, how="left", on=["Nom", "Département"])`]],
    tab:[["","how=","On garde","En SQL"],["@venn:left","`\"left\"`","toutes les lignes du tableau de gauche","LEFT JOIN"],["@venn:right","`\"right\"`","toutes les lignes du tableau de droite","RIGHT JOIN"],["@venn:inner","`\"inner\"`","seulement ce qui existe des deux côtés","INNER JOIN"],["@venn:outer","`\"outer\"`","tout, des deux côtés","FULL OUTER JOIN"]],
@@ -578,7 +578,7 @@ df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 3
   {id:"merge-ou-concat", t:"merge ou concat ?", k:"merge concat difference choisir",
    tab:[["Outil","Ce qu'il fait"],["`merge`","relie grâce à une clé et ajoute des colonnes"],["`concat`","colle des tableaux, dessous ou à côté"]]}
  ]},
- {id:"vides", ic:"drop", step:3, t:"Les cases vides", cards:[
+ {id:"vides", ic:"drop", t:"Les cases vides", cards:[
   {id:"vides-compter", t:"Compter les cases vides", k:"vide vides manquant manquantes nan null isna compter pourcentage",
    s:[["Le nombre de cases vides par colonne", c`df.isna().sum()`],["Le pourcentage de cases vides", c`df.isna().mean() * 100`],["Le total de cases vides dans tout le tableau (0 à la fin du nettoyage)", c`df.isna().sum().sum()`]],
    why:"`isna()` met Vrai dans chaque case vide. Vrai vaut 1 et Faux vaut 0 : `.sum()` compte les vides, `.mean()` donne leur proportion. Le premier `.sum()` compte par colonne, le second additionne toutes les colonnes.",
@@ -612,7 +612,7 @@ df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 3
    trap:"`dropna()` sans `subset` regarde toutes les colonnes. Sur le Titanic, la colonne `Cabin` (77 % vide) ferait disparaître environ 700 passagers !",
    tip:"Supprimer, c'est perdre des lignes : on préfère remplir, et on ne supprime que l'inutilisable."}
  ]},
- {id:"outliers", ic:"dots", step:4, t:"Valeurs aberrantes (outliers)", cards:[
+ {id:"outliers", ic:"dots", t:"Valeurs aberrantes (outliers)", cards:[
   {id:"outliers-reperer", t:"Repérer une valeur anormale", k:"outlier outliers aberrant aberrante extreme describe moyenne mediane",
    s:[["Les statistiques d'une colonne", c`df["Fare"].describe()`]],
    why:"Compare `mean` (la moyenne) et `50%` (la médiane). Si la moyenne est bien plus haute, quelques valeurs très grandes la tirent vers le haut. Regarde aussi `max` par rapport à `75%`."},
