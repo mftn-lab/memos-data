@@ -331,7 +331,11 @@ const GROUPS = [
    why:"C'est la notion qui explique la moitié des erreurs du terminal. Le relatif est plus court, c'est celui que tu tapes le plus ; l'absolu est plus sûr, c'est celui qu'on écrit dans un script, qui peut être lancé de n'importe où."},
   {id:"erreurs-terminal", t:"Deux erreurs à ne pas confondre", k:"command not found no such file or directory erreur terminal",
    tab:[["Message","Le problème vient de…","Exemple"],["`command not found`","la commande elle-même (faute de frappe, outil pas installé)","`ls-l Documents` (espace oubliée)"],["`No such file or directory`","son argument : le fichier ou dossier n'est pas là","`cd Document` (s oublié)"]],
-   tip:"Le réflexe est toujours le même : `ls` avant `cd`. Le dossier n'est probablement pas là où tu le crois."}
+   tip:"Le réflexe est toujours le même : `ls` avant `cd`. Le dossier n'est probablement pas là où tu le crois."},
+  {id:"raccourcis-terminal", t:"Quatre gestes qui font gagner du temps", comp:true, k:"ctrl c arreter cd - precedent explorer open dossier history historique commandes",
+   tab:[["Geste","Ce qu'il fait"],["Ctrl + C","arrête une commande qui tourne, ou qui ne rend pas la main"],["`cd -`","revient au dossier où tu étais juste avant"],["`history`","la liste des commandes déjà tapées"]],
+   s:[["Revenir au dossier précédent", c`cd -`],["Ouvrir le dossier actuel dans l'explorateur de fichiers (Windows, Git Bash)", c`explorer .`],["La même chose sur Mac", c`open .`],["Les commandes déjà tapées", c`history`]],
+   tip:"Ctrl + C dans le terminal n'est pas « copier » : c'est « arrêter ». Pour copier dans Git Bash, sélectionne le texte à la souris (ou Ctrl + Inser)."}
  ]},
  {id:"fichiers", ic:"folder", t:"Créer, lire, copier, supprimer", cards:[
   {id:"mkdir-touch", t:"Créer des dossiers et des fichiers", k:"mkdir touch creer dossier fichier arborescence projet collecte",
@@ -381,7 +385,10 @@ echo "Fin du script"`],["L'exécuter sous Windows (Git Bash)", c`bash script.sh`
    tab:[["Zone","À quoi elle sert"],["Barre d'activité (tout à gauche)","Explorer, Search, Source Control (Git), Run and Debug, Extensions"],["Barre latérale","l'arborescence du projet"],["Éditeur","tes fichiers ouverts, en onglets"],["Minimap","un aperçu du fichier, pour naviguer vite"],["Panneau inférieur","le terminal et la console de débogage"],["Barre d'état (en bas)","le langage, la position, la branche Git, l'interpréteur Python"]]},
   {id:"raccourcis-vscode", t:"Les raccourcis à connaître", k:"raccourcis clavier palette ctrl shift p terminal extensions enregistrer",
    tab:[["Action","Windows","Mac"],["Palette de commandes","Ctrl + Shift + P","Cmd + Shift + P"],["Ouvrir le terminal intégré","Ctrl + ù","Ctrl + ù"],["Enregistrer","Ctrl + S","Cmd + S"],["Extensions","Ctrl + Shift + X","Cmd + Shift + X"],["Run and Debug","Ctrl + Shift + D","Cmd + Shift + D"],["Exécuter une cellule de notebook","Ctrl + Entrée","Ctrl + Entrée"],["Cellule en dessous / au-dessus","Échap puis B / A","Échap puis B / A"]],
-   tip:"Tu ne trouves pas un réglage ? Ne cherche pas dans les menus : ouvre la palette et tape ce que tu veux (« Python », « terminal », « format »)."}
+   tip:"Tu ne trouves pas un réglage ? Ne cherche pas dans les menus : ouvre la palette et tape ce que tu veux (« Python », « terminal », « format »)."},
+  {id:"raccourcis-plus", t:"Raccourcis en plus, pour coder plus vite", comp:true, k:"raccourcis ctrl p ouvrir fichier chercher projet commenter deplacer dupliquer ligne",
+   tab:[["Action","Windows","Mac"],["Ouvrir un fichier par son nom","Ctrl + P","Cmd + P"],["Chercher dans tout le projet","Ctrl + Shift + F","Cmd + Shift + F"],["Commenter / décommenter les lignes sélectionnées","Ctrl + /","Cmd + /"],["Déplacer la ligne vers le haut / le bas","Alt + ↑ / ↓","Option + ↑ / ↓"],["Dupliquer la ligne","Shift + Alt + ↓","Shift + Option + ↓"]],
+   tip:"Ctrl + / met (ou enlève) un `#` devant chaque ligne sélectionnée : pratique pour désactiver un bout de code le temps d'un test."}
  ]},
  {id:"vscode-python", ic:"code", t:"Python et notebooks dans VS Code", cards:[
   {id:"extensions", t:"Installer les extensions Python et Jupyter", k:"extension python jupyter microsoft installer coloration",
@@ -447,7 +454,11 @@ print(f"La moyenne des notes est : {moyenne}")`],["L'exécuter", c`python src/mo
   {id:"venv-vscode", t:"Faire reconnaître l'environnement par VS Code", k:"vscode interpreteur venv select kernel popup",
    lead:"Palette → **Python: Select Interpreter** → la ligne dont le chemin contient `.venv`. Dans un notebook : **Select Kernel** → le même `.venv`.",
    tip:"Souvent, VS Code propose lui-même le nouvel environnement dans une fenêtre : réponds Yes.",
-   trap:"Créer l'environnement ne suffit pas : sans ce choix, tes scripts tournent avec le Python global, et pandas reste introuvable."}
+   trap:"Créer l'environnement ne suffit pas : sans ce choix, tes scripts tournent avec le Python global, et pandas reste introuvable."},
+  {id:"ipykernel", t:"Le notebook ne trouve pas mon environnement", comp:true, k:"ipykernel kernel notebook jupyter vscode pip install percent pip",
+   s:[["Dans le terminal, environnement activé : ce qui fait tourner les notebooks", c`pip install ipykernel`],["Dans une cellule du notebook : installer dans le bon environnement", c`%pip install pandas`]],
+   why:"Pour qu'un notebook tourne avec ton `.venv`, il faut le paquet `ipykernel` dedans. VS Code propose souvent de l'installer tout seul : accepte.",
+   trap:"Dans un notebook, préfère `%pip` à `!pip` : `%pip` installe dans le kernel du notebook, `!pip` peut installer dans un autre Python que celui qui exécute tes cellules."}
  ]},
  {id:"requirements", ic:"list", t:"Partager : requirements.txt", cards:[
   {id:"freeze", t:"Figer, puis réinstaller la liste", k:"pip freeze requirements txt figer liste reinstaller install -r",
@@ -522,6 +533,9 @@ __pycache__/
   {id:"check-ignore", t:"Vérifier qu'une règle s'applique", k:"check-ignore verifier gitignore regle fichier",
    s:[["Quelle ligne du .gitignore filtre ces fichiers ?", c`git check-ignore -v .env data/brut.csv`]],
    tip:"L'outil à sortir quand un fichier refuse d'apparaître (ou de disparaître) dans `git status`."},
+  {id:"gitkeep", t:"Garder un dossier vide dans le dépôt", comp:true, k:"gitkeep dossier vide invisible notebooks garder structure",
+   s:[["Déposer un fichier vide dans le dossier", c`touch notebooks/.gitkeep`],["Le dossier apparaît enfin", c`git status -s`]],
+   why:"Git ne suit que des fichiers : un dossier vide est invisible, et ne part donc pas sur GitHub. `.gitkeep` n'a rien de spécial, c'est une convention : un fichier vide dont le nom dit à quoi il sert."},
   {id:"rm-cached", t:"Arrêter de suivre un fichier déjà commité", k:"rm cached arreter suivre dossier venv deja suivi",
    s:[["Un fichier", c`git rm --cached fichier.csv`],["Un dossier entier", c`git rm --cached -r .venv`]],
    why:"Le fichier reste sur ton disque, mais Git ne le suit plus. Ajoute-le ensuite au `.gitignore`, puis commit."}
@@ -544,7 +558,14 @@ __pycache__/
   {id:"amend-stash", t:"Corriger le dernier message, mettre de côté", k:"amend stash pop corriger message mettre de cote temporaire",
    s:[["Corriger le message du dernier commit", c`git commit --amend -m "Nouveau message"`],["Mettre ses modifications de côté", c`git stash`],["Les récupérer", c`git stash pop`]],
    trap:"`--amend` seulement si le commit n'a pas encore été poussé sur GitHub.",
-   why:"`stash` sert surtout avant de changer de branche, quand tu n'es pas prêt à commiter."}
+   why:"`stash` sert surtout avant de changer de branche, quand tu n'es pas prêt à commiter."},
+  {id:"oubli-commit", t:"J'ai oublié un fichier dans mon dernier commit", comp:true, k:"oublie fichier commit amend no-edit ajouter dernier",
+   s:[["Ajouter le fichier oublié", c`git add oubli.txt`],["Le glisser dans le dernier commit, sans changer le message", c`git commit --amend --no-edit`]],
+   trap:"Seulement si le commit n'a pas encore été poussé : `--amend` remplace le commit par un nouveau, et GitHub refuserait ensuite ton push."},
+  {id:"coince-editeur", t:"Coincé dans l'éditeur après un commit sans -m", comp:true, k:"vim editeur coince commit sans m quitter wq echap",
+   lead:"Tu as tapé `git commit` sans `-m`, et le terminal affiche un écran plein de `~` : c'est l'éditeur Vim.",
+   tab:[["Pour…","Tape"],["écrire ton message","la touche **i**, puis ton message"],["enregistrer et quitter (le commit est fait)","**Échap**, puis `:wq` et Entrée"],["quitter sans rien enregistrer (le commit est annulé)","**Échap**, puis `:q!` et Entrée"]],
+   tip:"Le plus simple reste de ne jamais l'ouvrir : toujours `git commit -m \"message\"`."}
  ]},
  {id:"branches", ic:"branch", t:"Les branches", cards:[
   {id:"branche-quoi", t:"Ce qu'est une branche", k:"branche etiquette copie parallele brouillon",
@@ -628,6 +649,10 @@ Password:`],["Ne plus le retaper (machine personnelle seulement)", c`git config 
    s:[["Se placer là où ranger le projet", c`cd ~/Documents/data/02_Projets`],["Copier tout le projet et son historique", c`git clone URL_DU_DEPOT`],["Entrer dans le dossier créé", c`cd nom_du_depot`]],
    trap:"Ne jamais cloner à l'intérieur d'un autre dépôt Git : toujours dans un dossier « neutre ». Et pas de `git init` ni de `remote add` derrière : clone les a déjà faits.",
    tip:"Le bouton Download ZIP donne les fichiers sans l'historique : pas de log, pas de branches, impossible de contribuer. Après un clone, recrée le `.venv` puis `pip install -r requirements.txt`."},
+  {id:"branche-camarade", t:"Tester la branche d'un camarade sur ma machine", comp:true, k:"branche camarade collegue fetch switch branch -a prune tester verifier",
+   s:[["Récupérer les nouveautés, branches comprises", c`git fetch`],["Voir aussi les branches de GitHub", c`git branch -a`],["Aller sur sa branche (copie locale créée toute seule)", c`git switch sa-branche`],["Revenir sur la mienne", c`git switch marco_b`],["Oublier les branches supprimées sur GitHub", c`git fetch --prune`]],
+   why:"`git switch` sur une branche qui n'existe que sur GitHub crée la copie locale et la relie à `origin/sa-branche`. Tu lances son code, tu vérifies, et tu reviens sur ta branche sans rien avoir mélangé.",
+   trap:"Commit (ou `git stash`) avant de changer de branche : sinon Git refuse, pour ne pas écraser tes modifications."},
   {id:"modifier-github", t:"Modifier un fichier depuis le navigateur", k:"modifier github navigateur crayon commit web readme",
    lead:"Sur GitHub, ouvrir le fichier → icône crayon → modifier → un vrai message → **Commit changes**. Puis en local : `git pull`.",
    why:"L'interface web fait un vrai commit, avec auteur, message et date. Pratique pour une faute dans un README ; pour du code, reste en local (ton éditeur, tes tests)."}
@@ -662,6 +687,10 @@ Password:`],["Ne plus le retaper (machine personnelle seulement)", c`git config 
   {id:"fichier-change", t:"Savoir si un fichier a changé sur GitHub", k:"fetch diff stat origin main fichier change comparer",
    s:[["Regarder les nouveautés, sans rien modifier", c`git fetch origin`],["Comparer MON fichier avec celui de main sur GitHub", c`git diff --stat origin/main -- data/propre/film_propre.csv`]],
    tip:"Rien ne s'affiche : fichiers identiques. Une ligne avec des `+` et des `-` : le fichier est différent, fais un `git pull origin main`."},
+  {id:"fichier-github", t:"Récupérer la version GitHub d'un seul fichier", comp:true, k:"recuperer fichier version github restore source origin main film_propre",
+   s:[["Récupérer les nouveautés", c`git fetch`],["Les fichiers qui diffèrent de main sur GitHub", c`git diff --name-only origin/main`],["Remplacer MON fichier par celui de main sur GitHub", c`git restore --source=origin/main data/propre/film_propre.csv`]],
+   why:"Pour un seul fichier, pas besoin de tout fusionner : `--source=origin/main` va chercher sa version sur GitHub. Le fichier apparaît ensuite modifié (`M`) : add + commit pour le garder.",
+   trap:"Ta version locale de ce fichier est écrasée, sans retour possible si elle n'était pas commitée."},
   {id:"supprimer-branche", t:"Supprimer une branche terminée (partout)", k:"supprimer branche github delete push origin delete",
    s:[["1. Aller sur main et le mettre à jour", c`git switch main
 git pull`],["2. Supprimer la branche sur l'ordinateur", c`git branch -d ma-branche`],["3. Supprimer la branche sur GitHub", c`git push origin --delete ma-branche`]],
@@ -704,6 +733,23 @@ const ICON_DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" str
 const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
 const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
 /*OUT*/const OUT = {
+ "raccourcis-terminal#0": {ctx:"# tu étais dans ~/Documents, puis cd collecte/data", out:[["o", c`/c/Users/VotrePrenom/Documents`], ["i", "cd - affiche le dossier où il te ramène."]]},
+ "gitkeep#1": {out:[["o", c`?? notebooks/`], ["i", "Avant le .gitkeep, git status -s n'affichait rien pour ce dossier vide."]]},
+ "oubli-commit#1": {out:[["o", c`[marco_b ee687bb] Recupere la version a jour
+ Date: Wed Nov 25 17:06:31 2026 +0100
+ 2 files changed, 2 insertions(+), 1 deletion(-)`], ["i", "Même message, même commit : il contient maintenant le fichier oublié."]]},
+ "branche-camarade#0": {out:[["o", c`From https://github.com/ton-pseudo/collecte
+   ea9d2c7..62b0894  main       -> origin/main
+ * [new branch]      sa-branche -> origin/sa-branche`]]},
+ "branche-camarade#1": {out:[["o", c`  main
+* marco_b
+  remotes/origin/main
+  remotes/origin/sa-branche`], ["i", "remotes/origin/… : les branches de GitHub, connues grâce au dernier fetch."]]},
+ "branche-camarade#2": {out:[["o", c`Switched to a new branch 'sa-branche'
+branch 'sa-branche' set up to track 'origin/sa-branche'.`]]},
+ "branche-camarade#4": {ctx:"# après la suppression de sa-branche sur GitHub", out:[["o", c` - [deleted]         (none)     -> origin/sa-branche`]]},
+ "fichier-github#1": {out:[["o", c`data/propre/film_propre.csv`]]},
+ "fichier-github#2": {out:[["a", "git status -s"], ["o", c` M data/propre/film_propre.csv`], ["i", "Le fichier a pris la version de GitHub (3 508 films) : add + commit pour la garder."]]},
  "ouvrir-terminal#0": {out:[["o", c`git version 2.47.0.windows.2`], ["i", "Le numéro n'a aucune importance : seul compte le fait qu'un numéro s'affiche. Sur Mac : « git version 2.39.5 (Apple Git-154) »."]]},
  "pwd-ls#0": {out:[["o", c`/c/Users/VotrePrenom`], ["i", "Sous Git Bash. Sur Mac : /Users/votreprenom."]]},
  "pwd-ls#1": {out:[["o", c`Documents    Downloads    Images    Musique    Vidéos`], ["i", "La liste dépend de ta machine."]]},
