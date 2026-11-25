@@ -312,6 +312,9 @@ footer .fsub{margin:0 0 16px}
 .nopart.show{display:block}
 .backquiz{position:fixed;left:22px;bottom:22px;z-index:45;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;text-decoration:none;color:var(--bg);background:var(--blue);border-radius:999px;padding:11px 18px;box-shadow:0 10px 26px -10px rgba(15,25,50,.6)}
 .backquiz:hover{filter:brightness(1.1)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (max-height:500px){header.top .hero{display:none}header.top .wrap{padding-top:14px;padding-bottom:18px}}
+@media (max-width:1100px){.bar .tb .tx{display:none}.bar .tb{padding:0 12px}}
 @media (max-width:600px){.bar .wrap{gap:5px}.bar .tb{padding:0 9px;min-height:42px}}
 @media (max-width:380px){.bar .wrap{gap:4px}.bar .tb{padding:0 7px;min-height:40px}}
 @media (max-width:700px){.backquiz{left:14px;bottom:14px;font-size:14px;padding:10px 14px}}
@@ -320,7 +323,7 @@ footer{display:none}
 /*SKIN*/
 /* Pleine largeur sur grand écran */
 .wrap{max-width:2400px}
-.layout{grid-template-columns:300px minmax(0,1fr);gap:40px}
+@media (min-width:921px){.layout{grid-template-columns:300px minmax(0,1fr);gap:40px}}
 main{max-width:none}
 /* Fond légèrement teinté */
 body{background-color:var(--bg);background-image:radial-gradient(1100px 520px at 100% 0,color-mix(in srgb,var(--teal) 8%,transparent),transparent 70%),radial-gradient(900px 600px at 0 40%,color-mix(in srgb,var(--blue) 6%,transparent),transparent 70%);background-attachment:fixed}
