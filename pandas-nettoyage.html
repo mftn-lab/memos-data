@@ -1101,7 +1101,7 @@ document.addEventListener("click", (e) => {
 const topBtn = document.createElement("button");
 topBtn.className = "totop"; topBtn.type = "button"; topBtn.title = "Haut de page"; topBtn.setAttribute("aria-label", "Revenir en haut de la page");
 topBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
-topBtn.addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
+topBtn.addEventListener("click", () => { pinned = null; window.scrollTo({top: 0, behavior: "instant"}); });
 document.body.appendChild(topBtn);
 let st = null;
 function saveLast(){
@@ -1115,7 +1115,7 @@ function saveLast(){
   try { localStorage.setItem("memos-derniere", JSON.stringify({page: PAGE, memo: TITLE, id: best.id, t: best.querySelector("h3 a").textContent, sec: s ? s.t : "", at: Date.now()})); } catch (x) {}
 }
 addEventListener("scroll", () => {
-  topBtn.classList.toggle("show", scrollY > 900);
+  topBtn.classList.toggle("show", scrollY > 250);
   clearTimeout(st); st = setTimeout(() => { if (scrollY > 300) saveLast(); }, 700);
 }, {passive: true});
 
