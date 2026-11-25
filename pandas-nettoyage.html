@@ -534,7 +534,7 @@ df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 3
    why:"Sans `.copy()`, pandas ne sait pas si tu modifies une copie ou le tableau d'origine. Il affiche alors l'alerte `SettingWithCopyWarning`."}
  ]}
 ]},
-{g:"Nettoyer", col:"teal", note:"L'ordre du cours : on nettoie d'abord, on calcule ensuite. Étape 5 : grouper et résumer.", sections:[
+{g:"Nettoyer", col:"teal", sections:[
  {id:"doublons", ic:"copy", step:1, t:"Doublons", cards:[
   {id:"doublons-compter", t:"Compter et voir les doublons", k:"doublon doublons double copie duplicated compter",
    s:[["Compter les lignes en double", c`df.duplicated().sum()`],["Les afficher", c`df[df.duplicated()]`]],
