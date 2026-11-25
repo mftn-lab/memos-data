@@ -239,7 +239,12 @@ body.searching .memos,body.searching .duo,body.searching .resume{display:none}
 /*/FAV*/
 /*INSTALLCSS*/
 .instip{position:fixed;z-index:60;width:min(320px,86vw);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 18px 40px -16px rgba(0,0,0,.5);font-size:14.5px;line-height:1.5}
-.instip ol{margin:8px 0 0;padding-left:20px}
+.instip{overflow:auto;width:min(360px,90vw)}
+.instip .tt{display:block;font-size:16px;margin-bottom:4px}
+.instip h4{margin:12px 0 2px;font-size:14px;color:var(--blue)}
+.instip section+section{border-top:1px solid var(--line);margin-top:10px}
+.instip .alt{margin:6px 0 0;font-size:13px;color:var(--mute)}
+.instip ol{margin:4px 0 0;padding-left:20px}
 .instip li{margin:4px 0}
 /*/INSTALLCSS*/
 </style>
@@ -604,18 +609,26 @@ if ("serviceWorker" in navigator && /(^|\.)github\.io$|^localhost$|^127\.0\.0\.1
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   const ok = /(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
   if (standalone || !ok) return;
-  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
   let evt = null;
-  addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); evt = e; btn.hidden = false; });
-  addEventListener("appinstalled", () => { btn.hidden = true; });
-  if (ios) btn.hidden = false;
+  btn.hidden = false;
+  addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); evt = e; });
+  addEventListener("appinstalled", () => { btn.hidden = true; tip.hidden = true; });
+  const S = {
+    ios: "<section><h4>iPhone ou iPad</h4><ol><li>Ouvre ce site dans <b>Safari</b>.</li><li>Touche <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Choisis <b>« Sur l'écran d'accueil »</b>, puis <b>Ajouter</b>.</li></ol></section>",
+    android: "<section><h4>Tablette ou téléphone Android</h4><ol><li>Ouvre ce site dans <b>Chrome</b>.</li><li>Touche le menu <b>⋮</b> en haut à droite.</li><li>Choisis <b>« Installer l'application »</b> (ou « Ajouter à l'écran d'accueil »), puis <b>Installer</b>.</li></ol><p class=\"alt\">Avec Samsung Internet : menu <b>≡</b> → <b>« Ajouter la page à »</b> → <b>Écran d'accueil</b>.</p></section>",
+    pc: "<section><h4>Ordinateur (Edge ou Chrome)</h4><ol><li>Clique sur l'icône <b>Installer</b> à droite de la barre d'adresse.</li><li>Ou, dans Edge : menu <b>…</b> → <b>Applications</b> → <b>« Installer ce site en tant qu'application »</b>.</li></ol></section>"
+  };
+  const order = ios ? ["ios", "android", "pc"] : android ? ["android", "ios", "pc"] : ["pc", "android", "ios"];
   const tip = document.createElement("div"); tip.className = "instip"; tip.hidden = true;
-  tip.innerHTML = "<b>Installer sur iPhone ou iPad</b><ol><li>Ouvre ce site dans <b>Safari</b>.</li><li>Touche le bouton <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Choisis <b>« Sur l'écran d'accueil »</b>, puis <b>Ajouter</b>.</li></ol>";
+  tip.innerHTML = "<b class=\"tt\">Installer l'appli Mémos Data</b>" + order.map((k) => S[k]).join("") + "<p class=\"alt\">Une fois installée, elle s'ouvre en plein écran et fonctionne sans connexion.</p>";
   document.body.appendChild(tip);
-  const place = () => { const r = btn.getBoundingClientRect(); tip.style.top = (r.bottom + 8) + "px"; tip.style.left = Math.max(12, Math.min(r.left, innerWidth - tip.offsetWidth - 12)) + "px"; };
+  const place = () => { const r = btn.getBoundingClientRect(); tip.style.top = (r.bottom + 8) + "px"; tip.style.left = Math.max(12, Math.min(r.left, innerWidth - tip.offsetWidth - 12)) + "px"; tip.style.maxHeight = (innerHeight - r.bottom - 24) + "px"; };
   btn.addEventListener("click", async (e) => {
     e.stopPropagation();
-    if (evt) { evt.prompt(); try { await evt.userChoice; } catch (x) {} evt = null; btn.hidden = true; return; }
+    if (evt) { const ev = evt; evt = null; ev.prompt(); try { const c = await ev.userChoice; if (c && c.outcome === "accepted") btn.hidden = true; } catch (x) {} return; }
     tip.hidden = !tip.hidden; if (!tip.hidden) place();
   });
   document.addEventListener("click", (e) => { if (!tip.hidden && !tip.contains(e.target)) tip.hidden = true; });
