@@ -310,6 +310,7 @@ footer .fsub{margin:0 0 16px}
 .pnav button:hover{background:color-mix(in srgb,var(--gc) 17%,var(--bg));border-color:var(--gc)}
 .pnav button small{display:block;font-size:12px;font-weight:600;color:var(--mute)}
 .partoff{display:none!important}
+.gold{display:none!important}
 .grp.gfirst{margin-top:0}
 .nopart{display:none;margin:10px 0;padding:22px;border:1.5px dashed var(--line);border-radius:16px;color:var(--mute);text-align:center;font-size:16px}
 .nopart.show{display:block}
@@ -676,7 +677,8 @@ pip list`],["Dans le notebook : sur quel Python tourne le noyau", c`import sys; 
    trap:"Jamais dans un sous-dossier, ni dans un dossier déjà versionné. Initialisé au mauvais endroit ? Supprime le `.git` qui s'y trouve et recommence au bon."},
   {id:"trois-zones", t:"Les trois zones", k:"zones repertoire travail index staging head commit",
    tab:[["Zone","Ce qu'elle contient","On y va avec"],["Répertoire de travail","tes fichiers, tels que tu les vois dans VS Code","(tu modifies)"],["Index (staging)","ce que tu as choisi pour le prochain commit","`git add`"],["HEAD (l'historique)","le dernier enregistrement validé","`git commit`"]],
-   why:"Pourquoi une zone au milieu ? Pour qu'un commit raconte une seule chose. Tu as corrigé un bug et renommé des variables : l'index te permet de faire deux commits lisibles plutôt qu'un fourre-tout."},
+   why:"Pourquoi une zone au milieu ? Pour qu'un commit raconte une seule chose. Tu as corrigé un bug et renommé des variables : l'index te permet de faire deux commits lisibles plutôt qu'un fourre-tout.",
+   tip:"Une image pour retenir : `add` = mettre des affaires dans le carton, `commit` = fermer le carton et écrire l'étiquette, `push` = expédier le carton sur GitHub, `pull` = recevoir les cartons des autres."},
   {id:"git-status", t:"git status, ta boussole", k:"git status etat untracked modified boussole short",
    s:[["Où en est chaque fichier", c`git status`],["La version courte", c`git status -s`]],
    why:"`git status` ne modifie jamais rien, et Git y met entre parenthèses la commande à taper ensuite. Un développeur expérimenté la tape des dizaines de fois par jour.",

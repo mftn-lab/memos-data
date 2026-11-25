@@ -304,6 +304,7 @@ footer .fsub{margin:0 0 16px}
 .pnav button:hover{background:color-mix(in srgb,var(--gc) 17%,var(--bg));border-color:var(--gc)}
 .pnav button small{display:block;font-size:12px;font-weight:600;color:var(--mute)}
 .partoff{display:none!important}
+.gold{display:none!important}
 .grp.gfirst{margin-top:0}
 .nopart{display:none;margin:10px 0;padding:22px;border:1.5px dashed var(--line);border-radius:16px;color:var(--mute);text-align:center;font-size:16px}
 .nopart.show{display:block}
@@ -453,7 +454,7 @@ import numpy as np`]],
   {id:"lire", t:"Lire un fichier", k:"charger lire ouvrir csv excel json read_csv read_excel fichier url adresse lien internet web github zip telecharger dataframe",
    s:[["Un fichier CSV", c`df = pd.read_csv("../data/titanic.csv")`],["Directement depuis une adresse internet (même un fichier .zip)", c`tweets = pd.read_csv("https://github.com/murpi/wilddata/raw/master/quests/tweets.zip")`],["Un fichier Excel", c`df = pd.read_excel("fichier.xlsx")`],["Un fichier JSON", c`df = pd.read_json("fichier.json")`]],
    tip:"`../` veut dire « remonte d'un dossier » : le notebook est dans `notebooks/`, les données dans `data/`. Avec une adresse internet, pas besoin de télécharger le fichier avant : pandas le lit directement.",
-   trap:"`read_csv` renvoie déjà un DataFrame : `pd.DataFrame(pd.read_csv(...))` transforme un tableau… en tableau, c'est inutile. Et `pd.read_csv(...)` seul, sans `tweets =` devant, lit le fichier puis le perd aussitôt (la règle d'or)."},
+   trap:"`read_csv` renvoie déjà un DataFrame : `pd.DataFrame(pd.read_csv(...))` transforme un tableau… en tableau, c'est inutile. Et `pd.read_csv(...)` seul, sans `tweets =` devant, lit le fichier puis le perd aussitôt : il faut toujours ranger le résultat."},
   {id:"lecture-difficile", t:"Le fichier se lit mal", lead:"Tout arrive dans une seule colonne, ou les cases vides ne sont pas reconnues.", k:"read_csv sep separateur point-virgule tabulation tsv na_values imdb une seule colonne",
    s:[["Les colonnes sont séparées par des ; (fréquent en France)", c`df = pd.read_csv("fichier.csv", sep=";")`],
       ["Les colonnes sont séparées par des tabulations (fichiers .tsv, comme IMDb)", c`df = pd.read_csv("fichier.tsv", sep="\t")`],
@@ -539,10 +540,10 @@ df[condition]`],["Un intervalle, bornes comprises", c`df[df["Age"].between(25, 3
   {id:"doublons-tous", t:"Voir l'original et ses copies", comp:true, k:"doublon keep false original copies comparer",
    s:[["Toutes les lignes concernées, original compris", c`df[df.duplicated(keep=False)]`]],
    tip:"Pratique pour les comparer côte à côte avant de supprimer."},
-  {id:"doublons-supprimer", t:"Supprimer les doublons", k:"doublon doublons supprimer enlever drop_duplicates subset keep",
+  {id:"doublons-supprimer", t:"Supprimer les doublons", k:"doublon doublons supprimer enlever drop_duplicates subset keep ranger resultat df = regle",
    s:[["Les lignes identiques sur toutes les colonnes", c`df = df.drop_duplicates()`],["Même identifiant, même si le reste diffère", c`df = df.drop_duplicates(subset=["PassengerId"])`],["Garder la dernière copie plutôt que la première", c`df = df.drop_duplicates(subset=["PassengerId"], keep="last")`]],
    why:"`subset` dit quelles colonnes définissent un doublon. Un numéro de commande ne doit jamais apparaître deux fois ; un même prénom, c'est juste un client qui revient.",
-   trap:"Sans `df =`, rien ne change."}
+   trap:"Sans `df =`, rien ne change : la plupart des méthodes (`drop_duplicates`, `fillna`, `drop`, `rename`, `merge`…) fabriquent un nouveau tableau, qui s'affiche puis disparaît. Seules les écritures `df[\"col\"] = …` et `df.loc[…] = …` modifient directement le tableau."}
  ]},
  {id:"assembler", ic:"link", step:2, t:"Assembler deux tableaux", cards:[
   {id:"merge", t:"Relier deux tableaux par une colonne commune (merge)", lead:"Comme un JOIN en SQL : la colonne commune s'appelle la clé.", k:"merge jointure join fusionner relier cle left right inner outer on left_on right_on sql",
@@ -654,7 +655,7 @@ borne_haute = Q3 + 1.5 * IQR`],["Afficher les lignes signalées", c`df[(df["Fare
   {id:"lambda", t:"La même chose en une ligne (lambda)", k:"lambda fonction courte une ligne apply x",
    s:[["Enfant / Adulte en une ligne", c`df["Statut"] = df["Age"].apply(lambda x: "Enfant" if x < 18 else "Adulte")`],["Arrondir chaque prix", c`df["Fare"].apply(lambda x: round(x, 2))`]],
    why:"`lambda x:` remplace `def nom(x):`. `x` reçoit chaque valeur de la colonne, l'une après l'autre.",
-   trap:"Vu en live code : `df[\"Montant_HT\"].apply(lambda x: ...)` sans `df[\"Panier\"] =` devant. Le résultat s'affiche puis disparaît : c'est la règle d'or."},
+   trap:"Vu en live code : `df[\"Montant_HT\"].apply(lambda x: ...)` sans `df[\"Panier\"] =` devant. Le résultat s'affiche puis disparaît : il faut toujours ranger le résultat."},
   {id:"apply-axis1", t:"Utiliser plusieurs colonnes à la fois", k:"apply axis=1 ligne plusieurs colonnes lambda",
    s:[["Signaler les enfants de 3e classe", c`df["Alerte"] = df.apply(lambda ligne: "Enfant 3e" if ligne["Pclass"] == 3 and ligne["Age"] < 18 else "OK", axis=1)`]],
    why:"Avec `axis=1`, la fonction reçoit une ligne entière : on lit chaque colonne avec `ligne[\"...\"]`.",
@@ -766,7 +767,7 @@ print(resultat.pvalue)`]],
  ]},
  {id:"reflexes", ic:"check", t:"Bons réflexes", cards:[
   {id:"bons-reflexes", t:"Ce qui évite les erreurs", k:"reflexes pieges conseils verifier notebook redemarrer justifier",
-   tab:[["Réflexe","Comment"],["Regarder avant de supprimer","afficher les lignes concernées, puis décider"],["Vérifier après chaque étape","`df.shape`, `df.isna().sum()`, `df.head()`"],["Notebook bizarre ?","Redémarrer, puis Exécuter tout"],["Avant un modèle","plus aucune case vide, que des nombres"],["Justifier ses choix","chaque suppression ou remplissage s'explique en une phrase"]],
+   tab:[["Réflexe","Comment"],["Ranger le résultat","`df = df.methode(...)`, sinon il s'affiche puis disparaît"],["Regarder avant de supprimer","afficher les lignes concernées, puis décider"],["Vérifier après chaque étape","`df.shape`, `df.isna().sum()`, `df.head()`"],["Notebook bizarre ?","Redémarrer, puis Exécuter tout"],["Avant un modèle","plus aucune case vide, que des nombres"],["Justifier ses choix","chaque suppression ou remplissage s'explique en une phrase"]],
    why:"Même code, chiffres faux : dans le cours, sans nettoyage, l'Électronique affiche 3 820 € au lieu de 670 €. C'est le nettoyage qui rend les résultats vrais."},
   {id:"entretien", t:"Pandas, pour quoi faire ?", lead:"La réponse d'entretien du cours.", k:"entretien pourquoi pandas limites ram sql gros volumes",
    tip:"« J'utilise pandas pour explorer, nettoyer et analyser des données, et préparer des jeux de données pour des modèles. Pour de très gros volumes, je passerais sur SQL. »"}

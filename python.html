@@ -295,6 +295,7 @@ footer .fsub{margin:0 0 16px}
 .pnav button:hover{background:color-mix(in srgb,var(--gc) 17%,var(--bg));border-color:var(--gc)}
 .pnav button small{display:block;font-size:12px;font-weight:600;color:var(--mute)}
 .partoff{display:none!important}
+.gold{display:none!important}
 .grp.gfirst{margin-top:0}
 .nopart{display:none;margin:10px 0;padding:22px;border:1.5px dashed var(--line);border-radius:16px;color:var(--mute);text-align:center;font-size:16px}
 .nopart.show{display:block}
@@ -889,7 +890,8 @@ except ZeroDivisionError:
   {id:"modifie-ou-renvoie", t:"Modifie sur place ou renvoie un nouvel objet ?", k:"modifie sur place renvoie nouvel objet none sort sorted append",
    tab:[["Modifie l'objet, renvoie `None`","Renvoie un nouvel objet"],["`liste.append()`, `.insert()`, `.extend()`","`sorted(liste)`, `liste.copy()`"],["`liste.sort()`, `.reverse()`","`texte.upper()`, `texte.strip()`"],["`dict.update()`","`set1 | set2`"],["`set.add()`, `set.discard()`","`liste1 + liste2`"]],
    why:"Les méthodes de `str` renvoient toujours une copie (une chaîne est immuable). Pour `list`, `dict` et `set`, vérifie au cas par cas avec `help()`.",
-   trap:"`ma_liste = ma_liste.sort()` remplace la liste triée par `None`, sans erreur."},
+   trap:"`ma_liste = ma_liste.sort()` remplace la liste triée par `None`, sans erreur.",
+   tip:"Aucun de ces oublis ne déclenche d'erreur : un programme qui s'exécute n'est pas forcément un programme juste. Vérifie toujours sur un cas dont tu connais la réponse."},
   {id:"boite-outils", t:"Des outils à garder sous la main", k:"enumerate any all setdefault counter issubset outils boite",
    s:[["Numéroter à partir de 1", c`for numero, plat in enumerate(commande, start=1):
     print(f"{numero}. {plat}")`],["Au moins un vrai / tous vrais", c`any(prix > 20 for prix in carte.values())`],["Compter sans tester si la clé existe", c`compteur[plat] = compteur.setdefault(plat, 0) + 1`],["Les 3 éléments les plus fréquents", c`Counter(liste).most_common(3)`]],
