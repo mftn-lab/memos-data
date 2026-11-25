@@ -266,6 +266,15 @@ footer .fpdf .prow{padding:12px 14px;border:1px solid var(--line);border-top:4px
 footer .fpdf .prow.all{border-top-color:var(--blue)}
 footer h2{font-size:20px;margin:0 0 4px;color:var(--ink)}
 footer .fsub{margin:0 0 16px}
+.see{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px}
+.see>span{display:inline-flex;align-items:center;gap:5px;font-weight:700;color:var(--mute);margin-right:2px}
+.see a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:color-mix(in srgb,var(--gc) 6%,var(--bg));border-radius:999px;padding:3px 10px 3px 4px;font-weight:600}
+.see a:hover{border-color:var(--gc);color:var(--gc)}
+.see a b{font-size:11px;font-weight:800;color:#fff;background:var(--mc);border-radius:999px;padding:1px 7px}
+.totop{position:fixed;right:22px;bottom:22px;z-index:40;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 24px -10px rgba(15,25,50,.55);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+.totop.show{opacity:1;transform:none;pointer-events:auto}
+.totop:hover{color:var(--blue);border-color:var(--blue)}
+@media (max-width:700px){.totop{right:14px;bottom:14px;width:42px;height:42px}}
 /*/UX*/
 /*SKIN*/
 /* Pleine largeur sur grand écran */
@@ -351,6 +360,7 @@ body{background-color:var(--bg);background-image:radial-gradient(1100px 520px at
   </div>
 </footer>
 
+<script>/*SEE*/window.SEE={"gd-trois": [["pandas-nettoyage.html", "importer", "Importer pandas", "Pandas"], ["python.html", "catalogue-erreurs", "Les erreurs les plus courantes", "Python"], ["git.html", "interpreteur", "Choisir le bon interpréteur Python", "Git & VS Code"]], "notebook-local": [["pandas-nettoyage.html", "lire", "Lire un fichier", "Pandas"], ["git.html", "ipykernel", "Le notebook ne trouve pas mon environnement", "Git & VS Code"]], "chemins": [["pandas-nettoyage.html", "lire", "Lire un fichier", "Pandas"]], "gitignore-contenu": [["pandas-nettoyage.html", "to-csv", "Enregistrer le tableau propre", "Pandas"]], "debogueur": [["python.html", "lire-erreur", "Lire un message d'erreur", "Python"], ["python.html", "print-debug", "Débugger avec des print étiquetés", "Python"]], "lancer-script": [["python.html", "creer-module", "Créer son propre module", "Python"]], "pip": [["python.html", "flake8", "Vérifier avec flake8", "Python"]], "interpreteur": [["git.html", "gd-trois", "Les trois vérifications qui tranchent", "Git & VS Code"]], "ipykernel": [["git.html", "notebook-local", "Ses notebooks en local", "Git & VS Code"]], "pull-fetch": [["git.html", "maj-branche", "Mettre sa branche à jour avec main", "Git & VS Code"]], "maj-branche": [["git.html", "pull-fetch", "pull ou fetch ?", "Git & VS Code"]], "amend-stash": [["git.html", "branche-camarade", "Tester la branche d'un camarade sur ma machine", "Git & VS Code"]], "branche-camarade": [["git.html", "amend-stash", "Corriger le dernier message, mettre de côté", "Git & VS Code"]], "freeze": [["git.html", "gc-venv", "2. Recréer l'environnement (il n'est pas sur GitHub)", "Git & VS Code"]], "gc-venv": [["git.html", "freeze", "Figer, puis réinstaller la liste", "Git & VS Code"]], "jeton": [["git.html", "premier-push", "Le premier envoi", "Git & VS Code"]], "premier-push": [["git.html", "jeton", "Le jeton : ton mot de passe ne marchera pas", "Git & VS Code"]], "restore": [["git.html", "fichier-github", "Récupérer la version GitHub d'un seul fichier", "Git & VS Code"]], "fichier-github": [["git.html", "restore", "Annuler une modification", "Git & VS Code"]], "git-status": [["git.html", "messages-git", "Ce que Git veut dire", "Git & VS Code"]], "messages-git": [["git.html", "git-status", "git status, ta boussole", "Git & VS Code"]]};/*/SEE*/</script>
 <script>
 {
 const c = String.raw;
@@ -1407,7 +1417,48 @@ if (rows && !tocEl.querySelector(".tpdf")) tocEl.insertAdjacentHTML("beforeend",
 const foot = document.querySelector("footer .wrap");
 if (foot && rows) foot.innerHTML = '<h2>Ce mémo en PDF</h2><p class="fsub"><b>Court</b> : le code, les astuces et les pièges. <b>Complet</b> : avec tous les « Pourquoi ? », pour réviser l\'oral.</p><div class="fpdf">' + rows + "</div>";
 
-/* ---------- Arrivée depuis la liste des favoris ---------- */
+/* ---------- Voir aussi ---------- */
+const SEE = window.SEE || {};
+const MC = {"python.html": "var(--blue)", "pandas-nettoyage.html": "var(--teal)", "git.html": "var(--orange)"};
+const LINK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
+Object.keys(SEE).forEach((id) => {
+  const cd = document.getElementById(id); if (!cd || cd.querySelector(".see")) return;
+  cd.insertAdjacentHTML("beforeend", '<div class="see"><span>' + LINK + "Voir aussi</span>" + SEE[id].map((l) => '<a href="' + (l[0] === PAGE ? "#" + l[1] : l[0]) + '" data-page="' + l[0] + '" data-go="' + l[1] + '" style="--mc:' + (MC[l[0]] || "var(--blue)") + '">' + (l[0] === PAGE ? "" : "<b>" + esc(l[3]) + "</b>") + esc(l[2]) + "</a>").join("") + "</div>");
+});
+function flashTo(el){ el.scrollIntoView({block: "center", behavior: "smooth"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1700); }
+document.addEventListener("click", (e) => {
+  const a = e.target.closest(".see a"); if (!a) return;
+  if (a.dataset.page === PAGE) {
+    e.preventDefault();
+    const el = document.getElementById(a.dataset.go);
+    if (el && el.classList.contains("hide")) { q.value = ""; if (favMode) favBtn.click(); else search(); }
+    if (el) flashTo(el);
+  } else { try { sessionStorage.setItem("memos-goto", a.dataset.go); } catch (x) {} }
+});
+
+/* ---------- Dernière fiche vue + bouton haut de page ---------- */
+const topBtn = document.createElement("button");
+topBtn.className = "totop"; topBtn.type = "button"; topBtn.title = "Haut de page"; topBtn.setAttribute("aria-label", "Revenir en haut de la page");
+topBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+topBtn.addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
+document.body.appendChild(topBtn);
+let st = null;
+function saveLast(){
+  let best = null, bt = 1e9;
+  document.querySelectorAll(".card:not(.hide)").forEach((cd) => {
+    const r = cd.getBoundingClientRect();
+    if (r.bottom > 120 && r.top < innerHeight * 0.6 && r.top < bt) { bt = r.top; best = cd; }
+  });
+  if (!best) return;
+  const s = secOf[best.id];
+  try { localStorage.setItem("memos-derniere", JSON.stringify({page: PAGE, memo: TITLE, id: best.id, t: best.querySelector("h3 a").textContent, sec: s ? s.t : "", at: Date.now()})); } catch (x) {}
+}
+addEventListener("scroll", () => {
+  topBtn.classList.toggle("show", scrollY > 900);
+  clearTimeout(st); st = setTimeout(() => { if (scrollY > 300) saveLast(); }, 700);
+}, {passive: true});
+
+/* ---------- Arrivée depuis l'accueil (favoris, recherche, reprendre) ---------- */
 paint(); layout();
 let go = null; try { go = sessionStorage.getItem("memos-goto"); sessionStorage.removeItem("memos-goto"); } catch (e) {}
 const target = go || (location.hash ? location.hash.slice(1) : "");
