@@ -66,11 +66,12 @@ html{scroll-behavior:smooth}
 @media (max-width:420px){.parts .lk{margin-left:0}}
 /*HOME*/
 .hwrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:center}
-.top{padding:22px 0 44px}
+.top{padding:22px 0 36px}
 .top h1{font-size:clamp(34px,4.6vw,56px)}
-.vit{position:relative;width:560px;height:280px}
-.vw{position:absolute;width:340px}
-.vw:nth-child(1){left:0;top:0}.vw:nth-child(2){left:110px;top:74px}.vw:nth-child(3){left:220px;top:148px}
+.vit{display:flex;gap:14px}
+.hs{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:132px;padding:18px 16px;border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(4px)}
+.hs b{font-size:40px;line-height:1;font-weight:800;letter-spacing:-.02em}
+.hs span{margin-top:6px;font-size:14px;font-weight:600;opacity:.9}
 .mw{background:#111a2e;border:1px solid rgba(255,255,255,.2);border-radius:12px;overflow:hidden;color:#e6eaf2;box-shadow:0 22px 44px -20px rgba(0,0,0,.75);text-align:left}
 .mwb{display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.1);font-size:12px;color:#c3cce0}
 .mwb i{width:9px;height:9px;border-radius:3px}
@@ -261,8 +262,9 @@ document.getElementById("grid").innerHTML = DOMAINS.map((m) => {
     + (P.court ? '<span class="pdfl">PDF <a href="' + P.court + '" download title="Version courte : le code, les astuces, les pièges">' + DL + "court</a><a href=\"" + P.long + '" download title="Version complète, avec les « Pourquoi ? »">' + DL + "complet</a></span>" : "")
     + "</div></div></article>";
 }).join("");
-document.getElementById("memostat").textContent = DOMAINS.length + " mémos · " + IDXA.length + " fiches, toutes cherchables depuis la barre du haut.";
-document.getElementById("vit").innerHTML = DOMAINS.map((m) => '<div class="vw">' + win(m) + "</div>").join("");
+document.getElementById("memostat").textContent = "Toutes les fiches se cherchent depuis la barre du haut.";
+{ const ns = new Set(IDXA.map((x) => x.p + "|" + x.s)).size;
+  document.getElementById("vit").innerHTML = [[DOMAINS.length, "mémos"], [ns, "sections"], [IDXA.length, "fiches"]].map(([v, l]) => '<div class="hs"><b>' + v + "</b><span>" + l + "</span></div>").join(""); }
 
 /* ---------------- Une fiche au hasard ---------------- */
 const COLS = {}; DOMAINS.forEach((m) => { COLS[m.href] = m.c; });

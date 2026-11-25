@@ -261,6 +261,24 @@ footer .fsub{margin:0 0 16px}
 .totop.show{opacity:1;transform:none;pointer-events:auto}
 .totop:hover{color:var(--blue);border-color:var(--blue)}
 @media (max-width:700px){.totop{right:14px;bottom:14px;width:42px;height:42px}}
+.tg h4{cursor:pointer;user-select:none;border-radius:8px;padding:5px 8px;margin:0 0 4px;transition:background .15s}
+.tg h4:hover{background:color-mix(in srgb,var(--gc) 10%,transparent)}
+.tg h4 .tgn{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--mute);display:none}
+.tg h4::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin:-4px 4px 0 6px;transition:transform .15s;opacity:.7}
+.tg.shut h4::after{transform:rotate(-45deg);margin-top:0}
+.tg.shut h4 .tgn{display:inline}
+.tg.shut ol,.tg.shut .gnote{display:none}
+.tg.shut{margin-bottom:4px}
+.tg.empty{display:none}
+.lab{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.lab .lang{margin-left:auto;flex:none;font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;padding:4px 8px;border-radius:6px;color:var(--lc);background:color-mix(in srgb,var(--lc) 13%,transparent);white-space:nowrap}
+.lang.py{--lc:#2f6fd6}.lang.sh{--lc:#c25410}.lang.nb{--lc:#7a4cc9}.lang.fi{--lc:#5a6475}
+.sh{padding-bottom:12px;border-bottom:2px solid color-mix(in srgb,var(--gc) 30%,transparent);margin-bottom:18px}
+.favbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 22px;padding:12px 16px;border:1px solid color-mix(in srgb,#e8a400 45%,var(--line));border-left:5px solid #e8a400;border-radius:14px;background:color-mix(in srgb,#e8a400 9%,var(--bg))}
+.favbar b{font-size:16px}
+.favbar span{color:var(--mute);font-size:14px}
+.favbar a{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:14px;text-decoration:none;color:var(--bg);background:var(--blue);border-radius:10px;padding:8px 14px}
+.favbar a:hover{filter:brightness(1.1)}
 /*/UX*/
 /*SKIN*/
 /* Pleine largeur sur grand écran */
@@ -3305,12 +3323,25 @@ search = function(){
     }
   } else if (emptyP) emptyP.innerHTML = emptyTxt;
   layout();
+  if (typeof openG !== "undefined") { openG = null; if (typeof spy === "function") spy(); }
+  tocEl.querySelectorAll(".tg").forEach((g) => g.classList.toggle("empty", !g.querySelector("li[data-s]:not(.hide)")));
+  favBar();
 };
 const favBtn = document.getElementById("favall");
 if (favBtn) favBtn.addEventListener("click", () => {
   favMode = !favMode; favBtn.setAttribute("aria-pressed", favMode);
   search(); window.scrollTo({top: document.querySelector(".bar").offsetTop});
 });
+
+/* ---------- Mode Favoris : bandeau avec le PDF de ce mémo ---------- */
+function favBar(){
+  let bar = document.getElementById("favbar");
+  if (!favMode) { if (bar) bar.remove(); return; }
+  const f = loadF(), n = Object.keys(f).filter((x) => x.indexOf(PAGE + "#") === 0).length;
+  if (!bar) { bar = document.createElement("div"); bar.id = "favbar"; bar.className = "favbar"; main.insertBefore(bar, main.firstChild); }
+  bar.innerHTML = "<b>★ " + n + (n > 1 ? " fiches favorites" : " fiche favorite") + "</b><span>dans ce mémo</span>" + (n ? '<a href="favoris.html?memo=' + PAGE + '" data-favpdf="1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>Ces favoris en PDF</a>' : "");
+}
+document.addEventListener("click", (e) => { if (e.target.closest("[data-favpdf]")) { try { sessionStorage.setItem("memos-favpdf", PAGE); } catch (x) {} } });
 
 /* ---------- Fiches en colonnes sans trous ---------- */
 const mq = matchMedia("(min-width:1400px)");
@@ -3388,11 +3419,46 @@ addEventListener("scroll", () => {
   clearTimeout(st); st = setTimeout(() => { if (scrollY > 300) saveLast(); }, 700);
 }, {passive: true});
 
+/* ---------- Étiquette du langage sur chaque bloc de code ---------- */
+const SHELL = /^(git|pip|cd|python|py|ls|mkdir|uv|echo|rm|rmdir|grep|pwd|touch|cat|mv|cp|code|source|explorer|history|head|tail|find|clear|bash|deactivate|which|where|chmod|flake8|black|jupyter|Username:)(\s|$)/;
+function langOf(code){
+  const t = code.trimStart();
+  if (/^[!%]pip\b/.test(t)) return ["Notebook", "nb"];
+  if (/^\.venv\\Scripts\\/.test(t)) return ["PowerShell", "sh"];
+  if (/^"terminal\./.test(t)) return ["settings.json", "fi"];
+  if (/^(<{7}|# Portfolio)/.test(t)) return ["README.md", "fi"];
+  if (/^\.(env|venv\/)/.test(t)) return [".gitignore", "fi"];
+  if (SHELL.test(t)) return ["Git Bash", "sh"];
+  return ["Python", "py"];
+}
+document.querySelectorAll(".snip").forEach((sn) => {
+  const lab = sn.querySelector(".lab"), code = sn.querySelector("pre code");
+  if (!lab || !code || lab.querySelector(".lang")) return;
+  const [name, cls] = langOf(code.textContent);
+  lab.insertAdjacentHTML("beforeend", '<span class="lang ' + cls + '">' + name + "</span>");
+});
+
+/* ---------- Sommaire : parties repliables ---------- */
+const groupsT = Array.from(tocEl.querySelectorAll(".tg"));
+groupsT.forEach((g) => {
+  const h = g.querySelector("h4"), n = g.querySelectorAll("li[data-s]").length;
+  if (h && !h.querySelector(".tgn")) h.insertAdjacentHTML("beforeend", '<span class="tgn">' + n + "</span>");
+  if (h) h.addEventListener("click", () => g.classList.toggle("shut"));
+});
+let openG = null;
+function accordion(id){
+  if (q.value.trim() || favMode) { groupsT.forEach((g) => g.classList.remove("shut")); openG = null; return; }
+  const li = tocEl.querySelector('li[data-s="' + id + '"]'), g = li && li.closest(".tg");
+  if (!g || g === openG) return;
+  openG = g; groupsT.forEach((x) => x.classList.toggle("shut", x !== g));
+}
+
 /* ---------- Sommaire : surligner la bonne section ---------- */
 if (typeof secObserver !== "undefined") secObserver.disconnect();
 const tocLinks = Array.from(tocEl.querySelectorAll("li[data-s] a"));
 let pinned = null, spyRaf = 0;
 function setActive(id){
+  accordion(id);
   tocLinks.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
   const a = tocLinks.find((x) => x.getAttribute("href") === "#" + id);
   if (a && tocEl.scrollHeight > tocEl.clientHeight) {
