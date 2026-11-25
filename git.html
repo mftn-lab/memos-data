@@ -302,6 +302,7 @@ footer .fsub{margin:0 0 16px}
 #favall{--tc:var(--amberl)}
 .bar .pdfm summary.tb{--tc:var(--redl)}
 #theme{--tc:var(--orange)}
+#son{--tc:var(--teal)}
 #favall[aria-pressed=true] svg{fill:currentColor}
 .pnav{display:flex;align-items:center;gap:12px;margin:34px 0 10px;padding:14px 0 0;border-top:1px solid var(--line)}
 .pnav .pc{flex:1;text-align:center;font-size:13.5px;font-weight:600;color:var(--mute)}
@@ -316,6 +317,8 @@ footer .fsub{margin:0 0 16px}
 .nopart.show{display:block}
 .backquiz{position:fixed;left:22px;bottom:22px;z-index:45;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;text-decoration:none;color:var(--bg);background:var(--blue);border-radius:999px;padding:11px 18px;box-shadow:0 10px 26px -10px rgba(15,25,50,.6)}
 .backquiz:hover{filter:brightness(1.1)}
+@media (max-width:600px){.bar .wrap{gap:5px}.bar .tb{padding:0 9px;min-height:42px}}
+@media (max-width:380px){.bar .wrap{gap:4px}.bar .tb{padding:0 7px;min-height:40px}}
 @media (max-width:700px){.backquiz{left:14px;bottom:14px;font-size:14px;padding:10px 14px}}
 footer{display:none}
 /*/UX*/
@@ -420,6 +423,7 @@ header.top{background-image:radial-gradient(rgba(255,255,255,.12) 1.2px,transpar
     <details class="pdfm"><summary class="tb" title="Télécharger le mémo en PDF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="tx">PDF</span></summary>
       <div><a href="pdf/memo-git-court.pdf" download><b>Version courte</b><span>le code, les astuces, les pièges</span></a><a href="pdf/memo-git.pdf" download><b>Version complète</b><span>avec tous les « Pourquoi ? »</span></a></div></details>
     <button class="tb" id="theme" type="button" aria-label="Changer de thème" title="Clair / sombre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+    <button class="tb" id="son" type="button"></button>
   </div>
 </div>
 
@@ -1697,5 +1701,71 @@ if (el) setTimeout(() => { el.scrollIntoView({block: "center"}); { const sc = el
 /*/STATSJS*/
 }
 </script>
+<script>/*SON*/
+(function(){
+  const KEY = "memos-son", btn = document.getElementById("son"); if (!btn) return;
+  let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  let ctx = null;
+  function audio(){ if (!ctx) { const A = window.AudioContext || window.webkitAudioContext; if (!A) return null; ctx = new A(); } if (ctx.state === "suspended") ctx.resume(); return ctx; }
+  function note(f, t0, dur, type, vol, f2){
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + t0;
+    o.type = type || "sine"; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.12, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function burst(t0, freq, vol){
+    const a = audio(); if (!a) return;
+    const n = Math.floor(a.sampleRate * 0.01), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 4);
+    const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    f.type = "bandpass"; f.frequency.value = freq; f.Q.value = 2; g.gain.value = vol;
+    src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start(a.currentTime + t0);
+  }
+  const S = {
+    bois: () => { note(1350, 0, 0.045, "sine", 0.16, 700); note(2700, 0, 0.02, "triangle", 0.04); },
+    bulle: () => note(380, 0, 0.06, "sine", 0.13, 1100),
+    clavier: () => { burst(0, 1900, 0.16); burst(0.028, 1300, 0.1); },
+    tick: () => {
+      const a = audio(); if (!a) return;
+      const n = Math.floor(a.sampleRate * 0.012), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+      const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      f.type = "bandpass"; f.frequency.value = 3200; f.Q.value = 1.2; g.gain.value = 0.18;
+      src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start();
+    },
+    ok: () => { note(1046.5, 0, 0.18, "triangle", 0.1); note(1318.5, 0.09, 0.3, "triangle", 0.1); },
+    ko: () => { note(392, 0, 0.2, "triangle", 0.1); note(311.1, 0.1, 0.32, "triangle", 0.1); },
+    act: () => note(880, 0, 0.1, "sine", 0.06),
+    favOn: () => { note(700, 0, 0.12, "sine", 0.11, 1400); note(1760, 0.08, 0.18, "sine", 0.05); },
+    favOff: () => note(520, 0, 0.16, "sine", 0.08, 300),
+    copy: () => { note(1500, 0, 0.05, "square", 0.025); note(2200, 0.045, 0.06, "square", 0.02); },
+    run: () => note(620, 0, 0.09, "triangle", 0.07, 880)
+  };
+  function joue(k){ if (on && S[k]) try { S[k](); } catch (e) {} }
+  function peint(){ btn.innerHTML = on ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9.5l5 5M22 9.5l-5 5"/></svg>'; btn.title = on ? "Couper les sons" : "Activer les sons (essai)"; btn.setAttribute("aria-label", btn.title); btn.setAttribute("aria-pressed", on); }
+  btn.addEventListener("click", () => { on = !on; try { localStorage.setItem(KEY, on ? "1" : "0"); } catch (e) {} peint(); if (on) { audio(); note(659.25, 0, 0.2); note(987.77, 0.1, 0.35, "sine", 0.08); } });
+  peint();
+  // accueil : survol des cartes et révision
+  const grid = document.getElementById("grid");
+  if (grid && document.querySelector(".mc")) {
+    let dernier = null;
+    grid.addEventListener("mouseover", (e) => { const c = e.target.closest(".mc"); if (!c || c === dernier) return; dernier = c; const a = c.querySelector("h2 a"), k = a && a.getAttribute("href"); joue("bulle"); });
+    grid.addEventListener("mouseleave", () => { dernier = null; });
+  }
+  const has = document.getElementById("hasard");
+  if (has) has.addEventListener("click", (e) => {
+    const r = e.target.closest("[data-r]"); if (r) { joue(r.dataset.r); return; }
+    if (e.target.closest("[data-act=voir],[data-act=passer],[data-memo]")) joue("act");
+  }, true);
+  // mémos : étoile, copier, résultat (écoute avant les autres gestionnaires)
+  window.addEventListener("click", (e) => {
+    const f = e.target.closest(".fav"); if (f) { joue(f.classList.contains("on") ? "favOff" : "favOn"); return; }
+    if (e.target.closest(".cp")) { joue("copy"); return; }
+    const cl = e.target.closest(".cl[data-r]");
+    if (cl && !e.target.closest(".cp")) { const res = document.getElementById(cl.dataset.r); if (res && res.hidden) joue("run"); }
+  }, true);
+})();
+/*/SON*/</script>
 </body>
 </html>

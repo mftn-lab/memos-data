@@ -153,7 +153,7 @@ html{scroll-behavior:smooth}
 .acts{display:flex;gap:8px;align-items:center}
 .acts .btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);backdrop-filter:blur(4px);border-radius:12px;padding:8px 14px;min-height:42px;transition:background .15s,border-color .15s}
 .acts .btn:hover{background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.6)}
-.acts #theme{width:42px;padding:0;justify-content:center}
+.acts #theme,.acts #son{width:42px;padding:0;justify-content:center}
 /*/TOPBTN*/
 /*SKIN*/
 .wrap{max-width:2400px}
@@ -232,7 +232,7 @@ body.searching .memos,body.searching .duo,body.searching .resume{display:none}
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><span class="acts"><a class="btn" id="tofav" href="#favs"><svg width="17" height="17" viewBox="0 0 24 24" fill="#ffd25a" stroke="#ffd25a" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris</a><button class="btn" id="theme" type="button">Mode sombre</button></span></div>
+    <div class="toprow"><span>Bootcamp Data Analyst · Marco</span><span class="acts"><a class="btn" id="tofav" href="#favs"><svg width="17" height="17" viewBox="0 0 24 24" fill="#ffd25a" stroke="#ffd25a" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Mes favoris</a><button class="btn" id="theme" type="button">Mode sombre</button><button class="btn" id="son" type="button"></button></span></div>
     <div class="hwrap"><div>
     <h1>Mes mémos Data Analyst</h1>
     <p class="sub">Une page par domaine : le code, ce qu'il fait et pourquoi. Construit à partir de mes cours, pour retrouver une méthode en quelques secondes.</p>
@@ -512,5 +512,71 @@ gres.addEventListener("click", (ev) => { const a = ev.target.closest("[data-go]"
 document.addEventListener("keydown", (ev) => { if (ev.key === "/" && document.activeElement !== gq && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { ev.preventDefault(); gq.focus(); } });
 })();
 /*/FAV*/</script>
+<script>/*SON*/
+(function(){
+  const KEY = "memos-son", btn = document.getElementById("son"); if (!btn) return;
+  let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  let ctx = null;
+  function audio(){ if (!ctx) { const A = window.AudioContext || window.webkitAudioContext; if (!A) return null; ctx = new A(); } if (ctx.state === "suspended") ctx.resume(); return ctx; }
+  function note(f, t0, dur, type, vol, f2){
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + t0;
+    o.type = type || "sine"; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.12, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function burst(t0, freq, vol){
+    const a = audio(); if (!a) return;
+    const n = Math.floor(a.sampleRate * 0.01), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 4);
+    const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    f.type = "bandpass"; f.frequency.value = freq; f.Q.value = 2; g.gain.value = vol;
+    src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start(a.currentTime + t0);
+  }
+  const S = {
+    bois: () => { note(1350, 0, 0.045, "sine", 0.16, 700); note(2700, 0, 0.02, "triangle", 0.04); },
+    bulle: () => note(380, 0, 0.06, "sine", 0.13, 1100),
+    clavier: () => { burst(0, 1900, 0.16); burst(0.028, 1300, 0.1); },
+    tick: () => {
+      const a = audio(); if (!a) return;
+      const n = Math.floor(a.sampleRate * 0.012), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+      const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      f.type = "bandpass"; f.frequency.value = 3200; f.Q.value = 1.2; g.gain.value = 0.18;
+      src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start();
+    },
+    ok: () => { note(1046.5, 0, 0.18, "triangle", 0.1); note(1318.5, 0.09, 0.3, "triangle", 0.1); },
+    ko: () => { note(392, 0, 0.2, "triangle", 0.1); note(311.1, 0.1, 0.32, "triangle", 0.1); },
+    act: () => note(880, 0, 0.1, "sine", 0.06),
+    favOn: () => { note(700, 0, 0.12, "sine", 0.11, 1400); note(1760, 0.08, 0.18, "sine", 0.05); },
+    favOff: () => note(520, 0, 0.16, "sine", 0.08, 300),
+    copy: () => { note(1500, 0, 0.05, "square", 0.025); note(2200, 0.045, 0.06, "square", 0.02); },
+    run: () => note(620, 0, 0.09, "triangle", 0.07, 880)
+  };
+  function joue(k){ if (on && S[k]) try { S[k](); } catch (e) {} }
+  function peint(){ btn.innerHTML = on ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9.5l5 5M22 9.5l-5 5"/></svg>'; btn.title = on ? "Couper les sons" : "Activer les sons (essai)"; btn.setAttribute("aria-label", btn.title); btn.setAttribute("aria-pressed", on); }
+  btn.addEventListener("click", () => { on = !on; try { localStorage.setItem(KEY, on ? "1" : "0"); } catch (e) {} peint(); if (on) { audio(); note(659.25, 0, 0.2); note(987.77, 0.1, 0.35, "sine", 0.08); } });
+  peint();
+  // accueil : survol des cartes et révision
+  const grid = document.getElementById("grid");
+  if (grid && document.querySelector(".mc")) {
+    let dernier = null;
+    grid.addEventListener("mouseover", (e) => { const c = e.target.closest(".mc"); if (!c || c === dernier) return; dernier = c; const a = c.querySelector("h2 a"), k = a && a.getAttribute("href"); joue("bulle"); });
+    grid.addEventListener("mouseleave", () => { dernier = null; });
+  }
+  const has = document.getElementById("hasard");
+  if (has) has.addEventListener("click", (e) => {
+    const r = e.target.closest("[data-r]"); if (r) { joue(r.dataset.r); return; }
+    if (e.target.closest("[data-act=voir],[data-act=passer],[data-memo]")) joue("act");
+  }, true);
+  // mémos : étoile, copier, résultat (écoute avant les autres gestionnaires)
+  window.addEventListener("click", (e) => {
+    const f = e.target.closest(".fav"); if (f) { joue(f.classList.contains("on") ? "favOff" : "favOn"); return; }
+    if (e.target.closest(".cp")) { joue("copy"); return; }
+    const cl = e.target.closest(".cl[data-r]");
+    if (cl && !e.target.closest(".cp")) { const res = document.getElementById(cl.dataset.r); if (res && res.hidden) joue("run"); }
+  }, true);
+})();
+/*/SON*/</script>
 </body>
 </html>
