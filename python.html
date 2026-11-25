@@ -215,7 +215,36 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{.bar,.toc,.run,.hero{display:none}.layout{display:block}.card{break-inside:avoid}}
-mark.hl{background:#ffd54f;color:#141922;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px #e0b000}
+mark.hl{background:#ffd54f;color:#141922;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px #e0b000}/*SKIN*/
+/* Pleine largeur sur grand écran */
+.wrap{max-width:2400px}
+.layout{grid-template-columns:300px minmax(0,1fr);gap:40px}
+main{max-width:none}
+/* Fond légèrement teinté */
+body{background-color:var(--bg);background-image:radial-gradient(1100px 520px at 100% 0,color-mix(in srgb,var(--teal) 8%,transparent),transparent 70%),radial-gradient(900px 600px at 0 40%,color-mix(in srgb,var(--blue) 6%,transparent),transparent 70%);background-attachment:fixed}
+/* En-tête : motif de points */
+.top{background-image:radial-gradient(rgba(255,255,255,.13) 1.2px,transparent 1.3px),linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);background-size:18px 18px,auto}
+/* Chaque partie : un bandeau coloré */
+.grp{font-size:21px;letter-spacing:-.01em;padding:14px 18px;border-radius:16px;border-left:6px solid var(--gc);background:linear-gradient(90deg,color-mix(in srgb,var(--gc) 16%,var(--bg)),color-mix(in srgb,var(--gc) 3%,var(--bg)) 70%);margin:52px 0 20px}
+.grp:first-of-type{margin-top:0}
+.grp::after{opacity:.6}
+/* Titres de section */
+.sh .ic{box-shadow:0 6px 16px -8px var(--gc)}
+.sh h2{font-size:25px}
+/* Les fiches : bande de couleur, ombre douce */
+.card{border-top:4px solid var(--gc);background:var(--bg);box-shadow:0 1px 2px rgba(15,25,50,.05),0 10px 28px -18px rgba(15,25,50,.35);transition:border-color .15s,box-shadow .2s,transform .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,25,50,.06),0 16px 34px -18px color-mix(in srgb,var(--gc) 70%,transparent)}
+.card h3{font-size:18px}
+.cl{box-shadow:0 6px 18px -12px rgba(0,0,0,.6)}
+.gold{box-shadow:0 12px 30px -22px rgba(15,25,50,.5)}
+/* Grand écran : les fiches d'une section côte à côte */
+@media (min-width:1400px){
+ section.sec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+ section.sec>.sh{grid-column:1/-1;margin-bottom:0}
+ section.sec>.card{margin-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){.card:hover{transform:none}}
+/*/SKIN*/
 </style>
 </head>
 <body>
