@@ -13,7 +13,7 @@ Chaque fiche donne le code ligne par ligne, avec une phrase simple pour dire ce 
 | Pandas : nettoyer et préparer | premier coup d'œil, doublons, valeurs manquantes, outliers (IQR), merge, dates, texte, groupby, tests statistiques | ✅ disponible |
 | Python : les bases | variables, conditions, boucles, chaînes, listes, dictionnaires, tuples, sets, fonctions, modules, exceptions, PEP 8, JSON | ✅ disponible |
 | SQL (MySQL) | modéliser, créer, interroger, joindre | à venir |
-| Terminal, Git et GitHub | le cycle pull / add / commit / push, les branches | à venir |
+| Terminal, VS Code, Git et GitHub | terminal, VS Code, environnement virtuel, Git en local, branches et conflits, GitHub, travail en équipe | ✅ disponible |
 | Graphiques | df.plot, Matplotlib, Seaborn, lire un graphique | à venir |
 
 ## Ce qu'on trouve sur chaque page
@@ -21,6 +21,7 @@ Chaque fiche donne le code ligne par ligne, avec une phrase simple pour dire ce 
 - une recherche (« doublons », « remplir », « date »…) et un sommaire cliquable ;
 - Pandas : un bouton **Copier** sur chaque ligne de code, et le **résultat** sur le Titanic quand il aide ;
 - Python : un clic sur le code affiche son **résultat**, comme dans Colab ;
+- Terminal et Git : un bouton **Copier** par commande, et ce que le terminal répond, tel que le montre le cours ;
 - des encadrés **Pourquoi ?**, **Astuce** et **Piège** ;
 - des mémos **PDF** à télécharger, en version courte (le code, les astuces, les pièges) ou complète (avec les « Pourquoi »), pour tout le mémo ou une seule partie (dossier `pdf/`) ;
 - un mode clair et sombre, lisible sur téléphone.

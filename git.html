@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mémo Terminal, VS Code, Git et GitHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE  vif mais lisible : un carnet de recettes de code qu'on a plaisir à ouvrir
+   IDEA   le carton qu'on remplit, ferme, expédie : add, commit, push ; chaque partie a sa couleur
+   PICTURE en-tête : le cycle de base en 4 étapes
+   COLOUR bleu (commencer), sarcelle (nettoyer), violet (transformer), orange (analyser) ; code sur fond nuit
+   TYPE   Inter 800 pour les titres + JetBrains Mono
+   LAYOUT sommaire coloré à gauche, fiches à droite ; tiroir sur téléphone */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0d1220);--bg2:light-dark(#f4f6fa,#151c2c);--ink:light-dark(#141922,#e7ebf3);--mute:light-dark(#5b6576,#9ba7bb);
+--line:light-dark(#e3e8ef,#263048);
+--blue:light-dark(#2457c5,#7aa7ff);--teal:light-dark(#0f8a7e,#3fd1bf);--violet:light-dark(#6d3fd0,#b39bff);--orange:light-dark(#d4570f,#ff9d5c);--pink:light-dark(#c0306a,#ff8fbf);
+--amber:light-dark(#fff6dc,#2a2312);--amberl:light-dark(#c38d00,#e0b03a);--red:light-dark(#fdeeee,#301a1d);--redl:light-dark(#d03a3a,#ef7777);
+--why:light-dark(#eaf6f2,#11241f);--whyl:light-dark(#0f7d6f,#4fd3c0);
+--cbg:light-dark(#141b2d,#080c16);--cink:#e6ebf5;--cline:light-dark(#141b2d,#1f2940)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
+a{color:var(--blue)}
+/* Pas de ligatures : != reste != (et non ≠), >= reste >= */
+pre,code,table.dfr{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+p code,td code,.note code,.lead code,.why code,.gold p code{background:var(--bg2);border:1px solid var(--line);padding:0 5px;border-radius:5px;font-size:.86em;overflow-wrap:anywhere}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,4vw)}
+.top{background:linear-gradient(135deg,#1c3f8f,#2457c5 55%,#0f8a7e);color:#fff}
+.top .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:center;padding-top:20px;padding-bottom:26px}
+.back{color:#fff;opacity:.85;text-decoration:none;font-size:15px}
+.back:hover{opacity:1;text-decoration:underline}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:12px 0 8px;text-wrap:balance}
+.sub{margin:0;opacity:.9;font-size:16.5px;max-width:52ch}
+.sub code{background:rgba(255,255,255,.18);border:0;color:#fff}
+.hero{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:16px 18px}
+.mini{display:grid;grid-template-columns:repeat(4,24px);gap:4px}
+.mini i{display:block;height:13px;border-radius:3px;background:rgba(255,255,255,.4)}
+.mini i.h{background:#fff}
+.mini i.v{background:transparent;border:1.5px dashed #ffb3b3}
+.mini i.d{background:#ffd166}
+.mini i.o{background:#ff8f5a}
+.hero figure{margin:0;text-align:center}
+.cyc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;counter-reset:c}
+.cyc div{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:10px;padding:8px 10px;min-width:150px;counter-increment:c}
+.cyc code{display:block;font-size:13.5px;color:#fff;white-space:nowrap}
+.cyc code::before{content:counter(c) ". ";opacity:.7}
+.cyc span{display:block;font-size:12px;opacity:.85;margin-top:2px}
+.hero figcaption{font-size:12.5px;opacity:.85;margin-top:6px}
+.hero .arrow{font-size:22px;opacity:.9}
+.legend{display:flex;flex-direction:column;gap:5px;font-size:12.5px;opacity:.95;margin-left:4px}
+.legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:3px}
+.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:8px;align-items:center;padding-top:10px;padding-bottom:10px}
+.search{flex:1;position:relative}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mute);pointer-events:none}
+.search input{width:100%;font:inherit;font-size:16px;padding:11px 12px 11px 40px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg2);color:var(--ink);min-height:46px}
+.search input:focus{outline:none;border-color:var(--blue);background:var(--bg)}
+.tb{font:inherit;font-size:14px;font-weight:600;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:0 12px;min-height:46px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.tb:hover{border-color:var(--blue);color:var(--blue)}
+.tb[aria-pressed=true]{background:var(--why);border-color:var(--whyl);color:var(--whyl)}
+#menu{display:none}
+.layout{display:grid;grid-template-columns:272px minmax(0,1fr);gap:44px;padding-top:28px;padding-bottom:70px}
+.toc{position:sticky;top:86px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;padding-right:4px}
+.tg{margin-bottom:16px}
+.tg h4{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--gc);margin:0 0 4px 8px}
+.tg h4::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--gc)}
+.gnote{font-size:12.5px;color:var(--mute);margin:0 8px 6px 8px;line-height:1.4}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc li{position:relative}
+.toc a{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:9px;text-decoration:none;color:var(--ink);font-size:14.5px;line-height:1.3}
+.toc a:hover{background:var(--bg2)}
+.toc a.on{background:color-mix(in srgb,var(--gc) 13%,transparent);color:var(--gc);font-weight:600}
+.toc a .ic{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:color-mix(in srgb,var(--gc) 13%,transparent);color:var(--gc)}
+.toc .steps li:not(:last-child)::after{content:"";position:absolute;left:20px;top:31px;bottom:-7px;width:2px;background:color-mix(in srgb,var(--gc) 35%,transparent)}
+.toc .steps a .ic{border-radius:50%;background:var(--gc);color:var(--bg);font-weight:800;font-size:13px}
+.toc li.hide{display:none}
+main{max-width:880px}
+.gold{border-radius:16px;padding:18px 20px 10px;margin-bottom:36px;background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 10%,var(--bg)),color-mix(in srgb,var(--teal) 10%,var(--bg)));border:1px solid color-mix(in srgb,var(--blue) 30%,transparent)}
+.gold h2{margin:0 0 4px;font-size:19px;font-weight:800}
+.gold p{margin:0 0 6px;font-size:15px}
+.grp{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:var(--gc);margin:46px 0 14px}
+.grp::after{content:"";flex:1;height:2px;background:color-mix(in srgb,var(--gc) 25%,transparent)}
+.grp a{order:2;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--gc);text-decoration:none;border:1.5px solid color-mix(in srgb,var(--gc) 40%,transparent);border-radius:999px;padding:2px 10px}
+.grp a:hover{background:color-mix(in srgb,var(--gc) 12%,transparent)}
+a.tb{text-decoration:none}
+.pdfm{position:relative}
+.pdfm summary{list-style:none}.pdfm summary::-webkit-details-marker{display:none}
+.pdfm[open] summary{border-color:var(--blue);color:var(--blue)}
+.pdfm div{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:240px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 30px -12px rgba(0,0,0,.35)}
+.pdfm div a{display:block;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink)}
+.pdfm div a:hover{background:var(--bg2)}
+.pdfm div b{display:block;font-size:14.5px}
+.pdfm div span{display:block;font-size:13px;color:var(--mute)}
+.grp a + a{margin-left:-2px}
+.grp:first-of-type{margin-top:0}
+section.sec{margin-bottom:32px}
+.sec.hide,.card.hide,.grp.hide{display:none}
+.sh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 14px}
+.sh .ic{flex:none;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--gc);color:#fff}
+:root[data-theme=dark] .sh .ic{color:#0d1220}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .sh .ic{color:#0d1220}}
+.sh .ic b{font-size:18px}
+.sh h2{font-size:24px;line-height:1.15;margin:0;letter-spacing:-.015em;font-weight:800}
+.sh .step{font-size:12.5px;font-weight:700;color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,transparent);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px 18px 14px;margin-bottom:14px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:color-mix(in srgb,var(--gc) 45%,var(--line));box-shadow:0 4px 18px -10px color-mix(in srgb,var(--gc) 60%,transparent)}
+.card h3{font-size:17.5px;line-height:1.3;margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:700}
+.card h3 a{color:var(--ink);text-decoration:none}
+.card h3 a:hover{color:var(--gc)}
+.comp{font-size:12px;font-weight:700;color:var(--violet);background:color-mix(in srgb,var(--violet) 12%,transparent);border-radius:999px;padding:1px 9px}
+.lead{margin:2px 0 4px;color:var(--mute);font-size:15px}
+.snip{margin:12px 0 0}
+.lab{font-size:14.5px;margin:0 0 5px;font-weight:500}
+.cl{display:flex;align-items:stretch;border:1px solid var(--cline);border-radius:10px;background:var(--cbg);color:var(--cink);overflow:hidden}
+.cl pre{flex:1;margin:0;padding:10px 14px;overflow-x:auto;font-size:14px;line-height:1.6;tab-size:4}
+.cp{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;border:0;border-left:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#cfd8ea;font:inherit;font-size:13px;font-weight:600;padding:0 13px;min-width:48px;cursor:pointer}
+.cp:hover{background:rgba(255,255,255,.12);color:#fff}
+.cp.ok{color:#6ee7c8}
+.cp span{display:none}.cp.ok span{display:inline}
+.cl[data-r]{cursor:pointer;transition:border-color .15s}
+.cl[data-r]:hover{border-color:#5b6b8c}
+.run{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-left:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#cfd8ea;font:inherit;font-size:13px;font-weight:600;padding:0 13px;min-width:48px;cursor:pointer}
+.run:hover,.cl[data-r]:hover .run{background:rgba(110,231,200,.14);color:#6ee7c8}
+.run[aria-expanded="true"]{color:#6ee7c8;background:rgba(110,231,200,.1)}
+.run svg{transition:transform .15s}.run[aria-expanded="true"] svg{transform:rotate(90deg)}
+.snip.open .cl{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.res{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--bg2);padding:8px 14px 10px;font-size:14px}
+.res[hidden]{display:none}
+.res .rt{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);margin:0 0 4px}
+.res pre{margin:0;font-size:13.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.res .ctx{display:flex;gap:8px;align-items:baseline;margin:0 0 8px;padding:0 0 8px;border-bottom:1px dashed var(--line)}
+.res .ctx pre,.res .alt pre{color:var(--mute)}
+.res .ctx pre .ts,.res .ctx pre .tk,.res .ctx pre .tn,.res .ctx pre .tf,.res .alt pre span{color:inherit}
+.res .tag{flex:none;font-size:11px;font-weight:700;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:0 6px;line-height:1.6}
+.res .alt{display:flex;gap:8px;align-items:baseline;margin:8px 0 4px}
+.res .nv{display:flex;gap:10px;align-items:baseline;margin:2px 0}
+.res .nv b{flex:none;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;color:var(--teal);background:color-mix(in srgb,var(--teal) 12%,transparent);border-radius:6px;padding:0 6px}
+.res .nv b::after{content:" vaut"}
+.res .err{color:var(--redl);font-weight:600}
+.res .info{margin:6px 0 0;font-size:13.5px;color:var(--mute);font-style:italic}
+.res pre + pre{margin-top:4px}
+.res pre{white-space:pre;overflow-x:auto;overflow-wrap:normal}
+@media (max-width:600px){.res .nv{display:block;margin:4px 0}.res .nv b{display:inline-block;margin-bottom:2px}.res{padding:8px 11px 10px}}
+@media (max-width:600px){.res .nv{display:block;margin:4px 0}.res .nv b{display:inline-block;margin-bottom:2px}.res{padding:8px 11px 10px}}
+.res .tw{overflow-x:auto;margin:2px 0 4px;-webkit-overflow-scrolling:touch}
+.res table.dfr{border-collapse:collapse;font:12.5px/1.4 "JetBrains Mono",monospace;width:auto;color:var(--ink)}
+.res table.dfr th,.res table.dfr td{padding:3px 9px;border:0;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:top}
+.res table.dfr thead th{font-weight:700;color:var(--ink);font-size:12.5px;border-bottom:1.5px solid var(--mute)}
+.res table.dfr tbody th{font-weight:700;color:var(--mute)}
+.res table.dfr tbody tr:nth-child(odd){background:color-mix(in srgb,var(--line) 35%,transparent)}
+.res .dims{margin:4px 0 0;font:12px "JetBrains Mono",monospace;color:var(--mute)}
+.res img{display:block;max-width:100%;height:auto;border-radius:8px;background:#fff;margin:4px 0}
+.tc{color:#8b95a8;font-style:italic}.ts{color:#9fe3b0}.tk{color:#ff9fd2}.tn{color:#ffc58a}.tf{color:#8cc3ff}
+.tbl{overflow-x:auto;margin:12px 0 2px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:700;color:var(--mute);font-size:13px}
+td svg{display:block}
+.notes{display:grid;gap:8px;margin-top:12px}
+.note{display:flex;gap:9px;align-items:flex-start;border-radius:11px;padding:9px 12px;font-size:15px;line-height:1.5}
+.note svg{flex:none;margin-top:3px}
+.tip{background:var(--amber)}.tip svg{color:var(--amberl)}
+.trap{background:var(--red)}.trap svg{color:var(--redl)}
+details.why{border-radius:11px;background:var(--why);font-size:15px}
+details.why summary{cursor:pointer;padding:8px 12px;font-weight:700;color:var(--whyl);list-style:none;display:flex;align-items:center;gap:8px}
+details.why summary::-webkit-details-marker{display:none}
+details.why summary::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+details.why[open] summary::before{transform:rotate(45deg)}
+details.why div{padding:0 12px 10px 27px;line-height:1.55}
+.pt{margin:14px 0 4px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pt .cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);background:var(--bg2);padding:7px 12px;border-bottom:1px solid var(--line)}
+.pt .cap b{color:var(--ink)}
+.pt table{font-size:13.5px}
+.pt td,.pt th{padding:6px 10px}
+.pt th{background:var(--bg2)}
+.pt td:first-child{font-family:"JetBrains Mono",monospace;font-weight:500}
+.pt .ty{font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.ty.num{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.ty.txt{background:color-mix(in srgb,var(--orange) 14%,transparent);color:var(--orange)}
+.vb{display:flex;align-items:center;gap:8px;min-width:120px}
+.vb s{display:block;flex:1;height:8px;border-radius:9px;background:var(--bg2);text-decoration:none;overflow:hidden}
+.vb s i{display:block;height:100%;border-radius:9px;background:var(--redl)}
+.vb em{font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:3.6em;text-align:right}
+.vb.zero em{color:var(--mute)}
+.pt .ex{color:var(--mute);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.pt .nu{text-align:right;font-variant-numeric:tabular-nums}
+.iqr{position:relative;height:104px;margin:14px 6px 4px}
+.iqr .ax{position:absolute;left:0;right:0;top:51px;height:1px;background:var(--line)}
+.iqr .wh{position:absolute;top:51px;height:2px;background:var(--ink)}
+.iqr .tick{position:absolute;top:40px;width:2px;height:24px;background:var(--ink)}
+.iqr .box{position:absolute;top:36px;height:32px;border:2px solid var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent);border-radius:5px}
+.iqr .med{position:absolute;top:36px;width:2px;height:32px;background:var(--teal)}
+.iqr .dot{position:absolute;top:45px;width:12px;height:12px;border-radius:50%;background:var(--redl);transform:translateX(-50%)}
+.iqr .lb{position:absolute;font-size:13px;white-space:nowrap;transform:translateX(-50%);color:var(--mute)}
+.iqr .up{top:6px}.iqr .dn{top:76px}
+.iqr .lb b{color:var(--ink);font-weight:600}
+.figcap{font-size:14px;color:var(--mute);margin:4px 0 0}
+.empty{display:none;padding:34px;border:2px dashed var(--line);border-radius:16px;text-align:center;color:var(--mute)}
+.empty.show{display:block}
+footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);font-size:14px}
+.scrim{display:none}
+@media (max-width:920px){
+ #menu{display:inline-flex}
+ .layout{grid-template-columns:minmax(0,1fr);gap:0}
+ .toc{position:fixed;z-index:50;top:0;left:0;bottom:0;width:min(320px,86vw);max-height:none;background:var(--bg);padding:18px 14px;border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .2s}
+ body.tocopen .toc{transform:none}
+ body.tocopen .scrim{display:block;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4)}
+ .top .wrap{grid-template-columns:minmax(0,1fr)}
+ .hero{justify-self:start}
+}
+@media (max-width:600px){
+ html{scroll-padding-top:130px}
+ .bar .wrap{flex-wrap:wrap;justify-content:flex-end}
+ .search{order:9;flex-basis:100%}
+ #menu{margin-right:auto}
+ .tb .tx{display:none}
+ .legend{display:none}
+ .mini{grid-template-columns:repeat(4,18px)}
+ .sh h2{font-size:21px}
+ .sh .ic{width:36px;height:36px}
+ .card{padding:14px 14px 12px}
+ .tbl thead{display:none}
+ .tbl tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+ .tbl td{display:block;border:0;padding:2px 2px}
+ .tbl td[data-l]:not([data-l=""])::before{content:attr(data-l);display:block;font-size:12.5px;font-weight:600;color:var(--mute)}
+ .pt .hide-s{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.bar,.toc,.cp,.run,.hero{display:none}.layout{display:block}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="cpL"><circle cx="17" cy="14" r="11"/></clipPath></defs></svg>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <a class="back" href="index.html">← Tous les mémos</a>
+      <h1>Terminal, VS Code, Git et GitHub</h1>
+      <p class="sub">Le poste de travail du data analyst : une commande par ligne, à copier. Clique sur le code ou sur ▶ pour voir ce que le terminal répond, tel que le montre le cours.</p>
+    </div>
+    <div class="hero" aria-hidden="true">
+      <div class="cyc">
+        <div><code>git add</code><span>mettre dans le carton</span></div>
+        <div><code>git commit</code><span>fermer le carton, écrire l'étiquette</span></div>
+        <div><code>git push</code><span>expédier sur GitHub</span></div>
+        <div><code>git pull</code><span>recevoir les cartons des autres</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <button class="tb" id="menu" type="button" aria-label="Ouvrir le sommaire"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="tx">Sommaire</span></button>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Je veux… (annuler, branche, conflit, venv)" autocomplete="off" aria-label="Rechercher">
+    </div>
+    <button class="tb" id="whyall" type="button" aria-pressed="false" title="Afficher ou masquer toutes les explications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span class="tx">Tous les pourquoi</span></button>
+    <button class="tb" id="resall" type="button" aria-pressed="false" title="Afficher ou masquer tous les résultats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5l11 7-11 7z"/></svg><span class="tx">Tous les résultats</span></button>
+    <details class="pdfm"><summary class="tb" title="Télécharger le mémo en PDF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="tx">PDF</span></summary>
+      <div><a href="pdf/memo-git-court.pdf" download><b>Version courte</b><span>le code, les astuces, les pièges</span></a><a href="pdf/memo-git.pdf" download><b>Version complète</b><span>avec tous les « Pourquoi ? »</span></a></div></details>
+    <button class="tb" id="theme" type="button" aria-label="Changer de thème" title="Clair / sombre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <nav class="toc" id="toc" aria-label="Sommaire"></nav>
+  <main id="main">
+    <div class="gold">
+      <h2>★ Le cycle de base, à connaître par cœur</h2>
+      <p>Une image : <code>add</code> = mettre des affaires dans le carton · <code>commit</code> = fermer le carton et écrire une étiquette · <code>push</code> = expédier le carton sur GitHub · <code>pull</code> = recevoir les cartons des autres.</p>
+      <div id="goldsnips"></div>
+      <p style="margin-top:10px">Réflexe n° 1 : <code>git status</code> à tout moment. Il dit où tu en es, et propose souvent la commande suivante entre parenthèses.</p>
+    </div>
+    <div class="empty" id="empty">Rien trouvé. Essaie un autre mot : « supprimer », « branche », « jeton », « activer », « cloner »…</div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<footer>
+  <div class="wrap">
+    <p>Sources : cours de la semaine 8 du parcours Data Analyst (Le Terminal, VS Code, Environnements virtuels, Git en local, Branches et conflits, GitHub — le distant), leurs supports, la démonstration du terminal, et le mémo PDF « Terminal, Git et GitHub ». Les résultats affichés sont ceux que montre le cours.</p>
+    <p>Raccourcis : <code>/</code> pour chercher, <code>Échap</code> pour effacer.</p>
+  </div>
+</footer>
+
+<script>
+{
+const c = String.raw;
+const GOLD = [["1. Récupérer la dernière version (en équipe)", c`git pull`], ["2. Voir ce qui a changé", c`git status`], ["3. Préparer les fichiers modifiés", c`git add .`], ["4. Enregistrer une étape", c`git commit -m "Ajoute le filtre sur les dates"`], ["5. Envoyer sur GitHub", c`git push`]];
+const GROUPS = [
+{g:"Le terminal", col:"blue", note:"Lundi : parler à la machine sans la souris.", sections:[
+ {id:"ouvrir", ic:"terminal", t:"Ouvrir son terminal", cards:[
+  {id:"ouvrir-terminal", t:"Le bon terminal selon sa machine", k:"terminal ouvrir git bash mac windows zsh powershell mingw64 invite",
+   tab:[["","macOS","Windows"],["L'application","Terminal (Cmd + Espace, « Terminal »)","Git Bash (menu Démarrer)"],["Le shell","zsh","bash"],["L'invite se termine par","`%`","`$`, avec `MINGW64`"]],
+   s:[["Vérifier que Git est installé", c`git --version`]],
+   why:"Sous Windows, Git Bash parle la même langue que le terminal du Mac : mêmes commandes, mêmes messages d'erreur. PowerShell et l'invite de commandes ne la parlent pas.",
+   trap:"Sous Windows, si ton invite affiche `PS C:\\Users\\…`, tu es dans PowerShell : change de terminal avec le petit v à côté du + du panneau Terminal.",
+   tip:"Après toute installation, ferme et rouvre le terminal : il ne voit pas ce qui a été installé depuis son ouverture."},
+  {id:"lire-invite", t:"Lire son invite de commande", k:"invite prompt tilde dollar mingw64 utilisateur machine",
+   lead:"Exemple : `Larbi@LAPTOP-EE5HL5VQ MINGW64 ~ $`",
+   tab:[["Morceau","Ce qu'il dit"],["`Larbi@LAPTOP-EE5HL5VQ`","qui tu es, sur quelle machine"],["`MINGW64`","le shell : c'est la signature de Git Bash (vide sur Mac)"],["`~`","où tu es : `~` désigne ton dossier personnel"],["`$` (ou `%` sur Mac)","la machine attend : à toi de taper"]],
+   tip:"Ton invite ne ressemblera jamais exactement à celle du voisin : lis ce qui suit le `$`, pas ce qui le précède."},
+  {id:"anatomie", t:"Lire une commande : programme, option, argument", k:"commande option argument tiret aide help man",
+   s:[["Le programme `ls`, l'option `-l`, l'argument `/home`", c`ls -l /home`],["L'aide rapide d'une commande", c`ls --help`]],
+   why:"Une commande commence toujours par le nom d'un programme. Les options commencent par un tiret (`-l`, `--help`) et changent son comportement ; l'argument dit sur quoi agir, souvent un fichier ou un dossier.",
+   tip:"`man ls` affiche le manuel complet, mais n'existe pas sous Git Bash : utilise `--help`."}
+ ]},
+ {id:"se-reperer", ic:"compass", t:"Se repérer et se déplacer", cards:[
+  {id:"pwd-ls", t:"Où suis-je ? Qu'y a-t-il ici ?", k:"pwd ls dossier courant lister fichiers caches -a -l",
+   s:[["Le dossier où je suis (chemin complet)", c`pwd`],["Ce que contient ce dossier", c`ls`],["Avec les fichiers cachés (.gitignore, .venv)", c`ls -a`],["Une ligne par élément, avec taille et date", c`ls -l`]],
+   why:"`pwd` (print working directory) et `ls` (list) ne modifient jamais rien : aucune raison de s'en priver. Ce sont les deux commandes qu'on tape le plus.",
+   tip:"Dans le doute : `pwd` pour savoir où tu es, `ls` pour voir ce qu'il y a autour."},
+  {id:"cd", t:"Se déplacer : cd", k:"cd changer dossier remonter parent tilde personnel espace guillemets tab fleche",
+   s:[["Entrer dans un dossier (il doit être visible avec ls)", c`cd Documents`],["Remonter d'un dossier", c`cd ..`],["Revenir à son dossier personnel", c`cd ~`],["Un nom avec une espace : entre guillemets", c`cd "Mon Dossier"`]],
+   why:"`cd` ne cherche pas partout : il cherche dans le dossier où tu te trouves. La même commande peut donc marcher, échouer, puis remarcher, selon l'endroit où tu es.",
+   tip:"Touche **Tab** : tape le début d'un nom, le terminal complète (plus de fautes de frappe). Flèche **↑** : rappelle la commande précédente. Sur clavier AZERTY, `~` = AltGr + 2 (Windows) ou Option + N (Mac), puis une espace.",
+   trap:"« Is a directory » : tu as tapé un chemin sans `cd` devant, le terminal a essayé de l'exécuter."},
+  {id:"chemins", t:"Chemin absolu, chemin relatif", k:"chemin absolu relatif racine point point-point tilde",
+   s:[["Absolu : part de la racine, marche de n'importe où", c`cd ~/Documents/collecte/data`],["Relatif : part du dossier où tu es", c`cd collecte/data`]],
+   tab:[["Raccourci","Désigne"],["`.`","le dossier courant (`./script.sh` = le script qui est ici)"],["`..`","le dossier parent"],["`~`","ton dossier personnel"],["`/` (Mac) ou `/c/` (Git Bash)","la racine du disque"]],
+   why:"C'est la notion qui explique la moitié des erreurs du terminal. Le relatif est plus court, c'est celui que tu tapes le plus ; l'absolu est plus sûr, c'est celui qu'on écrit dans un script, qui peut être lancé de n'importe où."},
+  {id:"erreurs-terminal", t:"Deux erreurs à ne pas confondre", k:"command not found no such file or directory erreur terminal",
+   tab:[["Message","Le problème vient de…","Exemple"],["`command not found`","la commande elle-même (faute de frappe, outil pas installé)","`ls-l Documents` (espace oubliée)"],["`No such file or directory`","son argument : le fichier ou dossier n'est pas là","`cd Document` (s oublié)"]],
+   tip:"Le réflexe est toujours le même : `ls` avant `cd`. Le dossier n'est probablement pas là où tu le crois."}
+ ]},
+ {id:"fichiers", ic:"folder", t:"Créer, lire, copier, supprimer", cards:[
+  {id:"mkdir-touch", t:"Créer des dossiers et des fichiers", k:"mkdir touch creer dossier fichier arborescence projet collecte",
+   s:[["Créer un dossier", c`mkdir collecte`],["Plusieurs d'un coup (séparés par une espace)", c`mkdir data src notebooks`],["Créer un fichier vide", c`touch README.md`]],
+   tip:"Ni espace ni accent dans les noms : minuscules et tirets. Tu t'épargnes des guillemets toute l'année.",
+   why:"`data/` reçoit les fichiers récupérés, `src/` les scripts, `notebooks/` les analyses : c'est l'organisation habituelle d'un projet data."},
+  {id:"projet-collecte", t:"Construire le dossier d'un projet, du début à la fin", k:"projet arborescence collecte creer structure data src notebooks readme",
+   s:[["Se placer dans Documents", c`cd ~/Documents`],["Créer le projet et y entrer", c`mkdir collecte
+cd collecte`],["Créer les sous-dossiers et le README", c`mkdir data src notebooks
+touch README.md`],["Vérifier", c`ls`]],
+   tip:"Note le résultat de `pwd` : c'est le chemin à ouvrir ensuite dans VS Code."},
+  {id:"echo-cat", t:"Écrire et lire un fichier : echo, >, >>, cat", k:"echo cat chevron redirection ecrire lire fichier ajouter ecraser",
+   s:[["Écrire une ligne dans un fichier (le crée au besoin)", c`echo "Semaine 8 - Terminal OK" > notes.txt`],["Lire son contenu", c`cat notes.txt`],["Ajouter une ligne à la fin", c`echo "Deuxième ligne" >> notes.txt`],["Les premières / dernières lignes d'un fichier", c`head notes.txt`]],
+   trap:"Un seul `>` **écrase** tout le contenu, sans prévenir. Deux `>>` ajoutent à la fin.",
+   why:"`echo` affiche du texte ; le chevron redirige cet affichage vers un fichier au lieu de l'écran. Taper une commande dans le terminal ne l'écrit pas dans un fichier."},
+  {id:"cp-mv-rm", t:"Copier, déplacer, renommer, supprimer", k:"cp mv rm rmdir copier deplacer renommer supprimer recursif corbeille",
+   s:[["Copier", c`cp notes.txt sauvegarde.txt`],["Déplacer dans un dossier", c`mv sauvegarde.txt data/`],["Renommer (déplacer vers un nouveau nom)", c`mv fichier.txt fichier_renomme.txt`],["Supprimer un fichier", c`rm notes.txt`],["Supprimer un dossier et tout son contenu", c`rm -r terminal_exercice`],["Supprimer un dossier vide", c`rmdir vieux_dossier`]],
+   trap:"`rm` ne met rien à la corbeille : c'est immédiat et définitif. Tape `pwd` avant chaque `rm -r`, et ne supprime jamais un dossier depuis l'intérieur. Attention à l'espace de trop : `rm -r ~ /Documents` supprimerait tout ton dossier personnel."},
+  {id:"chercher", t:"Chercher un fichier ou un mot", k:"grep find ls etoile chercher mot fichier txt py",
+   s:[["Les fichiers .txt du dossier (l'étoile = n'importe quoi)", c`ls *.txt`],["Les lignes qui contiennent un mot", c`grep Terminal notes.txt`],["Un mot absent", c`grep Python notes.txt`],["Tous les fichiers .py, sous-dossiers compris", c`find . -name "*.py"`],["Les fichiers .py qui contiennent « streamlit »", c`grep -l streamlit *.py`]],
+   tip:"Sous Unix, une commande qui réussit sans rien à dire ne dit rien. Le silence est une réponse."},
+  {id:"utiles-terminal", t:"Deux commandes pratiques", k:"clear code point ouvrir vscode vider ecran",
+   s:[["Ouvrir le dossier actuel dans VS Code", c`code .`],["Vider l'écran du terminal", c`clear`]]}
+ ]},
+ {id:"script-sh", ic:"code", t:"Un premier script shell", cards:[
+  {id:"script", t:"Écrire et lancer un script .sh", k:"script sh bash zsh executer commandes fichier",
+   lead:"Un script est un fichier qui contient des commandes : on l'exécute, elles se lancent les unes après les autres.",
+   s:[["Le contenu de script.sh (écrit dans VS Code, puis Ctrl + S)", c`echo "Début du script"
+ls
+cat notes.txt
+echo "Fin du script"`],["L'exécuter sous Windows (Git Bash)", c`bash script.sh`],["L'exécuter sous macOS", c`zsh script.sh`]],
+   trap:"Tant que le fichier n'est pas enregistré (point blanc sur l'onglet), le terminal lit l'ancienne version : un script vide ne fait rien, sans erreur.",
+   why:"C'est exactement ce que tu feras avec un script Python : seuls le nom du fichier et la commande de lancement changent (`python src/script.py`)."}
+ ]}
+]},
+{g:"VS Code", col:"teal", note:"Lundi après-midi : de Colab au poste de travail.", sections:[
+ {id:"vscode-bases", ic:"window", t:"Prendre ses repères", cards:[
+  {id:"vscode-pas-python", t:"VS Code n'est pas Python", k:"vscode python ide editeur installer difference",
+   tab:[["","Ce que c'est"],["VS Code","un éditeur (IDE) : il écrit des fichiers et lance des programmes, il ne sait pas calculer"],["Python","le langage, et le programme qui l'exécute : il s'installe à part, et VS Code va le chercher"]],
+   why:"Installer VS Code n'installe pas Python. Colab te donnait tout d'un coup ; sur ton ordinateur, chaque pièce est séparée."},
+  {id:"ouvrir-dossier", t:"Ouvrir un dossier, jamais un fichier", k:"ouvrir dossier projet open folder explorateur vide",
+   s:[["Depuis le terminal, dans le dossier du projet", c`code .`]],
+   lead:"Ou par le menu : **File → Open Folder…**, puis le dossier du projet.",
+   why:"VS Code travaille sur un dossier entier : il voit tous tes fichiers, et son terminal s'ouvre au bon endroit. Le dossier ouvert devient la racine de tout : chemins, terminal, environnement, Git.",
+   trap:"Si la barre latérale est vide, tu as ouvert un fichier seul (ou rien) : recommence avec un dossier."},
+  {id:"zones-vscode", t:"Les six zones de l'écran", k:"interface zones barre activite laterale editeur minimap panneau etat",
+   tab:[["Zone","À quoi elle sert"],["Barre d'activité (tout à gauche)","Explorer, Search, Source Control (Git), Run and Debug, Extensions"],["Barre latérale","l'arborescence du projet"],["Éditeur","tes fichiers ouverts, en onglets"],["Minimap","un aperçu du fichier, pour naviguer vite"],["Panneau inférieur","le terminal et la console de débogage"],["Barre d'état (en bas)","le langage, la position, la branche Git, l'interpréteur Python"]]},
+  {id:"raccourcis-vscode", t:"Les raccourcis à connaître", k:"raccourcis clavier palette ctrl shift p terminal extensions enregistrer",
+   tab:[["Action","Windows","Mac"],["Palette de commandes","Ctrl + Shift + P","Cmd + Shift + P"],["Ouvrir le terminal intégré","Ctrl + ù","Ctrl + ù"],["Enregistrer","Ctrl + S","Cmd + S"],["Extensions","Ctrl + Shift + X","Cmd + Shift + X"],["Run and Debug","Ctrl + Shift + D","Cmd + Shift + D"],["Exécuter une cellule de notebook","Ctrl + Entrée","Ctrl + Entrée"],["Cellule en dessous / au-dessus","Échap puis B / A","Échap puis B / A"]],
+   tip:"Tu ne trouves pas un réglage ? Ne cherche pas dans les menus : ouvre la palette et tape ce que tu veux (« Python », « terminal », « format »)."}
+ ]},
+ {id:"vscode-python", ic:"code", t:"Python et notebooks dans VS Code", cards:[
+  {id:"extensions", t:"Installer les extensions Python et Jupyter", k:"extension python jupyter microsoft installer coloration",
+   lead:"Barre latérale **Extensions** (Ctrl + Shift + X), chercher « Python », choisir celle de **Microsoft**, Install. Pareil pour **Jupyter**.",
+   why:"Sans l'extension Python, VS Code voit un fichier `.py` comme du texte. Elle apporte la coloration, l'auto-complétion, le signalement des erreurs, le débogueur et les notebooks.",
+   tip:"Une extension s'installe dans VS Code, pas dans ton projet : elle vaut pour tous tes projets."},
+  {id:"interpreteur", t:"Choisir le bon interpréteur Python", k:"interpreteur select interpreter modulenotfounderror pandas recommended venv barre etat",
+   lead:"Palette (Ctrl + Shift + P) → **Python: Select Interpreter**.",
+   tab:[["Situation","Ligne à choisir"],["Le projet n'a pas encore d'environnement","« Recommended » : le Python le plus récent de la machine"],["Le dossier contient un `.venv`","la ligne dont le chemin passe par ton projet (`.venv`)"],["Lignes Conda, defaultInterpreterPath","à ignorer : d'anciens environnements"]],
+   trap:"Le symptôme : `ModuleNotFoundError: No module named 'pandas'` alors que tu viens de l'installer. Tu ne l'as pas installé au mauvais endroit : tu l'exécutes au mauvais endroit. Regarde l'interpréteur affiché dans la barre d'état, en bas.",
+   why:"Plusieurs Python peuvent coexister sur une machine (celui du système, d'Anaconda, de ton projet). VS Code en choisit un par défaut, et rien ne dit que c'est le bon."},
+  {id:"lancer-script", t:"Exécuter un script Python", k:"executer script python terminal run python file premier_script",
+   s:[["Depuis le terminal intégré, à la racine du projet", c`python src/premier_script.py`]],
+   why:"Le bouton ▷ en haut à droite et « Run Python File » font la même chose, mais cachent la commande lancée. Au terminal, tu sais ce qui s'exécute, et tu sauras le refaire ailleurs.",
+   tip:"Le terminal intégré s'ouvre directement dans le dossier du projet : pas besoin de `cd`."},
+  {id:"notebook-local", t:"Ses notebooks en local", k:"notebook ipynb jupyter local kernel select kernel chemin content colab",
+   lead:"Un `.ipynb` de Colab s'ouvre tel quel dans VS Code. Nouveau notebook : palette → **Create: New Jupyter Notebook**, puis **Select Kernel** en haut à droite.",
+   s:[["Lire un fichier du projet : chemin relatif", c`df = pd.read_csv("data/mon_fichier.csv")`]],
+   trap:"Un chemin Colab comme `/content/mon_fichier.csv` ne marche plus en local : écris le chemin depuis la racine du projet.",
+   why:"Plus besoin de réimporter tes fichiers à chaque session, et ce que tu enregistres reste sur ton disque. La limite : la puissance et la mémoire de ta machine."},
+  {id:"git-bash-vscode", t:"Git Bash comme terminal par défaut (Windows)", k:"git bash defaut vscode powershell profile terminal windows",
+   lead:"Palette → **Terminal: Select Default Profile** → **Git Bash**.",
+   s:[["Ou dans les réglages JSON (Ctrl + , puis l'icône Open Settings (JSON))", c`"terminal.integrated.profiles.windows": {
+    "Git Bash": { "path": "C:\\Program Files\\Git\\bin\\bash.exe" }
+},`]],
+   why:"Par défaut, VS Code ouvre PowerShell sous Windows, qui ne parle pas la même langue que Git Bash. macOS et Linux : rien à faire."}
+ ]},
+ {id:"debug", ic:"bug", t:"Déboguer sans print", cards:[
+  {id:"debogueur", t:"Le débogueur en trois gestes", k:"debug debogueur breakpoint point arret f5 f10 f11 variables",
+   tab:[["Geste","Comment"],["Poser un point d'arrêt","un clic dans la marge, à gauche du numéro de ligne : un point rouge apparaît"],["Lancer en mode débogage","F5 (ou Run and Debug → « Python File »)"],["Avancer d'une ligne","F10 (Step Over)"],["Entrer dans une fonction","F11 (Step Into)"],["Sortir de la fonction","Shift + F11 (Step Out)"],["Arrêter","Shift + F5"]],
+   why:"Le programme s'arrête où tu veux, et le panneau de gauche montre toutes les variables à cet instant. Avec des `print`, on relance à chaque fois et on ne voit qu'une variable à la fois.",
+   tip:"Vérifie que l'extension **Python Debugger** de Microsoft est installée."},
+  {id:"moyenne-cassee", t:"L'exemple du cours : le script qui ment", k:"moyenne cassee bug debug exemple notes 13.6",
+   s:[["src/moyenne_cassee.py", c`def calculer_moyenne(notes):
+    total = 0
+    for note in notes[:-1]:
+        total += note
+    return total / len(notes)
+
+notes_etudiants = [15, 12, 18, 9, 14]
+moyenne = calculer_moyenne(notes_etudiants)
+print(f"La moyenne des notes est : {moyenne}")`],["L'exécuter", c`python src/moyenne_cassee.py`]],
+   trap:"Le code ne plante pas : il se trompe. Point d'arrêt sur `total += note`, puis F10 à chaque tour : `note` ne vaut jamais 14. `notes[:-1]` oublie la dernière note.",
+   tip:"Un chiffre faux dans un calcul ? Point d'arrêt juste avant, et regarde les variables."}
+ ]}
+]},
+{g:"Environnement virtuel", col:"violet", note:"Mardi : une bulle par projet.", sections:[
+ {id:"venv", ic:"pkg", t:"Créer et activer son environnement", cards:[
+  {id:"pourquoi-venv", t:"Pourquoi un environnement par projet", k:"environnement virtuel venv pourquoi versions conflit bibliotheques",
+   tab:[["Sans environnement","Avec un environnement"],["une seule version de pandas sur la machine","chaque projet a sa propre copie des bibliothèques"],["le projet de janvier marchait avec la 1.5","les versions ne se croisent jamais"],["celui de mars exige la 2.2 : tu l'installes, janvier casse","tu installes sans rien casser ailleurs"]],
+   why:"Les bibliothèques évoluent, et dépendent d'autres bibliothèques (pandas s'appuie sur numpy). Un environnement fige une liste de bibliothèques avec leur version exacte, pour que le projet marche sur n'importe quel ordinateur."},
+  {id:"creer-venv", t:"Créer l'environnement", k:"python -m venv creer environnement point venv cache",
+   s:[["À la racine du projet (une fois par projet)", c`python -m venv .venv`],["Vérifier qu'il existe (dossier caché)", c`ls -a`]],
+   tip:"Vérifie ton `pwd` avant : sinon l'environnement est créé au mauvais endroit. Le nom `.venv`, avec un point, est la convention que VS Code et Git reconnaissent.",
+   why:"Le dossier `.venv` contient un Python à lui (`Scripts/` sous Windows, `bin/` sous Mac) et accueillera les bibliothèques (`Lib/`)."},
+  {id:"activer-venv", t:"Activer, vérifier, désactiver", k:"activer source activate scripts bin powershell deactivate point venv parentheses",
+   s:[["Activer : Windows, Git Bash", c`source .venv/Scripts/activate`],["Activer : macOS / Linux", c`source .venv/bin/activate`],["Activer : PowerShell (pour information)", c`.venv\Scripts\Activate.ps1`],["Vérifier quel Python est utilisé", c`python -c "import sys; print(sys.executable)"`],["Désactiver", c`deactivate`]],
+   tip:"Activé ? Tu dois voir **(.venv)** au début de la ligne. C'est le seul signal visible.",
+   trap:"Oublier `source` : la commande s'exécute à part et meurt aussitôt, sans erreur et sans effet. Et chaque nouveau terminal demande une nouvelle activation."},
+  {id:"pip", t:"Installer et regarder ses bibliothèques", k:"pip install list show version upgrade bibliotheque installer",
+   s:[["La liste des bibliothèques installées", c`pip list`],["Installer", c`pip install pandas requests`],["Une version précise", c`pip install streamlit==1.41.1`],["Mettre à jour", c`pip install -U streamlit`],["La version installée d'une bibliothèque", c`pip show numpy`]],
+   why:"Juste après l'activation, `pip list` est presque vide : c'est la preuve de l'isolation. Les bibliothèques installées ailleurs sur ta machine ne sont pas visibles ici."},
+  {id:"venv-vscode", t:"Faire reconnaître l'environnement par VS Code", k:"vscode interpreteur venv select kernel popup",
+   lead:"Palette → **Python: Select Interpreter** → la ligne dont le chemin contient `.venv`. Dans un notebook : **Select Kernel** → le même `.venv`.",
+   tip:"Souvent, VS Code propose lui-même le nouvel environnement dans une fenêtre : réponds Yes.",
+   trap:"Créer l'environnement ne suffit pas : sans ce choix, tes scripts tournent avec le Python global, et pandas reste introuvable."}
+ ]},
+ {id:"requirements", ic:"list", t:"Partager : requirements.txt", cards:[
+  {id:"freeze", t:"Figer, puis réinstaller la liste", k:"pip freeze requirements txt figer liste reinstaller install -r",
+   s:[["Écrire la liste exacte des bibliothèques", c`pip freeze > requirements.txt`],["La relire", c`cat requirements.txt`],["Tout réinstaller depuis la liste", c`pip install -r requirements.txt`]],
+   trap:"`pip list > requirements.txt` donne un tableau avec en-tête et tirets, illisible par `pip install -r`. Seul `pip freeze` donne le bon format.",
+   why:"On ne partage jamais le dossier `.venv` : il pèse lourd et ne marche que sur ta machine. On partage `requirements.txt`, léger et lisible : n'importe qui reconstruit le même environnement."},
+  {id:"projet-clone-venv", t:"Faire tourner le projet de quelqu'un d'autre", k:"clone projet externe recreer environnement requirements",
+   s:[["1. Créer l'environnement", c`python -m venv .venv`],["2. L'activer (Git Bash)", c`source .venv/Scripts/activate`],["3. Installer ce que le projet demande", c`pip install -r requirements.txt`]],
+   why:"Après un `git clone`, le `.venv` n'est pas sur GitHub (il est dans le `.gitignore`). On le recrée, puis on rejoue la liste."},
+  {id:"supprimer-venv", t:"Supprimer un environnement", k:"supprimer environnement rm -rf venv place disque",
+   s:[["Effacer le dossier (désactive-le d'abord)", c`rm -rf .venv`]],
+   trap:"`rm -rf` ne demande aucune confirmation et ne met rien à la corbeille. Vérifie ton `pwd` avant : un mauvais chemin après `-rf`, et tout disparaît.",
+   why:"Désactiver ne libère pas de place. Un environnement peut peser plusieurs gigaoctets : pour récupérer l'espace, on supprime le dossier."}
+ ]},
+ {id:"uv", ic:"bolt", t:"Aller plus loin : uv", cards:[
+  {id:"uv-equivalences", t:"pip et venv, ou uv : les équivalences", k:"uv pip venv rust rapide pyproject toml add sync run init",
+   tab:[["Avec pip et venv","Avec uv"],["`python -m venv .venv`","`uv venv`"],["`source .venv/bin/activate`","inutile : `uv run` s'en charge"],["`pip install pandas`","`uv add pandas`"],["`pip freeze > requirements.txt`","automatique, dans `pyproject.toml`"],["`pip install -r requirements.txt`","`uv sync`"]],
+   s:[["Installer uv", c`pip install uv`],["Créer un projet (dossier, .gitignore, pyproject.toml…)", c`uv init essai-uv`],["Ajouter une bibliothèque", c`uv add pandas`],["Exécuter sans activer", c`uv run python main.py`],["Reconstituer un projet cloné", c`uv sync`]],
+   trap:"`uv init` crée aussi un dépôt Git (`.git`) : ne refais pas `git init` derrière, passe directement à `git status`.",
+   why:"Mêmes notions, outil plus rapide (écrit en Rust) et une commande en moins. Un dépôt avec un `pyproject.toml` et sans `requirements.txt` est géré avec uv : `uv sync`."}
+ ]}
+]},
+{g:"Git en local", col:"orange", note:"Mercredi : la mémoire de ton travail.", sections:[
+ {id:"git-config", ic:"tool", t:"Configurer Git (une seule fois)", cards:[
+  {id:"config", t:"Se présenter à Git", k:"git config global user name email defaultbranch main list",
+   s:[["Ton nom", c`git config --global user.name "Prénom Nom"`],["Ton e-mail (le même que sur GitHub)", c`git config --global user.email "ton.email@exemple.fr"`],["Appeler la branche principale main", c`git config --global init.defaultBranch main`],["Vérifier", c`git config --global --list`]],
+   why:"Git signe chaque commit avec ce nom et cette adresse : sans eux, ton premier commit s'arrête net (« Please tell me who you are »). `--global` veut dire « pour tous mes projets » : tu ne le retaperas jamais.",
+   trap:"Utilise l'adresse de ton compte GitHub, sinon tes commits ne te seront pas attribués."}
+ ]},
+ {id:"git-cycle", ic:"history", t:"Le cycle : status, add, commit", cards:[
+  {id:"git-vs-github", t:"Git n'est pas GitHub", k:"git github difference local site",
+   tab:[["","Ce que c'est"],["Git","un programme sur ta machine : il gère l'historique, en local, sans connexion"],["GitHub","un site qui héberge des dépôts Git : partage, revue de code, vitrine, copie en ligne"]],
+   why:"Git fonctionne très bien sans GitHub. L'inverse n'existe pas."},
+  {id:"git-init", t:"Transformer un dossier en dépôt", k:"git init depot initialiser dossier git cache racine",
+   s:[["À la racine du projet, une seule fois", c`git init`]],
+   why:"`git init` ne crée qu'une chose : un dossier caché `.git`, qui contiendra tout l'historique. Tes fichiers ne sont ni déplacés ni modifiés. Supprimer `.git` efface l'historique, pas ton travail.",
+   trap:"Jamais dans un sous-dossier, ni dans un dossier déjà versionné. Initialisé au mauvais endroit ? Supprime le `.git` qui s'y trouve et recommence au bon."},
+  {id:"trois-zones", t:"Les trois zones", k:"zones repertoire travail index staging head commit",
+   tab:[["Zone","Ce qu'elle contient","On y va avec"],["Répertoire de travail","tes fichiers, tels que tu les vois dans VS Code","(tu modifies)"],["Index (staging)","ce que tu as choisi pour le prochain commit","`git add`"],["HEAD (l'historique)","le dernier enregistrement validé","`git commit`"]],
+   why:"Pourquoi une zone au milieu ? Pour qu'un commit raconte une seule chose. Tu as corrigé un bug et renommé des variables : l'index te permet de faire deux commits lisibles plutôt qu'un fourre-tout."},
+  {id:"git-status", t:"git status, ta boussole", k:"git status etat untracked modified boussole short",
+   s:[["Où en est chaque fichier", c`git status`],["La version courte", c`git status -s`]],
+   why:"`git status` ne modifie jamais rien, et Git y met entre parenthèses la commande à taper ensuite. Un développeur expérimenté la tape des dizaines de fois par jour.",
+   tip:"Un dossier vide est invisible pour Git : il faut au moins un fichier dedans."},
+  {id:"git-add", t:"git add : choisir ce qui part", k:"git add index preparer fichier point tout",
+   s:[["Préparer UN fichier", c`git add src/premier_script.py`],["Préparer tout le dossier (sauf ce qui est ignoré)", c`git add .`]],
+   why:"`add` ne sauvegarde rien : il sélectionne ce qui partira dans le prochain commit. Le `.` veut dire « tout ce qui est dans le dossier actuel et ses sous-dossiers ».",
+   trap:"`git add .` est pratique et dangereux : c'est par lui qu'on commite un fichier de 300 Mo ou un mot de passe. Relis `git status` juste après. Et un fichier modifié APRÈS son add garde l'ancienne version dans l'index : refais `add`."},
+  {id:"git-commit", t:"git commit : enregistrer et expliquer", k:"git commit message m am enregistrer etape",
+   s:[["Enregistrer avec un message", c`git commit -m "Ajoute le premier script et le README"`],["Ajouter ET commiter les fichiers déjà suivis", c`git commit -am "Precise le titre du README"`]],
+   why:"Un commit, c'est une photo complète du projet, un message qui dit pourquoi, et un lien vers le commit précédent. Ce n'est pas une sauvegarde : c'est une décision que tu documentes.",
+   trap:"Sans `-m`, Git ouvre un éditeur dans le terminal, et beaucoup s'y retrouvent coincés. Et `-am` ne voit pas les fichiers nouveaux."},
+  {id:"bons-messages", t:"Écrire un bon message de commit", k:"message commit imperatif convention bon mauvais",
+   tab:[["À éviter","À écrire"],["maj","Ajoute le filtre sur les dates"],["ça marche enfin","Corrige le calcul du panier moyen"],["modif fichier","Supprime les colonnes vides du CSV"],["WIP","Prépare la structure du script de collecte"]],
+   tip:"Le test : « Si j'applique ce commit, il va… » suivi de ton message. « … ajouter le filtre sur les dates » tient debout ; « … maj » non. D'où l'impératif, et moins de 50 caractères."},
+  {id:"pastilles", t:"Lire les lettres : VS Code et git status -s", k:"pastilles lettres vscode u m a status short couleurs untracked",
+   tab:[["Lettre","Où","Signification"],["U (vert)","VS Code","fichier nouveau, que Git ne suit pas encore"],["M (orange)","VS Code","fichier suivi, modifié depuis le dernier commit"],["A","VS Code","fichier préparé (après `git add`)"],["Nom grisé","VS Code","ignoré par le `.gitignore`"],["`??` rouge","`status -s`","nouveau, jamais ajouté"],["`M` rouge","`status -s`","modifié, pas encore ajouté"],["`M` vert","`status -s`","modifié et ajouté : prêt pour le commit"],["`A` vert","`status -s`","nouveau fichier ajouté"]],
+   tip:"Première colonne de `status -s` = l'index, seconde = ton répertoire de travail. Un fichier modifié n'apparaît pas ? Il n'est sans doute pas enregistré dans VS Code (point blanc sur l'onglet) : Ctrl + S.",
+   trap:"Un fichier en `M` alors que tu croyais le créer ? Il existait déjà : tu l'as écrasé (un `to_csv` ne prévient pas)."}
+ ]},
+ {id:"gitignore", ic:"shield", t:"Le .gitignore", cards:[
+  {id:"gitignore-contenu", t:"Ce qu'on n'envoie jamais", k:"gitignore env venv data pycache checkpoints secret lourd",
+   s:[["Le fichier .gitignore, à la racine, AVANT le premier add", c`.env
+.venv/
+data/
+__pycache__/
+.ipynb_checkpoints/
+.history/`]],
+   tab:[["Famille","Exemples","Pourquoi"],["Secrets","`.env`, clés d'API, mots de passe","compromis dès le premier push"],["Données","`data/`, gros CSV","trop lourd, et récupérable"],["Ce qui se recrée tout seul","`.venv/`, `__pycache__/`, `.ipynb_checkpoints/`","refait à chaque exécution"]],
+   tip:"La règle : secret, lourd, ou se recrée tout seul → `.gitignore`. Le nom au caractère près : un point devant, pas d'extension.",
+   trap:"Un fichier déjà commité ne disparaît pas de l'historique parce que tu l'ajoutes au `.gitignore` ensuite. Un mot de passe commité est compromis : on ne le rattrape pas, on le change. Et GitHub refuse les fichiers de plus de 100 Mo."},
+  {id:"check-ignore", t:"Vérifier qu'une règle s'applique", k:"check-ignore verifier gitignore regle fichier",
+   s:[["Quelle ligne du .gitignore filtre ces fichiers ?", c`git check-ignore -v .env data/brut.csv`]],
+   tip:"L'outil à sortir quand un fichier refuse d'apparaître (ou de disparaître) dans `git status`."},
+  {id:"rm-cached", t:"Arrêter de suivre un fichier déjà commité", k:"rm cached arreter suivre dossier venv deja suivi",
+   s:[["Un fichier", c`git rm --cached fichier.csv`],["Un dossier entier", c`git rm --cached -r .venv`]],
+   why:"Le fichier reste sur ton disque, mais Git ne le suit plus. Ajoute-le ensuite au `.gitignore`, puis commit."}
+ ]},
+ {id:"historique", ic:"clock", t:"Relire : log, diff, show", cards:[
+  {id:"git-log", t:"L'historique des commits", k:"git log oneline graph all date historique",
+   s:[["Une ligne par commit", c`git log --oneline`],["Avec la date", c`git log --oneline --format="%h %ad %s" --date=short`],["Avec les branches dessinées", c`git log --oneline --graph --all`]],
+   tip:"Pour sortir d'un affichage long (log, diff) : touche **q**.",
+   why:"Les sept caractères en tête sont l'identifiant court du commit : c'est par lui qu'on désigne un état précis du projet."},
+  {id:"git-diff", t:"Ce qui a changé", k:"git diff staged show difference modifications",
+   s:[["Les modifications pas encore ajoutées", c`git diff`],["Ce qui est dans l'index, prêt à partir", c`git diff --staged`],["Le détail du dernier commit", c`git show`]],
+   trap:"« `git diff` ne montre rien » : tu as déjà fait `add`. `git diff` compare ton dossier à l'**index**, pas au dernier commit. Pour relire ce qui part : `git diff --staged`, juste avant chaque commit.",
+   why:"Les lignes avec `+` sont ajoutées, celles avec `-` supprimées, les autres sont là pour le contexte."}
+ ]},
+ {id:"annuler", ic:"undo", t:"Annuler, réparer", cards:[
+  {id:"restore", t:"Annuler une modification", k:"git restore staged annuler modification index retirer",
+   s:[["Remettre le fichier comme au dernier commit", c`git restore src/collecte.py`],["Retirer un fichier de l'index (l'inverse de add)", c`git restore --staged src/collecte.py`]],
+   trap:"`git restore fichier` est **définitif** : les modifications annulées n'ont jamais été enregistrées, Git ne peut pas les retrouver. Relis le fichier avant.",
+   tip:"Pas besoin de retenir ces deux commandes : `git status` te les affiche entre parenthèses, dans la situation où elles servent."},
+  {id:"amend-stash", t:"Corriger le dernier message, mettre de côté", k:"amend stash pop corriger message mettre de cote temporaire",
+   s:[["Corriger le message du dernier commit", c`git commit --amend -m "Nouveau message"`],["Mettre ses modifications de côté", c`git stash`],["Les récupérer", c`git stash pop`]],
+   trap:"`--amend` seulement si le commit n'a pas encore été poussé sur GitHub.",
+   why:"`stash` sert surtout avant de changer de branche, quand tu n'es pas prêt à commiter."}
+ ]},
+ {id:"branches", ic:"branch", t:"Les branches", cards:[
+  {id:"branche-quoi", t:"Ce qu'est une branche", k:"branche etiquette copie parallele brouillon",
+   s:[["Lister les branches (* = celle où tu es)", c`git branch`]],
+   why:"Une branche n'est pas une copie du projet : c'est une étiquette qui pointe sur un commit et avance à chaque nouveau commit. Les deux versions existent en même temps, tu passes de l'une à l'autre par une commande : rien n'est perdu, donc tu oses.",
+   tip:"Nomme-la avec un verbe ou un sujet, en minuscules, avec des tirets : `ajout-mediane`, `correction-dates`. Pas `test` ni `essai`."},
+  {id:"switch", t:"Créer une branche, changer de branche", k:"git switch c creer changer branche show-current checkout",
+   s:[["CRÉER une branche et s'y placer", c`git switch -c ajout-mediane`],["CHANGER de branche", c`git switch main`],["Sur quelle branche suis-je ?", c`git branch --show-current`]],
+   tab:[["Syntaxe moderne","Ancienne syntaxe (même effet)"],["`git switch nom`","`git checkout nom`"],["`git switch -c nom`","`git checkout -b nom`"]],
+   trap:"Avant de changer de branche, commit (ou `git stash`) : sinon Git refuse, ou emporte tes modifications sur l'autre branche. `git status` doit être vide avant chaque `git switch`.",
+   why:"`checkout` faisait trop de choses (changer de branche, restaurer un fichier…). Git l'a scindé en `switch` pour les branches et `restore` pour les fichiers. Tu verras encore `checkout` dans beaucoup de tutoriels."},
+  {id:"merge", t:"Fusionner une branche terminée", k:"git merge fusionner fast-forward branche main",
+   s:[["1. Se placer sur la branche qui REÇOIT", c`git switch main`],["2. Fusionner celle qui donne", c`git merge ajout-mediane`]],
+   why:"Fast-forward : `main` n'avait pas bougé pendant ton travail, Git avance simplement l'étiquette. C'est le cas le plus fréquent quand on travaille seul.",
+   tip:"Le sens de la commande est le sens du travail : on fusionne vers `main`, jamais l'inverse."},
+  {id:"supprimer-branche-locale", t:"Supprimer une branche fusionnée", k:"git branch d supprimer branche fusionnee D force",
+   s:[["Supprimer (seulement si elle est fusionnée)", c`git branch -d titre-long titre-court`],["Forcer, même non fusionnée", c`git branch -D ma-branche`]],
+   trap:"`-D` majuscule force la suppression : le travail non fusionné est perdu. Si `-d` refuse, vérifie avec `git log` avant d'insister.",
+   why:"Tes commits restent : ils ont été intégrés à `main`. Tu ne supprimes que l'étiquette."}
+ ]},
+ {id:"conflits", ic:"alert", t:"Les conflits", cards:[
+  {id:"conflit-voir", t:"Reconnaître un conflit", k:"conflit merge conflict both modified meme ligne",
+   s:[["La deuxième fusion modifie la même ligne", c`git merge titre-court`],["Lire la situation", c`git status`]],
+   why:"Un conflit survient quand la même ligne a changé des deux côtés. Rien n'est cassé, rien n'est perdu : Git s'arrête et refuse de choisir à ta place."},
+  {id:"conflit-marqueurs", t:"Lire les marqueurs", k:"marqueurs conflit head chevrons egal incoming current",
+   s:[["Ce que tu trouves dans README.md", c`<<<<<<< HEAD
+# Portfolio Data Analyst — promotion 2026
+=======
+# Mon portfolio
+>>>>>>> titre-court`]],
+   tab:[["Marqueur","Ce qu'il délimite"],["`<<<<<<< HEAD`","début de TA version (la branche où tu es)"],["`=======`","la frontière entre les deux"],["`>>>>>>> titre-court`","fin de la version de la branche que tu fusionnes"]],
+   tip:"`HEAD`, c'est toujours « là où je suis ». Dans VS Code, quatre boutons au-dessus du bloc : Accept Current Change, Accept Incoming, Accept Both, Compare Changes."},
+  {id:"conflit-resoudre", t:"Résoudre, puis valider", k:"resoudre conflit add commit no-edit uu marqueurs",
+   s:[["1. Éditer le fichier : garder la bonne version, effacer les 3 marqueurs", c`# Portfolio Data Analyst — promotion 2026`],["2. Le fichier est encore en conflit", c`git status -s`],["3. Dire à Git « c'est réglé »", c`git add README.md`],["4. Valider la fusion avec le message proposé", c`git commit --no-edit`],["5. Voir le dessin de la fusion", c`git log --oneline --graph --all`]],
+   trap:"L'erreur classique : oublier un marqueur. Avant de commiter, cherche `<<<<` dans le fichier. Un `=======` resté dans un .py donne une erreur de syntaxe.",
+   why:"`UU` = Unmerged : tant que tu n'as pas fait `git add`, Git considère le fichier en conflit."},
+  {id:"merge-abort", t:"La porte de sortie", k:"merge abort annuler fusion conflit sortie",
+   s:[["Tout remettre comme avant la fusion", c`git merge --abort`]],
+   tip:"Retiens-la maintenant, pas au moment de la panique : tant que tu n'as pas commité, un conflit n'engage à rien."},
+  {id:"notebooks-equipe", t:"Les notebooks en équipe", k:"notebook ipynb conflit equipe meme fichier",
+   trap:"Les conflits sur les `.ipynb` sont pénibles à résoudre (le fichier est du JSON illisible). Évitez de modifier le même notebook en même temps."}
+ ]}
+]},
+{g:"GitHub et équipe", col:"pink", note:"Jeudi : du local au distant.", sections:[
+ {id:"distant", ic:"cloud", t:"Local et distant", cards:[
+  {id:"deux-depots", t:"Deux dépôts, pas un", k:"local distant remote push pull fetch clone sens",
+   tab:[["Commande","Sens","Ce qu'elle fait"],["`git push`","local → GitHub","envoie tes commits"],["`git pull`","GitHub → local","récupère et applique les commits des autres"],["`git fetch`","GitHub → local","récupère sans appliquer : tu regardes avant"],["`git clone`","GitHub → local","crée une copie complète d'un dépôt existant"]],
+   why:"Tu n'envoies pas tes fichiers « quelque part » : tu obtiens un second dépôt complet, et tu synchronises les deux quand tu le décides. `commit` enregistre, `push` publie : ce sont deux décisions."},
+  {id:"qui-est-qui", t:"origin, main, origin/main : qui est qui ?", k:"origin main origin/main branche distant nom",
+   tab:[["Nom","Ce que c'est"],["`origin`","le surnom du dépôt sur GitHub (l'adresse distante)"],["`main`","la branche principale, sur ton ordinateur"],["`origin/main`","la dernière version connue de `main` sur GitHub"],["`marco_b`","ta branche, sur ton ordinateur"]]},
+  {id:"creer-depot", t:"Créer le dépôt sur GitHub", k:"creer depot github new repository readme vide public",
+   lead:"Sur GitHub : **New** (ou + en haut à droite → New repository). Nom = celui du dossier, une phrase de description, **Public** pour un portfolio.",
+   trap:"Ne coche **aucune** case d'initialisation (README, .gitignore) si tu as déjà un projet local : les deux historiques n'auraient aucun commit en commun, et ton premier push serait refusé. Un dépôt distant naît vide quand le local existe déjà."},
+  {id:"jeton", t:"Le jeton : ton mot de passe ne marchera pas", k:"jeton token mot de passe personal access token classic repo expiration credential",
+   lead:"Photo de profil → **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)** → **Generate new token (classic)**.",
+   tab:[["Champ","Valeur"],["Note","`portfolio-bootcamp` (pour savoir à quoi il sert)"],["Expiration","90 jours"],["Scopes","**repo** uniquement"]],
+   s:[["Au premier push, Git demande", c`Username: ton-pseudo
+Password:`],["Ne plus le retaper (machine personnelle seulement)", c`git config --global credential.helper store`]],
+   trap:"GitHub n'affiche le jeton **qu'une fois** : copie-le tout de suite. C'est un mot de passe : jamais dans un fichier du projet ni dans un message. Exposé ? Supprime-le sur la même page.",
+   why:"Depuis 2021, GitHub refuse le mot de passe du compte au push. Rien ne s'affiche quand tu colles le jeton : c'est normal, le terminal masque les mots de passe."}
+ ]},
+ {id:"relier", ic:"link", t:"Relier et envoyer", cards:[
+  {id:"remote-add", t:"Relier son projet à GitHub", k:"remote add origin url relier verifier remote -v branch -M main",
+   s:[["Relier (adresse copiée depuis le bouton vert Code → HTTPS)", c`git remote add origin URL_DU_DEPOT`],["Vérifier : 2 lignes « origin »", c`git remote -v`],["Nommer la branche main", c`git branch -M main`]],
+   trap:"Pas de chevrons `< >` autour de l'URL. Et on ne tape jamais l'adresse à la main : on la copie.",
+   why:"`origin` est un surnom : la convention universelle pour « le dépôt distant principal »."},
+  {id:"premier-push", t:"Le premier envoi", k:"push u origin main premier envoi upstream",
+   s:[["Envoyer et retenir le lien (une seule fois)", c`git push -u origin main`],["Les fois suivantes", c`git push`]],
+   why:"`-u` relie ta branche locale à celle de GitHub : ensuite, `git push` tout court suffit."},
+  {id:"remote-erreurs", t:"Réparer le lien", k:"remote set-url remove origin already exists mauvaise url rebase rejected",
+   s:[["Mauvaise URL : la corriger", c`git remote set-url origin BONNE_URL`],["Repartir de zéro", c`git remote remove origin`],["Push refusé : le distant a des commits que tu n'as pas", c`git pull --rebase origin main`]],
+   tip:"« remote origin already exists » : tu as déjà déclaré un distant. Vérifie avec `git remote -v`, puis `set-url` plutôt que d'en ajouter un second.",
+   why:"`--rebase` repose tes commits par-dessus ceux du distant, au lieu de créer une fusion inutile. Ensuite : `git push -u origin main`."}
+ ]},
+ {id:"recuperer", ic:"download", t:"Récupérer : pull, fetch, clone", cards:[
+  {id:"pull-fetch", t:"pull ou fetch ?", k:"git pull fetch recuperer retard behind origin",
+   s:[["Récupérer ET intégrer (95 % du temps)", c`git pull`],["Récupérer sans rien toucher", c`git fetch`],["Les commits de GitHub que je n'ai pas encore", c`git log --oneline main..origin/main`],["Où j'en suis par rapport à GitHub", c`git status`]],
+   why:"`git pull` = `git fetch` (télécharger) + fusionner dans ta branche. `fetch` seul te laisse regarder avant d'intégrer.",
+   tip:"Le réflexe : `git pull` avant de travailler, et avant de pousser. Trente secondes au début contre une demi-heure de conflits à la fin."},
+  {id:"clone", t:"Récupérer un projet existant : clone", k:"git clone copier projet camarade dossier neutre zip",
+   s:[["Se placer là où ranger le projet", c`cd ~/Documents/data/02_Projets`],["Copier tout le projet et son historique", c`git clone URL_DU_DEPOT`],["Entrer dans le dossier créé", c`cd nom_du_depot`]],
+   trap:"Ne jamais cloner à l'intérieur d'un autre dépôt Git : toujours dans un dossier « neutre ». Et pas de `git init` ni de `remote add` derrière : clone les a déjà faits.",
+   tip:"Le bouton Download ZIP donne les fichiers sans l'historique : pas de log, pas de branches, impossible de contribuer. Après un clone, recrée le `.venv` puis `pip install -r requirements.txt`."},
+  {id:"modifier-github", t:"Modifier un fichier depuis le navigateur", k:"modifier github navigateur crayon commit web readme",
+   lead:"Sur GitHub, ouvrir le fichier → icône crayon → modifier → un vrai message → **Commit changes**. Puis en local : `git pull`.",
+   why:"L'interface web fait un vrai commit, avec auteur, message et date. Pratique pour une faute dans un README ; pour du code, reste en local (ton éditeur, tes tests)."}
+ ]},
+ {id:"equipe", ic:"users", t:"Travailler en équipe", cards:[
+  {id:"workflow", t:"Le déroulé d'une tâche en équipe", k:"equipe workflow branche tache pull request debut fin",
+   s:[["Début de tâche : partir de main", c`git switch main`],["… à jour", c`git pull`],["Une branche par tâche", c`git switch -c ma-tache`],["(travailler, add, commit), puis envoyer la branche", c`git push -u origin ma-tache`],["Après validation de la PR : revenir sur main", c`git switch main`],["… la mettre à jour", c`git pull`],["… et supprimer la branche", c`git branch -d ma-tache`]],
+   why:"La règle qui évite 90 % des ennuis à deux : chacun sur sa branche, et `main` ne reçoit que des Pull Requests. Deux personnes qui poussent sur `main` en même temps, c'est le conflit garanti.",
+   tip:"Vérifie la parenthèse du terminal : `(main)` ou `(marco_b)`. Travailler sur `main` par erreur, c'est commiter directement dans la version commune."},
+  {id:"pull-request", t:"La Pull Request", k:"pull request pr fusionner relire compare base merge delete branch",
+   lead:"Après `git push -u origin ma-branche`, GitHub affiche **Compare & pull request**. Sinon : Pull requests → New → base `main` ← compare ta branche.",
+   tab:[["Étape","Où"],["Titre clair + description (quoi et pourquoi)","la PR"],["Relire le diff ligne à ligne","onglet Files changed"],["Fusionner","Merge pull request"],["Supprimer la branche sur GitHub","Delete branch"],["Rapatrier en local","`git switch main` puis `git pull`"]],
+   why:"Une PR est une demande d'intégration de ta branche dans `main` : on relit, on commente, puis on fusionne. Même seul, c'est le mode de travail de toutes les équipes : personne ne pousse directement sur `main` en entreprise."},
+  {id:"pr-etat", t:"Pull Request : ouverte ou fusionnée ?", k:"pr open merged violet vert nouvelle pr push",
+   tab:[["État sur GitHub","Après un nouveau git push"],["Open (vert)","la PR se met à jour toute seule : rien à faire"],["Merged (violet)","créer une nouvelle PR (base main ← compare ma-branche)"]],
+   tip:"Une PR fusionnée ne se supprime pas : elle fait partie de l'historique. Un fichier envoyé par erreur ? On pousse la version corrigée par-dessus.",
+   trap:"En équipe, évitez `git revert`, `git reset` et `git push --force` sur une version déjà partagée."},
+  {id:"collaborateurs", t:"Ajouter un collaborateur", k:"collaborateur collaborators settings write read triage inviter",
+   lead:"Sur le dépôt : **Settings → Collaborators → Add people**, puis le pseudo. La personne reçoit une invitation par e-mail, à accepter.",
+   tab:[["Niveau","Ce qu'il permet"],["Read","voir et cloner"],["Triage","gérer les issues, sans toucher au code"],["Write","pousser des commits et des branches (suffit pour un binôme)"]]},
+  {id:"issues", t:"Issues et README", k:"issues readme closes portfolio markdown recruteur",
+   tab:[["Bon titre d'issue","Mauvais"],["Ajouter le filtre par année au tableau de bord","à faire"],["Corriger le calcul du panier moyen (divise par 50 au lieu de 29)","bug"]],
+   tip:"`Corrige le calcul du panier moyen (#3)` dans un commit le rattache à l'issue n° 3 ; `Closes #3` dans une PR la ferme à la fusion.",
+   why:"Un bon README répond à trois questions, dans l'ordre : qu'est-ce que c'est, qu'est-ce qu'on y trouve, comment joindre l'auteur. Aucun dépôt public sans README : ton profil GitHub est ton portfolio."}
+ ]},
+ {id:"a-jour", ic:"refresh", t:"Rester à jour avec main", cards:[
+  {id:"maj-branche", t:"Mettre sa branche à jour avec main", k:"pull origin main mettre a jour branche retard collegue",
+   s:[["0. Vérifier sa branche et l'état (add + commit d'abord s'il y a des modifs)", c`git status`],["1. Être sur SA branche", c`git switch marco_b`],["2. Ramener le main de GitHub dans sa branche", c`git pull origin main`]],
+   why:"`git pull origin main` = « va chercher `main` sur GitHub (`origin`) et intègre-le dans la branche où je suis ».",
+   tip:"Quand ? Au début de chaque séance, et après chaque PR fusionnée (la tienne ou celle d'un collègue).",
+   trap:"Le piège vécu : `main` était à jour sur GitHub, mais pas ma branche. Un collègue avait modifié `film_propre.csv` (3 105 → 3 508 films), et je travaillais sur l'ancienne version."},
+  {id:"fichier-change", t:"Savoir si un fichier a changé sur GitHub", k:"fetch diff stat origin main fichier change comparer",
+   s:[["Regarder les nouveautés, sans rien modifier", c`git fetch origin`],["Comparer MON fichier avec celui de main sur GitHub", c`git diff --stat origin/main -- data/propre/film_propre.csv`]],
+   tip:"Rien ne s'affiche : fichiers identiques. Une ligne avec des `+` et des `-` : le fichier est différent, fais un `git pull origin main`."},
+  {id:"supprimer-branche", t:"Supprimer une branche terminée (partout)", k:"supprimer branche github delete push origin delete",
+   s:[["1. Aller sur main et le mettre à jour", c`git switch main
+git pull`],["2. Supprimer la branche sur l'ordinateur", c`git branch -d ma-branche`],["3. Supprimer la branche sur GitHub", c`git push origin --delete ma-branche`]],
+   tip:"Après la fusion d'une PR, le bouton « Delete branch » de GitHub fait l'étape 3. On ne peut pas supprimer la branche où l'on se trouve : d'où le `git switch main` d'abord.",
+   why:"Continuer sur la même branche plutôt que la supprimer ? Possible : `git pull origin main` la remet à jour."}
+ ]},
+ {id:"messages", ic:"chat", t:"Les messages fréquents", cards:[
+  {id:"messages-git", t:"Ce que Git veut dire", k:"messages erreurs not a git repository rejected fetch first ahead behind nothing to commit crlf",
+   tab:[["Message","Ce que ça veut dire → quoi faire"],["`not a git repository`","tu n'es pas dans le dossier du projet → `cd`"],["`rejected ... fetch first`","GitHub a des commits que tu n'as pas → `git pull` puis `git push`"],["`'origin' does not appear to be a git repository`","le `remote add` a échoué → `git remote -v`"],["`nothing to commit, working tree clean`","tout est déjà enregistré"],["`LF will be replaced by CRLF`","simple information sur les fins de ligne Windows"],["`Your branch is ahead of 'origin/main'`","tu as des commits non envoyés → `git push`"],["`Your branch is behind`","GitHub a des nouveautés → `git pull`"],["`no changes added to commit`","des fichiers modifiés pas encore ajoutés → `git add`"],["`nothing added to commit but untracked files present`","seulement de nouveaux fichiers, jamais ajoutés → `git add`"],["`Please tell me who you are`","nom et e-mail pas configurés → `git config --global`"]]},
+  {id:"cinq-reflexes", t:"Les cinq réflexes du cours", k:"reflexes regles status branche gitignore diff staged pull",
+   tab:[["#","Réflexe"],["1","`git status` avant et après chaque commande"],["2","vérifier sa branche avant de commiter"],["3","écrire le `.gitignore` avant le premier `add`"],["4","relire avec `git diff --staged` ce qui va partir"],["5","`git pull` avant de travailler, et avant de pousser"]]}
+ ]}
+]}
+];
+
+
+/* ---------------- Outils ---------------- */
+const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmt = (s) => esc(s).split(/(`[^`]+`)/).map((p) => p.startsWith("`") && p.endsWith("`") && p.length > 1 ? "<code>" + p.slice(1, -1) + "</code>" : p.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")).join("");
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function hl(src){
+  /* Terminal : commentaires, textes entre guillemets, commandes, options */
+  const re = /(^|\s)(#[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(^|\n)(git|cd|ls|pwd|mkdir|touch|cat|echo|cp|mv|rm|rmdir|find|grep|head|tail|clear|code|python|pip|source|deactivate|bash|zsh|uv|man|def|for|return|print)\b|(\s)(--?[A-Za-z][\w-]*)/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    if (m[2] !== undefined) out += esc(m[1]) + '<span class="tc">' + esc(m[2]) + "</span>";
+    else if (m[3] !== undefined) out += '<span class="ts">' + esc(m[3]) + "</span>";
+    else if (m[5] !== undefined) out += esc(m[4]) + '<span class="tf">' + esc(m[5]) + "</span>";
+    else out += esc(m[6]) + '<span class="tk">' + esc(m[7]) + "</span>";
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+const P = {file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',grid:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 4v16"/>',filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',dots:'<circle cx="5" cy="16" r="1.8"/><circle cx="9" cy="13" r="1.8"/><circle cx="13" cy="15" r="1.8"/><circle cx="20" cy="5" r="2"/>',cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/>',pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h1M14 12h1M9 16h1M14 16h1"/>',tag:'<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',text:'<path d="M4 7V5h16v2M12 5v14M9 19h6"/>',group:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-6h8v6"/>',check:'<path d="M4 12l5 5L20 6"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',scale:'<path d="M12 3v18M5 21h14M4 8h16"/><path d="M4 8l-2 6a3 3 0 0 0 4 0zM20 8l-2 6a3 3 0 0 0 4 0z"/>',list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',code:'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',branch:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4-6 3-11 7"/>',loop:'<path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/>',bug:'<rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 7V4M9 4l1.5 3M15 4l-1.5 3M3 12h4M17 12h4M4 18l3-2M20 18l-3-2M4 7l3 2M20 7l-3 2"/>',key:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',venn:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>',fx:'<path d="M14 4c-3 0-4 2-4 5v11M7 10h7M15 13l5 6M20 13l-5 6"/>',bolt:'<path d="M13 3L4 14h7l-1 7 9-11h-7z"/>',pkg:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/>',brush:'<path d="M4 20c3 0 5-1 5-4a3 3 0 0 1 3-3l8-8-2-2-8 8a3 3 0 0 1-3-3"/>',tool:'<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19l-3 1 1-3 7.5-7.5a4 4 0 0 1-3-3z"/><path d="M5 5l4 4"/>',braces:'<path d="M8 4c-2 0-3 1-3 3v2c0 1.5-1 3-2 3 1 0 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 3 2 3-1 0-2 1.5-2 3v2c0 2-1 3-3 3"/>',terminal:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',folder:'<path d="M3 6h6l2 2h10v11H3z"/>',window:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/>',history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',cloud:'<path d="M7 18a5 5 0 0 1-.5-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3-5.5 6.5-5.5s6 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.5 0 4.2 1.5 4.5 4"/>',refresh:'<path d="M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>'};
+const icon = (k, s) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (P[k] || "") + "</svg>";
+const ICON_COPY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const ICON_OK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5 9-10"/></svg>';
+const ICON_DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
+const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
+/*OUT*/const OUT = {
+ "ouvrir-terminal#0": {out:[["o", c`git version 2.47.0.windows.2`], ["i", "Le numéro n'a aucune importance : seul compte le fait qu'un numéro s'affiche. Sur Mac : « git version 2.39.5 (Apple Git-154) »."]]},
+ "pwd-ls#0": {out:[["o", c`/c/Users/VotrePrenom`], ["i", "Sous Git Bash. Sur Mac : /Users/votreprenom."]]},
+ "pwd-ls#1": {out:[["o", c`Documents    Downloads    Images    Musique    Vidéos`], ["i", "La liste dépend de ta machine."]]},
+ "pwd-ls#2": {ctx:"# dans le projet collecte", out:[["o", c`./  ../  .git/  .venv/  data/  notebooks/  src/`]]},
+ "cd#0": {ctx:"# depuis ton dossier personnel", out:[["a", "pwd"], ["o", c`/c/Users/VotrePrenom/Documents`], ["i", "Le chemin s'est allongé d'un cran. Retape maintenant la même commande, depuis Documents :"], ["a", "cd Documents"], ["e", "bash: cd: Documents: No such file or directory"], ["i", "Normal : tu es déjà dedans. Après cd .., la même commande remarche."]]},
+ "projet-collecte#3": {out:[["o", c`data  notebooks  README.md  src`]]},
+ "echo-cat#0": {out:[["i", "Rien ne s'affiche : le texte est parti dans le fichier au lieu de l'écran."]]},
+ "echo-cat#1": {out:[["o", c`Semaine 8 - Terminal OK`]]},
+ "chercher#0": {out:[["o", c`notes.txt`]]},
+ "chercher#1": {out:[["o", c`Semaine 8 - Terminal OK`]]},
+ "chercher#2": {out:[["i", "Rien ne s'affiche. Ce n'est pas une panne : grep n'a trouvé aucune ligne, il n'en affiche aucune."]]},
+ "script#1": {out:[["o", c`Début du script
+notes.txt    script.sh
+Semaine 8 - Terminal OK
+Fin du script`]]},
+ "lancer-script#0": {out:[["o", c`Bonjour depuis mon script`]]},
+ "moyenne-cassee#1": {out:[["o", c`La moyenne des notes est : 10.8`], ["i", "Faux : la bonne moyenne est 13.6. Avec `for note in notes:`, on obtient bien 13.6."]]},
+ "creer-venv#0": {out:[["i", "Rien ne s'affiche : le prompt revient, c'est tout. C'est normal."]]},
+ "creer-venv#1": {out:[["o", c`./  ../  .venv/  data/  notebooks/  README.md  src/`]]},
+ "activer-venv#0": {out:[["o", c`(.venv) $`], ["i", "(.venv) apparaît au début de la ligne : l'environnement est actif."]]},
+ "activer-venv#3": {out:[["o", c`/c/Users/.../Documents/collecte/.venv/Scripts/python.exe`], ["i", "Le chemin passe par ton projet. Après deactivate, il repart vers le Python global (AppData)."]]},
+ "pip#0": {ctx:"# juste après l'activation", out:[["o", c`Package    Version
+---------- -------
+pip        24.0
+setuptools 65.5.0`], ["i", "Presque vide : la preuve de l'isolation."]]},
+ "freeze#1": {out:[["o", c`matplotlib==3.10.0
+numpy==2.2.3
+pandas==2.2.3`], ["i", "Une ligne par bibliothèque, de la forme nom==version (extrait)."]]},
+ "config#3": {out:[["o", c`user.name=Prénom Nom
+user.email=ton.email@exemple.fr
+init.defaultbranch=main`]]},
+ "git-init#0": {out:[["o", c`Initialized empty Git repository in /c/Users/vous/Documents/collecte/.git/`]]},
+ "git-status#0": {ctx:"# juste après git init", out:[["o", c`On branch main
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .venv/
+        README.md
+        data/
+        notebooks/
+        src/
+
+nothing added to commit but untracked files present`], ["i", "Untracked : Git voit le fichier mais ne le suit pas encore. C'est le moment d'écrire le .gitignore."]]},
+ "git-status#1": {ctx:"# après git add .gitignore src/collecte.py", out:[["o", c`A  .gitignore
+A  src/collecte.py`], ["i", "A pour Added, en première colonne : la colonne de l'index."]]},
+ "git-add#0": {out:[["a", "git status"], ["o", c`Changes to be committed:
+        new file:   src/premier_script.py`]]},
+ "git-commit#0": {out:[["o", c`[main (root-commit) 8b564e2] Ajoute le premier script et le README
+ 2 files changed, 4 insertions(+)`]]},
+ "check-ignore#0": {out:[["o", c`.gitignore:1:.env    .env
+.gitignore:2:data/   data/brut.csv`], ["i", "Git dit quelle ligne du .gitignore a filtré quel fichier."]]},
+ "git-log#0": {out:[["o", c`ab05070 Ajoute l'URL du site à collecter
+7578288 Ajoute le script de collecte et le .gitignore`]]},
+ "git-log#2": {ctx:"# après la fusion avec conflit", out:[["o", c`*   e183052 Merge branch 'titre-court'
+|\
+| * 751da35 Raccourcit le titre du README
+* | aa2161d Precise le titre du README
+|/
+* caf717a Ajoute le calcul de la mediane
+* 9db5448 Initialise le projet avec README et stats`], ["i", "L'historique s'ouvre en deux, puis se referme : c'est le dessin d'une fusion."]]},
+ "git-diff#0": {ctx:"# après avoir ajouté une ligne à src/collecte.py", out:[["o", c`diff --git a/src/collecte.py b/src/collecte.py
+--- a/src/collecte.py
++++ b/src/collecte.py
+@@ -1,3 +1,5 @@
+ import pandas as pd
+
++URL = "https://books.toscrape.com/"
++
+ print("collecte")`]]},
+ "git-diff#1": {ctx:"# après git add src/premier_script.py", out:[["o", c`+print("Bonjour depuis mon script")`], ["i", "Le même git diff, sans --staged, n'affiche plus rien : tout est dans l'index."]]},
+ "restore#1": {out:[["a", "git status -s"], ["o", c` M src/collecte.py`], ["i", "La lettre est passée de la première colonne (index) à la seconde (modifié, pas indexé). L'espace au début compte."]]},
+ "branche-quoi#0": {out:[["o", c`* main`]]},
+ "switch#0": {out:[["o", c`Switched to a new branch 'ajout-mediane'`], ["a", "git branch"], ["o", c`* ajout-mediane
+  main`]]},
+ "merge#1": {out:[["o", c`Updating 9db5448..caf717a
+Fast-forward
+ src/stats.py | 5 +++++
+ 1 file changed, 5 insertions(+)`]]},
+ "supprimer-branche-locale#0": {out:[["o", c`Deleted branch titre-long (was aa2161d).
+Deleted branch titre-court (was 751da35).`]]},
+ "conflit-voir#0": {out:[["o", c`Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Automatic merge failed; fix conflicts and then commit the result.`]]},
+ "conflit-voir#1": {out:[["o", c`On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+        both modified:   README.md`], ["i", "Git donne la marche à suivre et la sortie de secours. both modified : vous avez tous les deux touché ce fichier."]]},
+ "conflit-resoudre#1": {out:[["o", c`UU README.md`]]},
+ "conflit-resoudre#2": {out:[["a", "git status -s"], ["i", "Sortie vide : en ajoutant le fichier, tu as dit à Git « c'est réglé »."]]},
+ "merge-abort#0": {out:[["a", "git status -s"], ["i", "Sortie vide : le dépôt est revenu exactement à son état d'avant la fusion."]]},
+ "jeton#0": {out:[["i", "Colle le jeton à la place du mot de passe. Rien ne s'affiche pendant que tu colles : c'est normal."]]},
+ "remote-add#1": {out:[["o", c`origin  https://github.com/ton-pseudo/collecte.git (fetch)
+origin  https://github.com/ton-pseudo/collecte.git (push)`]]},
+ "pull-fetch#3": {ctx:"# après un commit fait sur GitHub, puis git fetch", out:[["o", c`Your branch is behind 'origin/main' by 1 commit, and can be fast-forwarded.
+  (use "git pull" to update your local branch)`]]},
+ "remote-erreurs#2": {out:[["i", "Le message qui y mène : Updates were rejected because the remote contains work that you do not have locally. Ensuite : git push -u origin main."]]}
+};
+/*/OUT*/
+const SNIPS = [];
+const ICON_RUN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l11 7-11 7z"/></svg>';
+function result(key){
+  const r = OUT[key]; if (!r) return "";
+  let h = '<p class="rt">Résultat</p>';
+  if (r.ctx) h += '<div class="ctx"><span class="tag">Situation</span><pre>' + hl(r.ctx) + "</pre></div>";
+  r.out.forEach((o) => {
+    if (o[0] === "o" || o[0] === "v") h += "<pre>" + esc(o[1]) + "</pre>";
+    else if (o[0] === "t") h += '<div class="tw">' + o[1] + "</div>";
+    else if (o[0] === "img") h += '<img src="' + o[1] + '" alt="Boîte à moustaches de Fare">';
+    else if (o[0] === "e") h += '<pre class="err">' + esc(o[1]) + "</pre>";
+    else if (o[0] === "a") h += '<div class="alt"><span class="tag">Puis</span><pre>' + hl(o[1]) + "</pre></div>";
+    else if (o[0] === "i") h += '<p class="info">' + fmt(o[1]) + "</p>";
+  });
+  return h;
+}
+let nRes = 0;
+function snip([lab, code], key){
+  SNIPS.push(code);
+  const id = "r" + (nRes++), has = !!OUT[key];
+  return '<div class="snip"><p class="lab">' + fmt(lab) + '</p><div class="cl"' + (has ? ' data-r="' + id + '"' : "") + '><pre><code>' + hl(code) + "</code></pre>"
+    + (has ? '<button class="run" type="button" aria-expanded="false" aria-controls="' + id + '" title="Voir le résultat" aria-label="Voir le résultat : ' + esc(lab) + '">' + ICON_RUN + "</button>" : "")
+    + '<button class="cp" type="button" data-i="' + (SNIPS.length - 1) + '" title="Copier" aria-label="Copier : ' + esc(lab) + '">' + ICON_COPY + "<span>Copié</span></button></div>"
+    + (has ? '<div class="res" id="' + id + '" hidden>' + result(key) + "</div>" : "") + "</div>";
+}
+function venn(kind){
+  const L = '<circle cx="17" cy="14" r="11"', R = '<circle cx="31" cy="14" r="11"', f = ' fill="var(--teal)" fill-opacity=".45"', o = ' fill="none" stroke="var(--teal)" stroke-width="1.6"/>';
+  const fill = kind === "left" ? L + f + "/>" : kind === "right" ? R + f + "/>" : kind === "inner" ? R + f + ' clip-path="url(#cpL)"/>' : L + f + "/>" + R + f + "/>";
+  return '<svg width="48" height="28" viewBox="0 0 48 28" aria-label="' + kind + '">' + fill + L + o + R + o + "</svg>";
+}
+const cell = (v) => v.startsWith("@venn:") ? venn(v.slice(6)) : fmt(v);
+const table = (rows) => '<div class="tbl"><table><thead><tr>' + rows[0].map((h) => "<th>" + fmt(h) + "</th>").join("") + "</tr></thead><tbody>"
+  + rows.slice(1).map((r) => "<tr>" + r.map((v, j) => '<td data-l="' + esc(rows[0][j].replace(/`/g, "")) + '">' + cell(v) + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+
+const FIGS = {};
+
+/* ---------------- Rendu ---------------- */
+const main = document.getElementById("main"), tocEl = document.getElementById("toc");
+document.getElementById("goldsnips").innerHTML = GOLD.map((p, i) => snip(p, "gold#" + i)).join("");
+let html = "", toc = "";
+const ALL = [];
+GROUPS.forEach((G, gi) => {
+  const gc = "--gc:var(--" + G.col + ")";
+  const isSteps = G.sections.some((s) => s.step);
+  const pdf = "pdf/memo-git-" + (gi + 1) + "-" + norm(G.g).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".pdf";
+  html += '<p class="grp" data-g="' + gi + '" style="' + gc + '">' + esc(G.g) + '<a href="' + pdf.replace(".pdf", "-court.pdf") + '" download title="Cette partie en PDF, version courte">' + ICON_DL + 'PDF court</a><a href="' + pdf + '" download title="Cette partie en PDF, avec les « Pourquoi ? »">' + ICON_DL + "PDF complet</a></p>";
+  toc += '<div class="tg" style="' + gc + '"><h4>' + esc(G.g) + "</h4>" + (G.note ? '<p class="gnote">' + esc(G.note) + "</p>" : "") + '<ol class="' + (isSteps ? "steps" : "") + '">';
+  G.sections.forEach((s) => {
+    s.g = gi;
+    const badge = s.step ? "<b>" + s.step + "</b>" : icon(s.ic, 20);
+    html += '<section class="sec" id="' + s.id + '" style="' + gc + '"><div class="sh"><span class="ic">' + badge + "</span><h2>" + esc(s.t) + "</h2>" + "" + "</div>";
+    s.cards.forEach((cd) => {
+      cd.hay = norm([cd.t, cd.k, cd.lead || "", (cd.s || []).map((x) => x.join(" ")).join(" "), cd.why || "", cd.tip || "", cd.trap || "", s.t].join(" "));
+      html += '<article class="card" id="' + cd.id + '"><h3><a href="#' + cd.id + '">' + esc(cd.t) + "</a>" + (cd.comp ? '<span class="comp">Complément</span>' : "") + "</h3>"
+        + (cd.lead ? '<p class="lead">' + fmt(cd.lead) + "</p>" : "")
+        + (cd.fig ? FIGS[cd.fig]() : "")
+        + (cd.s || []).map((p, i) => snip(p, cd.id + "#" + i)).join("")
+        + (cd.tab ? table(cd.tab) : "")
+        + ((cd.why || cd.tip || cd.trap) ? '<div class="notes">'
+          + (cd.tip ? '<div class="note tip">' + ICON_TIP + "<div><strong>Astuce.</strong> " + fmt(cd.tip) + "</div></div>" : "")
+          + (cd.trap ? '<div class="note trap">' + ICON_TRAP + "<div><strong>Piège.</strong> " + fmt(cd.trap) + "</div></div>" : "")
+          + (cd.why ? '<details class="why"><summary>Pourquoi ?</summary><div>' + fmt(cd.why) + "</div></details>" : "")
+          + "</div>" : "")
+        + "</article>";
+    });
+    html += "</section>";
+    toc += '<li data-s="' + s.id + '"><a href="#' + s.id + '"><span class="ic">' + (s.step ? s.step : icon(s.ic, 15)) + "</span><span>" + esc(s.t) + "</span></a></li>";
+    ALL.push(s);
+  });
+  toc += "</ol></div>";
+});
+main.insertAdjacentHTML("beforeend", html);
+tocEl.innerHTML = toc;
+
+/* ---------------- Copier ---------------- */
+function fallbackCopy(txt){
+  const ta = document.createElement("textarea");
+  ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove(); return ok;
+}
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest(".cp"); if (!b) return;
+  const txt = SNIPS[+b.dataset.i];
+  let ok = false;
+  try { await navigator.clipboard.writeText(txt); ok = true; } catch (err) { ok = fallbackCopy(txt); }
+  if (!ok) { const r = document.createRange(); r.selectNodeContents(b.previousElementSibling); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); return; }
+  b.innerHTML = ICON_OK + "<span>Copié</span>"; b.classList.add("ok");
+  setTimeout(() => { b.innerHTML = ICON_COPY + "<span>Copié</span>"; b.classList.remove("ok"); }, 1400);
+});
+
+/* ---------------- Menu PDF ---------------- */
+const pdfm = document.querySelector(".pdfm");
+document.addEventListener("click", (e) => { if (pdfm.open && !pdfm.contains(e.target)) pdfm.open = false; });
+pdfm.addEventListener("click", (e) => { if (e.target.closest("a")) pdfm.open = false; });
+
+/* ---------------- Résultats : un clic sur le code ---------------- */
+function toggleRes(cl, on){
+  const res = document.getElementById(cl.dataset.r), b = cl.querySelector(".run");
+  if (on === undefined) on = res.hidden;
+  res.hidden = !on; b.setAttribute("aria-expanded", on); cl.parentElement.classList.toggle("open", on);
+}
+document.addEventListener("click", (e) => {
+  const cl = e.target.closest(".cl[data-r]"); if (!cl || e.target.closest(".cp")) return;
+  if (!e.target.closest(".run") && String(getSelection()).trim()) return;
+  toggleRes(cl);
+});
+const resBtn = document.getElementById("resall");
+resBtn.addEventListener("click", () => {
+  const on = resBtn.getAttribute("aria-pressed") !== "true";
+  resBtn.setAttribute("aria-pressed", on);
+  document.querySelectorAll(".cl[data-r]").forEach((cl) => toggleRes(cl, on));
+});
+
+/* ---------------- Recherche ---------------- */
+const q = document.getElementById("q"), emptyEl = document.getElementById("empty");
+const gold = document.querySelector(".gold");
+function search(){
+  const words = norm(q.value.trim()).split(/\s+/).filter(Boolean);
+  let shown = 0; const gCount = {};
+  ALL.forEach((s) => {
+    let inSec = 0;
+    s.cards.forEach((cd) => {
+      const ok = words.every((w) => cd.hay.includes(w));
+      document.getElementById(cd.id).classList.toggle("hide", !ok);
+      if (ok) inSec++;
+    });
+    document.getElementById(s.id).classList.toggle("hide", !inSec);
+    tocEl.querySelector('li[data-s="' + s.id + '"]').classList.toggle("hide", !inSec);
+    gCount[s.g] = (gCount[s.g] || 0) + inSec;
+    shown += inSec;
+  });
+  document.querySelectorAll(".grp").forEach((el) => el.classList.toggle("hide", !gCount[el.dataset.g]));
+  gold.style.display = words.length ? "none" : "";
+  emptyEl.classList.toggle("show", shown === 0);
+}
+let wasSearching = false;
+q.addEventListener("input", () => {
+  search();
+  const s = q.value.trim() !== "";
+  if (s && !wasSearching) window.scrollTo({top: document.querySelector(".bar").offsetTop});
+  wasSearching = s;
+});
+q.addEventListener("keydown", (e) => { if (e.key === "Escape") { q.value = ""; search(); wasSearching = false; } });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  if (e.key === "Escape") document.body.classList.remove("tocopen");
+});
+
+/* ---------------- Tous les pourquoi ---------------- */
+const whyBtn = document.getElementById("whyall");
+whyBtn.addEventListener("click", () => {
+  const on = whyBtn.getAttribute("aria-pressed") !== "true";
+  whyBtn.setAttribute("aria-pressed", on);
+  document.querySelectorAll("details.why").forEach((d) => { d.open = on; });
+});
+
+/* ---------------- Sommaire : tiroir sur téléphone, section active ---------------- */
+document.getElementById("menu").addEventListener("click", () => document.body.classList.add("tocopen"));
+document.getElementById("scrim").addEventListener("click", () => document.body.classList.remove("tocopen"));
+tocEl.addEventListener("click", (e) => { if (e.target.closest("a")) document.body.classList.remove("tocopen"); });
+const secObserver = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) tocEl.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+  });
+}, {rootMargin: "-90px 0px -65% 0px"});
+document.querySelectorAll("section.sec").forEach((s) => secObserver.observe(s));
+
+/* ---------------- Thème ---------------- */
+const root = document.documentElement, themeBtn = document.getElementById("theme");
+try { const t = localStorage.getItem("memo-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+themeBtn.addEventListener("click", () => {
+  root.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("memo-theme", root.dataset.theme); } catch (e) {}
+});
+
+/* ---------------- PDF dans la version Claude ----------------
+   Sur GitHub Pages, les liens « download » marchent tout seuls.
+   Dans la version Claude, la page passe par la fenêtre de confirmation de téléchargement. */
+if (window.claude && typeof window.claude.use === "function") {
+  window.claude.use("downloads").then((dl) => {
+    if (!dl) return;
+    document.addEventListener("click", async (e) => {
+      const a = e.target.closest("a[download]"); if (!a) return;
+      e.preventDefault();
+      try {
+        const blob = await (await fetch(a.href)).blob();
+        await dl.save({filename: a.getAttribute("href").split("/").pop(), data: blob});
+      } catch (err) { /* refusé ou indisponible : rien à faire */ }
+    });
+  }).catch(() => {});
+}
+}
+</script>
+</body>
+</html>
