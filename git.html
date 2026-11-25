@@ -298,134 +298,12 @@ footer{border-top:1px solid var(--line);padding:22px 0 44px;color:var(--mute);fo
 const c = String.raw;
 const GOLD = [["1. Récupérer la dernière version (en équipe)", c`git pull`], ["2. Voir ce qui a changé", c`git status`], ["3. Préparer les fichiers modifiés", c`git add .`], ["4. Enregistrer une étape", c`git commit -m "Ajoute le filtre sur les dates"`], ["5. Envoyer sur GitHub", c`git push`]];
 const GROUPS = [
-{g:"Guides pas à pas", col:"green", note:"Les marches à suivre complètes, du début à la fin. Un bloc = une étape.", sections:[
- {id:"guide-projet", ic:"rocket", step:1, t:"Créer un projet Python et le mettre sur GitHub", cards:[
-  {id:"gp-dossier", t:"1. Le dossier du projet", k:"guide projet creer dossier code point vscode nouveau projet",
-   lead:"Les commandes sont pour Git Bash. Dans VS Code : terminal intégré (Ctrl + ù), puis Git Bash dans la petite flèche à droite du +.",
-   s:[["Créer le dossier, y entrer, l'ouvrir dans VS Code", c`cd ~/Documents
-mkdir nom-du-projet
-cd nom-du-projet
-code .`]],
-   why:"VS Code s'ouvre sur le dossier : reprends ensuite le terminal intégré de cette nouvelle fenêtre. Il s'ouvre directement au bon endroit.",
-   tip:"Nom sans accent ni espace (minuscules et tirets) : il servira aussi de nom au dépôt GitHub."},
-  {id:"gp-venv", t:"2. L'environnement virtuel, et la vérification", k:"guide venv creer activer verifier which python pip -V",
-   s:[["Créer et activer (Windows, Git Bash)", c`python -m venv .venv
-source .venv/Scripts/activate`],["Sur macOS / Linux, l'activation devient", c`source .venv/bin/activate`],["Vérifier : les deux chemins doivent contenir .venv", c`which python
-pip -V`]],
-   why:"Tu dois voir **(.venv)** au début de la ligne. `which python` dit quel Python répond, `pip -V` où pip installe : si le chemin ne contient pas `.venv`, l'activation n'a pas pris.",
-   trap:"Recommence l'activation avant d'installer quoi que ce soit : sinon tout part dans le Python global, sans aucun message."},
-  {id:"gp-deps", t:"3. Les bibliothèques et la structure", k:"guide pip install ipykernel notebook structure data notebooks pip list",
-   s:[["Installer ce dont le projet a besoin (ipykernel : pour les notebooks)", c`pip install pandas notebook ipykernel`],["Créer la structure", c`mkdir data notebooks src`],["Contrôler : une liste courte = environnement isolé", c`pip list`]],
-   trap:"Une liste de deux cents paquets veut dire que tu installes dans le Python global, pas dans ton projet."},
-  {id:"gp-kernel", t:"4. Le notebook et son noyau (kernel)", k:"guide notebook kernel select kernel sys executable getcwd chemin data",
-   lead:"Crée `notebooks/analyse.ipynb` dans l'explorateur de VS Code. En haut à droite : **Select Kernel** → celui dont le chemin contient `.venv`.",
-   s:[["Première cellule : vérifier le Python et le dossier de travail", c`import sys, os
-print(sys.executable)
-print(os.getcwd())`],["Le notebook tourne depuis notebooks/ : on remonte d'un dossier pour lire les données", c`df = pd.read_csv("../data/ventes.csv")`]],
-   why:"`sys.executable` doit contenir `.venv` ; `os.getcwd()` se termine par `notebooks`. Les deux points `..` remontent d'un dossier.",
-   trap:"Le noyau du notebook est indépendant du terminal. Oublié, il donne le symptôme le plus déroutant : `pip install` répond « Successfully installed », et la cellule suivante « No module named pandas »."},
-  {id:"gp-git-local", t:"5. Git en local : identité, .gitignore, premier commit", k:"guide git config gitignore init status premier commit requirements",
-   s:[["Git me connaît-il ? (rien ne s'affiche = pas configuré)", c`git config --global user.name
-git config --global user.email`],["Sinon, se présenter (avec l'adresse du compte GitHub)", c`git config --global user.name "Prénom Nom"
-git config --global user.email "ton.adresse@exemple.fr"`],["Contenu du fichier .gitignore, à la racine", c`.venv/
-__pycache__/
-.ipynb_checkpoints/
-.history/
-.env`],["Initialiser et contrôler : .venv/ ne doit PAS apparaître", c`git init
-git status`],["Figer les bibliothèques, puis le premier commit", c`pip freeze > requirements.txt
-git add .
-git commit -m "Mise en place du projet"`]],
-   trap:"Crée le `.gitignore` dans VS Code, pas avec le Bloc-notes, qui ajoute en silence `.txt` à la fin. Si `.venv/` apparaît dans `git status`, le `.gitignore` n'est pas à la racine ou contient une faute de frappe : corrige avant de continuer.",
-   tip:"Et `data/` ? Ça dépend du projet : on l'ignore si c'est lourd ou récupérable, on le garde si les CSV sont le résultat de ton travail."},
-  {id:"gp-github", t:"6. Le dépôt GitHub, strictement vide", k:"guide github new depot vide readme license public",
-   tab:[["Champ","Ce que tu mets"],["Repository name","le nom du dossier, sans accent ni espace (GitHub remplace le reste par des tirets)"],["Visibilité","Public"],["Add a README","décoché"],["Add .gitignore","None"],["Choose a license","None"]],
-   why:"Un dépôt qui contient déjà un fichier a son propre historique : ton push serait refusé pour « historiques divergents »."},
-  {id:"gp-push", t:"7. Relier et envoyer", k:"guide remote add origin branch main push u remote v chevrons",
-   s:[["Relier (URL copiée depuis GitHub, collée telle quelle), puis envoyer", c`git remote add origin URL_COPIEE_DEPUIS_GITHUB
-git branch -M main
-git push -u origin main`],["Contrôler : deux lignes commençant par origin", c`git remote -v`]],
-   trap:"Colle l'URL sans chevrons `< >` ni guillemets. Pour le terminal, `<` veut dire « lis ce fichier » : tu obtiendrais `bash: syntax error near unexpected token`, puis `fatal: 'origin' does not appear to be a git repository` au push.",
-   tip:"Au push, une fenêtre d'authentification s'ouvre : choisis **Sign in with your browser** si elle le propose. Sous Windows, le gestionnaire d'identification s'en souvient ensuite. Sinon, c'est le jeton (fiche « Le jeton »)."},
-  {id:"gp-quotidien", t:"8. Le quotidien, ensuite", k:"guide quotidien pull add commit push requirements binome",
-   s:[["Chaque séance", c`git pull
-git add .
-git commit -m "Message explicite"
-git push`],["J'installe une nouvelle bibliothèque : régénérer la liste, puis la pousser", c`pip freeze > requirements.txt
-git add requirements.txt
-git commit -m "Ajoute seaborn aux dépendances"
-git push`],["Mon binôme récupère et installe", c`git pull
-pip install -r requirements.txt`]],
-   why:"Le `git pull` d'ouverture, avant de coder, évite la grande majorité des conflits à plusieurs.",
-   trap:"`pip freeze >` écrase le fichier : si ton binôme avait une bibliothèque que tu n'as pas, elle disparaît de la liste sans un mot."}
- ]},
- {id:"guide-clone", ic:"download", step:2, t:"Récupérer un projet (clone) et le faire tourner", cards:[
-  {id:"gc-clone", t:"1. Cloner au bon endroit", k:"guide clone cloner projet camarade dossier neutre nom",
-   s:[["Se placer dans un dossier « neutre » (pas dans un autre dépôt)", c`cd ~/Documents
-pwd`],["Copier le projet et tout son historique", c`git clone URL_DU_DEPOT`],["Ou en choisissant le nom du dossier créé", c`git clone URL_DU_DEPOT python_test_clone`],["Entrer dans le dossier et contrôler le lien et l'historique", c`cd python_test_clone
-git remote -v
-git log --oneline -5`]],
-   why:"`clone` crée le dossier, télécharge tout l'historique et configure `origin` : pas de `git init` ni de `remote add` derrière.",
-   trap:"Jamais à l'intérieur d'un autre dépôt Git. Vérifie avec `pwd` avant de cloner."},
-  {id:"gc-venv", t:"2. Recréer l'environnement (il n'est pas sur GitHub)", k:"guide clone venv recreer requirements install -r",
-   s:[["Créer, activer, réinstaller la liste du projet", c`python -m venv .venv
-source .venv/Scripts/activate
-pip install -r requirements.txt`],["Contrôler le Python utilisé", c`python -c "import sys; print(sys.executable)"`],["Le projet a un pyproject.toml et pas de requirements.txt ? Il est géré avec uv", c`uv sync`]],
-   why:"Le `.venv` est dans le `.gitignore` : un clone ne le récupère jamais. C'est voulu : on partage la liste (`requirements.txt`), et chacun reconstruit sa bulle.",
-   tip:"Dans VS Code : **Python: Select Interpreter** et, pour un notebook, **Select Kernel** → le `.venv` du projet cloné."},
-  {id:"gc-travailler", t:"3. Travailler sans toucher à main", k:"guide clone branche travailler switch c premier push",
-   s:[["Partir de la dernière version, sur sa propre branche", c`git switch main
-git pull
-git switch -c ma-tache`],["Envoyer sa branche la première fois", c`git push -u origin ma-tache`]],
-   tip:"Pour pousser sur le dépôt d'un camarade, il doit t'ajouter : **Settings → Collaborators** (invitation à accepter par e-mail)."},
-  {id:"gc-pieges", t:"Les pièges du clone", k:"guide clone pieges mauvais dossier venv actif repositories collaborateur",
-   tab:[["Situation","Ce qui se passe"],["Un dépôt partagé n'est pas dans l'onglet « Repositories » de mon profil","normal : il ne liste que tes propres dépôts. Les autres sont sur la page d'accueil de GitHub, colonne de gauche. Mets l'URL en favori."],["`git add` ne prépare rien alors que j'ai modifié le fichier","ton terminal est dans un autre dossier (l'autre copie du projet) : chaque dépôt a son propre index → `pwd`"],["Le terminal affiche encore (.venv) dans le nouveau projet","`cd` ne change pas d'environnement : `deactivate`, puis active celui du projet"],["Download ZIP au lieu de clone","pas d'historique, pas de branches, impossible de contribuer"]],
-   comp:true}
- ]},
- {id:"guide-equipe", ic:"users", step:3, t:"Une tâche en équipe, de l'issue à la fusion", cards:[
-  {id:"ge-issue", t:"1. Une issue, une branche", k:"guide equipe issue branche switch pull tache",
-   lead:"Sur GitHub, onglet **Issues → New issue** : un titre précis (« Ajouter un script d'analyse des ventes »). Elle reçoit un numéro, par exemple #1.",
-   s:[["Partir de main à jour, créer la branche de la tâche", c`git switch main
-git pull
-git switch -c ajout-analyse-csv`]]},
-  {id:"ge-commit", t:"2. Travailler, enregistrer, envoyer la branche", k:"guide equipe add commit push u origin branche",
-   s:[["Préparer, relire, enregistrer", c`git status
-git add src/analyse_csv.py
-git diff --staged
-git commit -m "Ajoute un premier script d'analyse CSV"`],["Envoyer la branche sur GitHub", c`git push -u origin ajout-analyse-csv`]]},
-  {id:"ge-pr", t:"3. La Pull Request", k:"guide equipe pull request compare base files changed merge closes",
-   tab:[["Étape","Sur GitHub"],["Ouvrir","bandeau **Compare & pull request** (ou Pull requests → New)"],["Choisir","base = `main` ← compare = `ajout-analyse-csv`"],["Décrire","ce que tu as fait et pourquoi, + `Closes #1` pour fermer l'issue à la fusion"],["Relire","onglet **Files changed** (ex. 1 fichier, 4 lignes ajoutées)"],["Fusionner","**Merge pull request** puis **Confirm merge**"],["Nettoyer","**Delete branch**"]],
-   trap:"Ouvrir une Pull Request ne fusionne rien : le travail reste sur sa branche tant que le merge n'est pas validé."},
-  {id:"ge-apres", t:"4. Après la fusion : se remettre à jour et nettoyer", k:"guide equipe apres fusion pull branch d delete prune ls-remote",
-   s:[["Revenir sur main et récupérer la fusion faite sur GitHub", c`git switch main
-git pull`],["Supprimer la branche sur l'ordinateur, puis sur GitHub", c`git branch -d ajout-analyse-csv
-git push origin --delete ajout-analyse-csv`],["Oublier les références des branches supprimées", c`git fetch --prune`]],
-   why:"Supprimer la branche ne supprime pas son travail : la PR l'a intégré à `main`. Tu ne supprimes que l'étiquette."}
- ]},
- {id:"guide-diagnostic", ic:"search", step:4, t:"Diagnostic : Python ne trouve pas ma bibliothèque", cards:[
-  {id:"gd-trois", t:"Les trois vérifications qui tranchent", k:"diagnostic modulenotfounderror pip -V pip list sys executable pip show location",
-   s:[["Dans le terminal : où pip installe, et ce qui est installé ici", c`pip -V
-pip list`],["Dans le notebook : sur quel Python tourne le noyau", c`import sys; print(sys.executable)`],["Où est installée une bibliothèque précise (ligne Location)", c`pip show pandas`]],
-   why:"Si les trois chemins contiennent `.venv`, tout est en ordre. Dans neuf cas sur dix, `ModuleNotFoundError` après une installation réussie veut dire que le noyau du notebook ne pointe pas sur le `.venv` : corrige avec **Select Kernel**."},
-  {id:"gd-checklist", t:"La checklist complète", k:"diagnostic checklist pwd venv interpreteur kernel",
-   tab:[["#","Question","Vérification"],["1","Suis-je dans le bon projet ?","`pwd`"],["2","L'environnement est-il actif ?","`(.venv)` au début de la ligne"],["3","Quel Python répond ?","`python -c \"import sys; print(sys.executable)\"`"],["4","La bibliothèque est-elle là ?","`pip list`"],["5","VS Code utilise-t-il le même ?","interpréteur (barre d'état) et kernel du notebook"]],
-   tip:"Le dossier ouvert, l'interpréteur des scripts et le kernel du notebook sont trois réglages distincts : les trois doivent pointer sur le même projet.",
-   comp:true}
- ]},
- {id:"guide-commit", ic:"check", step:5, t:"Avant chaque commit et chaque push", cards:[
-  {id:"gk-checklist", t:"La checklist en six questions", k:"checklist avant commit push pwd branche status diff staged",
-   s:[["Où suis-je, sur quelle branche, qu'est-ce qui a changé ?", c`pwd
-git branch --show-current
-git status`],["Qu'est-ce qui va vraiment partir ?", c`git diff --staged`]],
-   tab:[["#","Question"],["1","`pwd` : suis-je dans le bon dossier ?"],["2","`git branch --show-current` : sur la bonne branche ?"],["3","`git status` : que vais-je enregistrer ?"],["4","`git diff --staged` : ai-je relu le contenu ?"],["5","`git add fichier` puis `git commit -m \"Message clair\"`"],["6","`git push` : ai-je besoin de publier maintenant ?"]],
-   why:"Avec deux copies d'un projet ouvertes, l'explorateur de VS Code peut afficher l'une pendant que le terminal est dans l'autre : chaque commande Git s'applique au dossier du terminal, pas au panneau de gauche."}
- ]}
-]},
 {g:"Le terminal", col:"blue", note:"Lundi : parler à la machine sans la souris.", sections:[
  {id:"ouvrir", ic:"terminal", t:"Ouvrir son terminal", cards:[
-  {id:"ouvrir-terminal", t:"Le bon terminal selon sa machine", k:"terminal ouvrir git bash mac windows zsh powershell mingw64 invite",
-   tab:[["","macOS","Windows"],["L'application","Terminal (Cmd + Espace, « Terminal »)","Git Bash (menu Démarrer)"],["Le shell","zsh","bash"],["L'invite se termine par","`%`","`$`, avec `MINGW64`"]],
+  {id:"ouvrir-terminal", t:"Le bon terminal : Git Bash", k:"terminal ouvrir git bash windows powershell mingw64 invite",
+   tab:[["","Sous Windows"],["L'application","Git Bash (menu Démarrer, ou dans VS Code)"],["Le shell","bash"],["L'invite","contient `MINGW64` et se termine par `$`"]],
    s:[["Vérifier que Git est installé", c`git --version`]],
-   why:"Sous Windows, Git Bash parle la même langue que le terminal du Mac : mêmes commandes, mêmes messages d'erreur. PowerShell et l'invite de commandes ne la parlent pas.",
+   why:"Git Bash comprend les commandes Unix (`ls`, `pwd`, `rm`…) utilisées dans tout le cours et dans la plupart des tutoriels. PowerShell et l'invite de commandes ne parlent pas la même langue.",
    trap:"Sous Windows, si ton invite affiche `PS C:\\Users\\…`, tu es dans PowerShell : change de terminal avec le petit v à côté du + du panneau Terminal.",
    tip:"Après toute installation, ferme et rouvre le terminal : il ne voit pas ce qui a été installé depuis son ouverture."},
   {id:"installer-git", t:"Installer Git sous Windows : les options qui comptent", k:"installer git windows gitforwindows installation options vim vscode editeur credential manager",
@@ -436,12 +314,12 @@ git status`],["Qu'est-ce qui va vraiment partir ?", c`git diff --staged`]],
    tip:"Dans Git Bash, Ctrl + V ne colle pas toujours : utilise **Shift + Insert**."},
   {id:"lire-invite", t:"Lire son invite de commande", k:"invite prompt tilde dollar mingw64 utilisateur machine",
    lead:"Exemple : `Larbi@LAPTOP-EE5HL5VQ MINGW64 ~ $`",
-   tab:[["Morceau","Ce qu'il dit"],["`Larbi@LAPTOP-EE5HL5VQ`","qui tu es, sur quelle machine"],["`MINGW64`","le shell : c'est la signature de Git Bash (vide sur Mac)"],["`~`","où tu es : `~` désigne ton dossier personnel"],["`$` (ou `%` sur Mac)","la machine attend : à toi de taper"]],
+   tab:[["Morceau","Ce qu'il dit"],["`Larbi@LAPTOP-EE5HL5VQ`","qui tu es, sur quelle machine"],["`MINGW64`","le shell : c'est la signature de Git Bash"],["`~`","où tu es : `~` désigne ton dossier personnel"],["`$`","la machine attend : à toi de taper"]],
    tip:"Ton invite ne ressemblera jamais exactement à celle du voisin : lis ce qui suit le `$`, pas ce qui le précède."},
   {id:"anatomie", t:"Lire une commande : programme, option, argument", k:"commande option argument tiret aide help man",
    s:[["Le programme `ls`, l'option `-l`, l'argument `/home`", c`ls -l /home`],["L'aide rapide d'une commande", c`ls --help`]],
    why:"Une commande commence toujours par le nom d'un programme. Les options commencent par un tiret (`-l`, `--help`) et changent son comportement ; l'argument dit sur quoi agir, souvent un fichier ou un dossier.",
-   tip:"`man ls` affiche le manuel complet, mais n'existe pas sous Git Bash : utilise `--help`."}
+   tip:"`man ls` (le manuel complet) n'existe pas sous Git Bash : utilise `--help`."}
  ]},
  {id:"se-reperer", ic:"compass", t:"Se repérer et se déplacer", cards:[
   {id:"pwd-ls", t:"Où suis-je ? Qu'y a-t-il ici ?", k:"pwd ls dossier courant lister fichiers caches -a -l",
@@ -451,18 +329,18 @@ git status`],["Qu'est-ce qui va vraiment partir ?", c`git diff --staged`]],
   {id:"cd", t:"Se déplacer : cd", k:"cd changer dossier remonter parent tilde personnel espace guillemets tab fleche",
    s:[["Entrer dans un dossier (il doit être visible avec ls)", c`cd Documents`],["Remonter d'un dossier", c`cd ..`],["Revenir à son dossier personnel", c`cd ~`],["Un nom avec une espace : entre guillemets", c`cd "Mon Dossier"`]],
    why:"`cd` ne cherche pas partout : il cherche dans le dossier où tu te trouves. La même commande peut donc marcher, échouer, puis remarcher, selon l'endroit où tu es.",
-   tip:"Touche **Tab** : tape le début d'un nom, le terminal complète (plus de fautes de frappe). Flèche **↑** : rappelle la commande précédente. Sur clavier AZERTY, `~` = AltGr + 2 (Windows) ou Option + N (Mac), puis une espace.",
+   tip:"Touche **Tab** : tape le début d'un nom, le terminal complète (plus de fautes de frappe). Flèche **↑** : rappelle la commande précédente. Sur clavier AZERTY, `~` = AltGr + 2, puis une espace.",
    trap:"« Is a directory » : tu as tapé un chemin sans `cd` devant, le terminal a essayé de l'exécuter."},
   {id:"chemins", t:"Chemin absolu, chemin relatif", k:"chemin absolu relatif racine point point-point tilde",
    s:[["Absolu : part de la racine, marche de n'importe où", c`cd ~/Documents/collecte/data`],["Relatif : part du dossier où tu es", c`cd collecte/data`]],
-   tab:[["Raccourci","Désigne"],["`.`","le dossier courant (`./script.sh` = le script qui est ici)"],["`..`","le dossier parent"],["`~`","ton dossier personnel"],["`/` (Mac) ou `/c/` (Git Bash)","la racine du disque"]],
+   tab:[["Raccourci","Désigne"],["`.`","le dossier courant (`./script.sh` = le script qui est ici)"],["`..`","le dossier parent"],["`~`","ton dossier personnel"],["`/c/`","le disque C: (sous Git Bash, `C:\\Users` s'écrit `/c/Users`)"]],
    why:"C'est la notion qui explique la moitié des erreurs du terminal. Le relatif est plus court, c'est celui que tu tapes le plus ; l'absolu est plus sûr, c'est celui qu'on écrit dans un script, qui peut être lancé de n'importe où."},
   {id:"erreurs-terminal", t:"Deux erreurs à ne pas confondre", k:"command not found no such file or directory erreur terminal",
    tab:[["Message","Le problème vient de…","Exemple"],["`command not found`","la commande elle-même (faute de frappe, outil pas installé)","`ls-l Documents` (espace oubliée)"],["`No such file or directory`","son argument : le fichier ou dossier n'est pas là","`cd Document` (s oublié)"]],
    tip:"Le réflexe est toujours le même : `ls` avant `cd`. Le dossier n'est probablement pas là où tu le crois."},
   {id:"raccourcis-terminal", t:"Quatre gestes qui font gagner du temps", comp:true, k:"ctrl c arreter cd - precedent explorer open dossier history historique commandes",
    tab:[["Geste","Ce qu'il fait"],["Ctrl + C","arrête une commande qui tourne, ou qui ne rend pas la main"],["`cd -`","revient au dossier où tu étais juste avant"],["`history`","la liste des commandes déjà tapées"]],
-   s:[["Revenir au dossier précédent", c`cd -`],["Ouvrir le dossier actuel dans l'explorateur de fichiers (Windows, Git Bash)", c`explorer .`],["La même chose sur Mac", c`open .`],["Les commandes déjà tapées", c`history`]],
+   s:[["Revenir au dossier précédent", c`cd -`],["Ouvrir le dossier actuel dans l'explorateur Windows", c`explorer .`],["Les commandes déjà tapées", c`history`]],
    tip:"Ctrl + C dans le terminal n'est pas « copier » : c'est « arrêter ». Dans Git Bash : sélectionner à la souris copie, **Shift + Insert** colle. **Ctrl + R** puis quelques lettres retrouve une ancienne commande."}
  ]},
  {id:"fichiers", ic:"folder", t:"Créer, lire, copier, supprimer", cards:[
@@ -499,12 +377,12 @@ code .`]],
    s:[["Ouvrir le dossier actuel dans VS Code", c`code .`],["Vider l'écran du terminal", c`clear`]]}
  ]},
  {id:"script-sh", ic:"code", t:"Un premier script shell", cards:[
-  {id:"script", t:"Écrire et lancer un script .sh", k:"script sh bash zsh executer commandes fichier",
+  {id:"script", t:"Écrire et lancer un script .sh", k:"script sh bash executer commandes fichier",
    lead:"Un script est un fichier qui contient des commandes : on l'exécute, elles se lancent les unes après les autres.",
    s:[["Le contenu de script.sh (écrit dans VS Code, puis Ctrl + S)", c`echo "Début du script"
 ls
 cat notes.txt
-echo "Fin du script"`],["L'exécuter sous Windows (Git Bash)", c`bash script.sh`],["L'exécuter sous macOS", c`zsh script.sh`]],
+echo "Fin du script"`],["L'exécuter", c`bash script.sh`]],
    trap:"Tant que le fichier n'est pas enregistré (point blanc sur l'onglet), le terminal lit l'ancienne version : un script vide ne fait rien, sans erreur.",
    why:"C'est exactement ce que tu feras avec un script Python : seuls le nom du fichier et la commande de lancement changent (`python src/script.py`)."}
  ]}
@@ -522,10 +400,10 @@ echo "Fin du script"`],["L'exécuter sous Windows (Git Bash)", c`bash script.sh`
   {id:"zones-vscode", t:"Les six zones de l'écran", k:"interface zones barre activite laterale editeur minimap panneau etat",
    tab:[["Zone","À quoi elle sert"],["Barre d'activité (tout à gauche)","Explorer, Search, Source Control (Git), Run and Debug, Extensions"],["Barre latérale","l'arborescence du projet"],["Éditeur","tes fichiers ouverts, en onglets"],["Minimap","un aperçu du fichier, pour naviguer vite"],["Panneau inférieur","le terminal et la console de débogage"],["Barre d'état (en bas)","le langage, la position, la branche Git, l'interpréteur Python"]]},
   {id:"raccourcis-vscode", t:"Les raccourcis à connaître", k:"raccourcis clavier palette ctrl shift p terminal extensions enregistrer",
-   tab:[["Action","Windows","Mac"],["Palette de commandes","Ctrl + Shift + P","Cmd + Shift + P"],["Ouvrir le terminal intégré","Ctrl + ù","Ctrl + ù"],["Enregistrer","Ctrl + S","Cmd + S"],["Extensions","Ctrl + Shift + X","Cmd + Shift + X"],["Run and Debug","Ctrl + Shift + D","Cmd + Shift + D"],["Exécuter une cellule de notebook","Ctrl + Entrée","Ctrl + Entrée"],["Cellule en dessous / au-dessus","Échap puis B / A","Échap puis B / A"]],
+   tab:[["Action","Raccourci"],["Palette de commandes","Ctrl + Shift + P"],["Ouvrir le terminal intégré","Ctrl + ù"],["Enregistrer","Ctrl + S"],["Extensions","Ctrl + Shift + X"],["Run and Debug","Ctrl + Shift + D"],["Exécuter une cellule de notebook","Ctrl + Entrée"],["Cellule en dessous / au-dessus","Échap puis B / A"]],
    tip:"Tu ne trouves pas un réglage ? Ne cherche pas dans les menus : ouvre la palette et tape ce que tu veux (« Python », « terminal », « format »)."},
   {id:"raccourcis-plus", t:"Raccourcis en plus, pour coder plus vite", comp:true, k:"raccourcis ctrl p ouvrir fichier chercher projet commenter deplacer dupliquer ligne",
-   tab:[["Action","Windows","Mac"],["Ouvrir un fichier par son nom","Ctrl + P","Cmd + P"],["Chercher dans tout le projet","Ctrl + Shift + F","Cmd + Shift + F"],["Commenter / décommenter les lignes sélectionnées","Ctrl + /","Cmd + /"],["Déplacer la ligne vers le haut / le bas","Alt + ↑ / ↓","Option + ↑ / ↓"],["Dupliquer la ligne","Shift + Alt + ↓","Shift + Option + ↓"]],
+   tab:[["Action","Raccourci"],["Ouvrir un fichier par son nom","Ctrl + P"],["Chercher dans tout le projet","Ctrl + Shift + F"],["Commenter / décommenter les lignes sélectionnées","Ctrl + /"],["Déplacer la ligne vers le haut / le bas","Alt + ↑ / ↓"],["Dupliquer la ligne","Shift + Alt + ↓"]],
    tip:"Ctrl + / met (ou enlève) un `#` devant chaque ligne sélectionnée : pratique pour désactiver un bout de code le temps d'un test."}
  ]},
  {id:"vscode-python", ic:"code", t:"Python et notebooks dans VS Code", cards:[
@@ -553,7 +431,7 @@ print(os.getcwd())`],["Lire un fichier depuis la racine du projet", c`df = pd.re
    s:[["Ou dans les réglages JSON (Ctrl + , puis l'icône Open Settings (JSON))", c`"terminal.integrated.profiles.windows": {
     "Git Bash": { "path": "C:\\Program Files\\Git\\bin\\bash.exe" }
 },`]],
-   why:"Par défaut, VS Code ouvre PowerShell sous Windows, qui ne parle pas la même langue que Git Bash. macOS et Linux : rien à faire."}
+   why:"Par défaut, VS Code ouvre PowerShell sous Windows, qui ne parle pas la même langue que Git Bash."}
  ]},
  {id:"debug", ic:"bug", t:"Déboguer sans print", cards:[
   {id:"debogueur", t:"Le débogueur en trois gestes", k:"debug debogueur breakpoint point arret f5 f10 f11 variables",
@@ -582,9 +460,9 @@ print(f"La moyenne des notes est : {moyenne}")`],["L'exécuter", c`python src/mo
   {id:"creer-venv", t:"Créer l'environnement", k:"python -m venv creer environnement point venv cache",
    s:[["À la racine du projet (une fois par projet)", c`python -m venv .venv`],["Vérifier qu'il existe (dossier caché)", c`ls -a`]],
    tip:"Vérifie ton `pwd` avant : sinon l'environnement est créé au mauvais endroit. Le nom `.venv`, avec un point, est la convention que VS Code et Git reconnaissent.",
-   why:"Le dossier `.venv` contient un Python à lui (`Scripts/` sous Windows, `bin/` sous Mac) et accueillera les bibliothèques (`Lib/`)."},
+   why:"Le dossier `.venv` contient un Python à lui (dans `Scripts/`) et accueillera les bibliothèques (dans `Lib/site-packages/`)."},
   {id:"activer-venv", t:"Activer, vérifier, désactiver", k:"activer source activate scripts bin powershell deactivate point venv parentheses",
-   s:[["Activer : Windows, Git Bash", c`source .venv/Scripts/activate`],["Activer : macOS / Linux", c`source .venv/bin/activate`],["Activer : PowerShell (pour information)", c`.venv\Scripts\Activate.ps1`],["Vérifier quel Python est utilisé", c`python -c "import sys; print(sys.executable)"`],["Désactiver", c`deactivate`]],
+   s:[["Activer (Git Bash)", c`source .venv/Scripts/activate`],["Activer : PowerShell (pour information)", c`.venv\Scripts\Activate.ps1`],["Vérifier quel Python est utilisé", c`python -c "import sys; print(sys.executable)"`],["Désactiver", c`deactivate`]],
    tip:"Activé ? Tu dois voir **(.venv)** au début de la ligne. C'est le seul signal visible.",
    trap:"Oublier `source` : la commande s'exécute à part et meurt aussitôt, sans erreur et sans effet. Et chaque nouveau terminal demande une nouvelle activation."},
   {id:"pip", t:"Installer et regarder ses bibliothèques", k:"pip install list show version upgrade bibliotheque installer",
@@ -615,9 +493,19 @@ print(f"La moyenne des notes est : {moyenne}")`],["L'exécuter", c`python src/mo
    trap:"`rm -rf` ne demande aucune confirmation et ne met rien à la corbeille. Vérifie ton `pwd` avant : un mauvais chemin après `-rf`, et tout disparaît.",
    why:"Désactiver ne libère pas de place. Un environnement peut peser plusieurs gigaoctets : pour récupérer l'espace, on supprime le dossier."}
  ]},
+ {id:"guide-diagnostic", ic:"search", t:"Pas à pas : Python ne trouve pas ma bibliothèque", cards:[
+  {id:"gd-trois", t:"Les trois vérifications qui tranchent", k:"diagnostic modulenotfounderror pip -V pip list sys executable pip show location",
+   s:[["Dans le terminal : où pip installe, et ce qui est installé ici", c`pip -V
+pip list`],["Dans le notebook : sur quel Python tourne le noyau", c`import sys; print(sys.executable)`],["Où est installée une bibliothèque précise (ligne Location)", c`pip show pandas`]],
+   why:"Si les trois chemins contiennent `.venv`, tout est en ordre. Dans neuf cas sur dix, `ModuleNotFoundError` après une installation réussie veut dire que le noyau du notebook ne pointe pas sur le `.venv` : corrige avec **Select Kernel**."},
+  {id:"gd-checklist", t:"La checklist complète", k:"diagnostic checklist pwd venv interpreteur kernel",
+   tab:[["#","Question","Vérification"],["1","Suis-je dans le bon projet ?","`pwd`"],["2","L'environnement est-il actif ?","`(.venv)` au début de la ligne"],["3","Quel Python répond ?","`python -c \"import sys; print(sys.executable)\"`"],["4","La bibliothèque est-elle là ?","`pip list`"],["5","VS Code utilise-t-il le même ?","interpréteur (barre d'état) et kernel du notebook"]],
+   tip:"Le dossier ouvert, l'interpréteur des scripts et le kernel du notebook sont trois réglages distincts : les trois doivent pointer sur le même projet.",
+   comp:true}
+ ]},
  {id:"uv", ic:"bolt", t:"Aller plus loin : uv", cards:[
   {id:"uv-equivalences", t:"pip et venv, ou uv : les équivalences", k:"uv pip venv rust rapide pyproject toml add sync run init",
-   tab:[["Avec pip et venv","Avec uv"],["`python -m venv .venv`","`uv venv`"],["`source .venv/bin/activate`","inutile : `uv run` s'en charge"],["`pip install pandas`","`uv add pandas`"],["`pip freeze > requirements.txt`","automatique, dans `pyproject.toml`"],["`pip install -r requirements.txt`","`uv sync`"]],
+   tab:[["Avec pip et venv","Avec uv"],["`python -m venv .venv`","`uv venv`"],["`source .venv/Scripts/activate`","inutile : `uv run` s'en charge"],["`pip install pandas`","`uv add pandas`"],["`pip freeze > requirements.txt`","automatique, dans `pyproject.toml`"],["`pip install -r requirements.txt`","`uv sync`"]],
    s:[["Installer uv", c`pip install uv`],["Créer un projet (dossier, .gitignore, pyproject.toml…)", c`uv init essai-uv`],["Ajouter une bibliothèque", c`uv add pandas`],["Exécuter sans activer", c`uv run python main.py`],["Reconstituer un projet cloné", c`uv sync`]],
    trap:"`uv init` crée aussi un dépôt Git (`.git`) : ne refais pas `git init` derrière, passe directement à `git status`.",
    why:"Mêmes notions, outil plus rapide (écrit en Rust) et une commande en moins. Un dépôt avec un `pyproject.toml` et sans `requirements.txt` est géré avec uv : `uv sync`."}
@@ -691,6 +579,14 @@ __pycache__/
    s:[["Les modifications pas encore ajoutées", c`git diff`],["Ce qui est dans l'index, prêt à partir", c`git diff --staged`],["Le détail du dernier commit", c`git show`]],
    trap:"« `git diff` ne montre rien » : tu as déjà fait `add`. `git diff` compare ton dossier à l'**index**, pas au dernier commit. Pour relire ce qui part : `git diff --staged`, juste avant chaque commit.",
    why:"Les lignes avec `+` sont ajoutées, celles avec `-` supprimées, les autres sont là pour le contexte."}
+ ]},
+ {id:"guide-commit", ic:"check", t:"Pas à pas : avant chaque commit et chaque push", cards:[
+  {id:"gk-checklist", t:"La checklist en six questions", k:"checklist avant commit push pwd branche status diff staged",
+   s:[["Où suis-je, sur quelle branche, qu'est-ce qui a changé ?", c`pwd
+git branch --show-current
+git status`],["Qu'est-ce qui va vraiment partir ?", c`git diff --staged`]],
+   tab:[["#","Question"],["1","`pwd` : suis-je dans le bon dossier ?"],["2","`git branch --show-current` : sur la bonne branche ?"],["3","`git status` : que vais-je enregistrer ?"],["4","`git diff --staged` : ai-je relu le contenu ?"],["5","`git add fichier` puis `git commit -m \"Message clair\"`"],["6","`git push` : ai-je besoin de publier maintenant ?"]],
+   why:"Avec deux copies d'un projet ouvertes, l'explorateur de VS Code peut afficher l'une pendant que le terminal est dans l'autre : chaque commande Git s'applique au dossier du terminal, pas au panneau de gauche."}
  ]},
  {id:"annuler", ic:"undo", t:"Annuler, réparer", cards:[
   {id:"restore", t:"Annuler une modification", k:"git restore staged annuler modification index retirer",
@@ -782,6 +678,65 @@ Password:`],["Ne plus le retaper (machine personnelle seulement)", c`git config 
    tip:"« remote origin already exists » : tu as déjà déclaré un distant. Vérifie avec `git remote -v`, puis `set-url` plutôt que d'en ajouter un second.",
    why:"`--rebase` repose tes commits par-dessus ceux du distant, au lieu de créer une fusion inutile. Ensuite : `git push -u origin main`."}
  ]},
+ {id:"guide-projet", ic:"rocket", t:"Pas à pas : du dossier vide à GitHub", cards:[
+  {id:"gp-dossier", t:"1. Le dossier du projet", k:"guide projet creer dossier code point vscode nouveau projet",
+   lead:"Les commandes sont pour Git Bash. Dans VS Code : terminal intégré (Ctrl + ù), puis Git Bash dans la petite flèche à droite du +.",
+   s:[["Créer le dossier, y entrer, l'ouvrir dans VS Code", c`cd ~/Documents
+mkdir nom-du-projet
+cd nom-du-projet
+code .`]],
+   why:"VS Code s'ouvre sur le dossier : reprends ensuite le terminal intégré de cette nouvelle fenêtre. Il s'ouvre directement au bon endroit.",
+   tip:"Nom sans accent ni espace (minuscules et tirets) : il servira aussi de nom au dépôt GitHub."},
+  {id:"gp-venv", t:"2. L'environnement virtuel, et la vérification", k:"guide venv creer activer verifier which python pip -V",
+   s:[["Créer et activer", c`python -m venv .venv
+source .venv/Scripts/activate`],["Vérifier : les deux chemins doivent contenir .venv", c`which python
+pip -V`]],
+   why:"Tu dois voir **(.venv)** au début de la ligne. `which python` dit quel Python répond, `pip -V` où pip installe : si le chemin ne contient pas `.venv`, l'activation n'a pas pris.",
+   trap:"Recommence l'activation avant d'installer quoi que ce soit : sinon tout part dans le Python global, sans aucun message."},
+  {id:"gp-deps", t:"3. Les bibliothèques et la structure", k:"guide pip install ipykernel notebook structure data notebooks pip list",
+   s:[["Installer ce dont le projet a besoin (ipykernel : pour les notebooks)", c`pip install pandas notebook ipykernel`],["Créer la structure", c`mkdir data notebooks src`],["Contrôler : une liste courte = environnement isolé", c`pip list`]],
+   trap:"Une liste de deux cents paquets veut dire que tu installes dans le Python global, pas dans ton projet."},
+  {id:"gp-kernel", t:"4. Le notebook et son noyau (kernel)", k:"guide notebook kernel select kernel sys executable getcwd chemin data",
+   lead:"Crée `notebooks/analyse.ipynb` dans l'explorateur de VS Code. En haut à droite : **Select Kernel** → celui dont le chemin contient `.venv`.",
+   s:[["Première cellule : vérifier le Python et le dossier de travail", c`import sys, os
+print(sys.executable)
+print(os.getcwd())`],["Le notebook tourne depuis notebooks/ : on remonte d'un dossier pour lire les données", c`df = pd.read_csv("../data/ventes.csv")`]],
+   why:"`sys.executable` doit contenir `.venv` ; `os.getcwd()` se termine par `notebooks`. Les deux points `..` remontent d'un dossier.",
+   trap:"Le noyau du notebook est indépendant du terminal. Oublié, il donne le symptôme le plus déroutant : `pip install` répond « Successfully installed », et la cellule suivante « No module named pandas »."},
+  {id:"gp-git-local", t:"5. Git en local : identité, .gitignore, premier commit", k:"guide git config gitignore init status premier commit requirements",
+   s:[["Git me connaît-il ? (rien ne s'affiche = pas configuré)", c`git config --global user.name
+git config --global user.email`],["Sinon, se présenter (avec l'adresse du compte GitHub)", c`git config --global user.name "Prénom Nom"
+git config --global user.email "ton.adresse@exemple.fr"`],["Contenu du fichier .gitignore, à la racine", c`.venv/
+__pycache__/
+.ipynb_checkpoints/
+.history/
+.env`],["Initialiser et contrôler : .venv/ ne doit PAS apparaître", c`git init
+git status`],["Figer les bibliothèques, puis le premier commit", c`pip freeze > requirements.txt
+git add .
+git commit -m "Mise en place du projet"`]],
+   trap:"Crée le `.gitignore` dans VS Code, pas avec le Bloc-notes, qui ajoute en silence `.txt` à la fin. Si `.venv/` apparaît dans `git status`, le `.gitignore` n'est pas à la racine ou contient une faute de frappe : corrige avant de continuer.",
+   tip:"Et `data/` ? Ça dépend du projet : on l'ignore si c'est lourd ou récupérable, on le garde si les CSV sont le résultat de ton travail."},
+  {id:"gp-github", t:"6. Le dépôt GitHub, strictement vide", k:"guide github new depot vide readme license public",
+   tab:[["Champ","Ce que tu mets"],["Repository name","le nom du dossier, sans accent ni espace (GitHub remplace le reste par des tirets)"],["Visibilité","Public"],["Add a README","décoché"],["Add .gitignore","None"],["Choose a license","None"]],
+   why:"Un dépôt qui contient déjà un fichier a son propre historique : ton push serait refusé pour « historiques divergents »."},
+  {id:"gp-push", t:"7. Relier et envoyer", k:"guide remote add origin branch main push u remote v chevrons",
+   s:[["Relier (URL copiée depuis GitHub, collée telle quelle), puis envoyer", c`git remote add origin URL_COPIEE_DEPUIS_GITHUB
+git branch -M main
+git push -u origin main`],["Contrôler : deux lignes commençant par origin", c`git remote -v`]],
+   trap:"Colle l'URL sans chevrons `< >` ni guillemets. Pour le terminal, `<` veut dire « lis ce fichier » : tu obtiendrais `bash: syntax error near unexpected token`, puis `fatal: 'origin' does not appear to be a git repository` au push.",
+   tip:"Au push, une fenêtre d'authentification s'ouvre : choisis **Sign in with your browser** si elle le propose. Sous Windows, le gestionnaire d'identification s'en souvient ensuite. Sinon, c'est le jeton (fiche « Le jeton »)."},
+  {id:"gp-quotidien", t:"8. Le quotidien, ensuite", k:"guide quotidien pull add commit push requirements binome",
+   s:[["Chaque séance", c`git pull
+git add .
+git commit -m "Message explicite"
+git push`],["J'installe une nouvelle bibliothèque : régénérer la liste, puis la pousser", c`pip freeze > requirements.txt
+git add requirements.txt
+git commit -m "Ajoute seaborn aux dépendances"
+git push`],["Mon binôme récupère et installe", c`git pull
+pip install -r requirements.txt`]],
+   why:"Le `git pull` d'ouverture, avant de coder, évite la grande majorité des conflits à plusieurs.",
+   trap:"`pip freeze >` écrase le fichier : si ton binôme avait une bibliothèque que tu n'as pas, elle disparaît de la liste sans un mot."}
+ ]},
  {id:"recuperer", ic:"download", t:"Récupérer : pull, fetch, clone", cards:[
   {id:"pull-fetch", t:"pull ou fetch ?", k:"git pull fetch recuperer retard behind origin",
    s:[["Récupérer ET intégrer (95 % du temps)", c`git pull`],["Récupérer sans rien toucher", c`git fetch`],["Les commits de GitHub que je n'ai pas encore", c`git log --oneline main..origin/main`],["Où j'en suis par rapport à GitHub", c`git status`]],
@@ -798,6 +753,29 @@ Password:`],["Ne plus le retaper (machine personnelle seulement)", c`git config 
   {id:"modifier-github", t:"Modifier un fichier depuis le navigateur", k:"modifier github navigateur crayon commit web readme",
    lead:"Sur GitHub, ouvrir le fichier → icône crayon → modifier → un vrai message → **Commit changes**. Puis en local : `git pull`.",
    why:"L'interface web fait un vrai commit, avec auteur, message et date. Pratique pour une faute dans un README ; pour du code, reste en local (ton éditeur, tes tests)."}
+ ]},
+ {id:"guide-clone", ic:"download", t:"Pas à pas : cloner un projet et le faire tourner", cards:[
+  {id:"gc-clone", t:"1. Cloner au bon endroit", k:"guide clone cloner projet camarade dossier neutre nom",
+   s:[["Se placer dans un dossier « neutre » (pas dans un autre dépôt)", c`cd ~/Documents
+pwd`],["Copier le projet et tout son historique", c`git clone URL_DU_DEPOT`],["Ou en choisissant le nom du dossier créé", c`git clone URL_DU_DEPOT python_test_clone`],["Entrer dans le dossier et contrôler le lien et l'historique", c`cd python_test_clone
+git remote -v
+git log --oneline -5`]],
+   why:"`clone` crée le dossier, télécharge tout l'historique et configure `origin` : pas de `git init` ni de `remote add` derrière.",
+   trap:"Jamais à l'intérieur d'un autre dépôt Git. Vérifie avec `pwd` avant de cloner."},
+  {id:"gc-venv", t:"2. Recréer l'environnement (il n'est pas sur GitHub)", k:"guide clone venv recreer requirements install -r",
+   s:[["Créer, activer, réinstaller la liste du projet", c`python -m venv .venv
+source .venv/Scripts/activate
+pip install -r requirements.txt`],["Contrôler le Python utilisé", c`python -c "import sys; print(sys.executable)"`],["Le projet a un pyproject.toml et pas de requirements.txt ? Il est géré avec uv", c`uv sync`]],
+   why:"Le `.venv` est dans le `.gitignore` : un clone ne le récupère jamais. C'est voulu : on partage la liste (`requirements.txt`), et chacun reconstruit sa bulle.",
+   tip:"Dans VS Code : **Python: Select Interpreter** et, pour un notebook, **Select Kernel** → le `.venv` du projet cloné."},
+  {id:"gc-travailler", t:"3. Travailler sans toucher à main", k:"guide clone branche travailler switch c premier push",
+   s:[["Partir de la dernière version, sur sa propre branche", c`git switch main
+git pull
+git switch -c ma-tache`],["Envoyer sa branche la première fois", c`git push -u origin ma-tache`]],
+   tip:"Pour pousser sur le dépôt d'un camarade, il doit t'ajouter : **Settings → Collaborators** (invitation à accepter par e-mail)."},
+  {id:"gc-pieges", t:"Les pièges du clone", k:"guide clone pieges mauvais dossier venv actif repositories collaborateur",
+   tab:[["Situation","Ce qui se passe"],["Un dépôt partagé n'est pas dans l'onglet « Repositories » de mon profil","normal : il ne liste que tes propres dépôts. Les autres sont sur la page d'accueil de GitHub, colonne de gauche. Mets l'URL en favori."],["`git add` ne prépare rien alors que j'ai modifié le fichier","ton terminal est dans un autre dossier (l'autre copie du projet) : chaque dépôt a son propre index → `pwd`"],["Le terminal affiche encore (.venv) dans le nouveau projet","`cd` ne change pas d'environnement : `deactivate`, puis active celui du projet"],["Download ZIP au lieu de clone","pas d'historique, pas de branches, impossible de contribuer"]],
+   comp:true}
  ]},
  {id:"equipe", ic:"users", t:"Travailler en équipe", cards:[
   {id:"workflow", t:"Le déroulé d'une tâche en équipe", k:"equipe workflow branche tache pull request debut fin",
@@ -819,6 +797,26 @@ Password:`],["Ne plus le retaper (machine personnelle seulement)", c`git config 
    tab:[["Bon titre d'issue","Mauvais"],["Ajouter le filtre par année au tableau de bord","à faire"],["Corriger le calcul du panier moyen (divise par 50 au lieu de 29)","bug"]],
    tip:"`Corrige le calcul du panier moyen (#3)` dans un commit le rattache à l'issue n° 3 ; `Closes #3` dans une PR la ferme à la fusion.",
    why:"Un bon README répond à trois questions, dans l'ordre : qu'est-ce que c'est, qu'est-ce qu'on y trouve, comment joindre l'auteur. Aucun dépôt public sans README : ton profil GitHub est ton portfolio."}
+ ]},
+ {id:"guide-equipe", ic:"users", t:"Pas à pas : une tâche de l'issue à la fusion", cards:[
+  {id:"ge-issue", t:"1. Une issue, une branche", k:"guide equipe issue branche switch pull tache",
+   lead:"Sur GitHub, onglet **Issues → New issue** : un titre précis (« Ajouter un script d'analyse des ventes »). Elle reçoit un numéro, par exemple #1.",
+   s:[["Partir de main à jour, créer la branche de la tâche", c`git switch main
+git pull
+git switch -c ajout-analyse-csv`]]},
+  {id:"ge-commit", t:"2. Travailler, enregistrer, envoyer la branche", k:"guide equipe add commit push u origin branche",
+   s:[["Préparer, relire, enregistrer", c`git status
+git add src/analyse_csv.py
+git diff --staged
+git commit -m "Ajoute un premier script d'analyse CSV"`],["Envoyer la branche sur GitHub", c`git push -u origin ajout-analyse-csv`]]},
+  {id:"ge-pr", t:"3. La Pull Request", k:"guide equipe pull request compare base files changed merge closes",
+   tab:[["Étape","Sur GitHub"],["Ouvrir","bandeau **Compare & pull request** (ou Pull requests → New)"],["Choisir","base = `main` ← compare = `ajout-analyse-csv`"],["Décrire","ce que tu as fait et pourquoi, + `Closes #1` pour fermer l'issue à la fusion"],["Relire","onglet **Files changed** (ex. 1 fichier, 4 lignes ajoutées)"],["Fusionner","**Merge pull request** puis **Confirm merge**"],["Nettoyer","**Delete branch**"]],
+   trap:"Ouvrir une Pull Request ne fusionne rien : le travail reste sur sa branche tant que le merge n'est pas validé."},
+  {id:"ge-apres", t:"4. Après la fusion : se remettre à jour et nettoyer", k:"guide equipe apres fusion pull branch d delete prune ls-remote",
+   s:[["Revenir sur main et récupérer la fusion faite sur GitHub", c`git switch main
+git pull`],["Supprimer la branche sur l'ordinateur, puis sur GitHub", c`git branch -d ajout-analyse-csv
+git push origin --delete ajout-analyse-csv`],["Oublier les références des branches supprimées", c`git fetch --prune`]],
+   why:"Supprimer la branche ne supprime pas son travail : la PR l'a intégré à `main`. Tu ne supprimes que l'étiquette."}
  ]},
  {id:"a-jour", ic:"refresh", t:"Rester à jour avec main", cards:[
   {id:"maj-branche", t:"Mettre sa branche à jour avec main", k:"pull origin main mettre a jour branche retard collegue",
@@ -875,7 +873,7 @@ const ICON_DL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" str
 const ICON_TIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>';
 const ICON_TRAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
 /*OUT*/const OUT = {
- "gp-venv#2": {out:[["o", c`/c/Users/VotrePrenom/Documents/nom-du-projet/.venv/Scripts/python
+ "gp-venv#1": {out:[["o", c`/c/Users/VotrePrenom/Documents/nom-du-projet/.venv/Scripts/python
 pip 24.0 from C:\Users\VotrePrenom\Documents\nom-du-projet\.venv\Lib\site-packages\pip (python 3.13)`], ["i", "Les deux chemins passent par .venv : l'environnement est le bon. Exemple : le reste du chemin dépend de ta machine."]]},
  "gp-git-local#0": {out:[["i", "Rien ne s'affiche ? Git ne te connaît pas encore : passe au bloc suivant. Sinon, ton nom et ton e-mail s'affichent."]]},
  "gp-push#1": {out:[["o", c`origin  https://github.com/ton-pseudo/nom-du-projet.git (fetch)
@@ -906,8 +904,8 @@ branch 'sa-branche' set up to track 'origin/sa-branche'.`]]},
  "branche-camarade#4": {ctx:"# après la suppression de sa-branche sur GitHub", out:[["o", c` - [deleted]         (none)     -> origin/sa-branche`]]},
  "fichier-github#1": {out:[["o", c`data/propre/film_propre.csv`]]},
  "fichier-github#2": {out:[["a", "git status -s"], ["o", c` M data/propre/film_propre.csv`], ["i", "Le fichier a pris la version de GitHub (3 508 films) : add + commit pour la garder."]]},
- "ouvrir-terminal#0": {out:[["o", c`git version 2.47.0.windows.2`], ["i", "Le numéro n'a aucune importance : seul compte le fait qu'un numéro s'affiche. Sur Mac : « git version 2.39.5 (Apple Git-154) »."]]},
- "pwd-ls#0": {out:[["o", c`/c/Users/VotrePrenom`], ["i", "Sous Git Bash. Sur Mac : /Users/votreprenom."]]},
+ "ouvrir-terminal#0": {out:[["o", c`git version 2.47.0.windows.2`], ["i", "Le numéro n'a aucune importance : seul compte le fait qu'un numéro s'affiche."]]},
+ "pwd-ls#0": {out:[["o", c`/c/Users/VotrePrenom`], ["i", "Sous Git Bash, le disque C: s'écrit /c/."]]},
  "pwd-ls#1": {out:[["o", c`Documents    Downloads    Images    Musique    Vidéos`], ["i", "La liste dépend de ta machine."]]},
  "pwd-ls#2": {ctx:"# dans le projet collecte", out:[["o", c`./  ../  .git/  .venv/  data/  notebooks/  src/`]]},
  "cd#0": {ctx:"# depuis ton dossier personnel", out:[["a", "pwd"], ["o", c`/c/Users/VotrePrenom/Documents`], ["i", "Le chemin s'est allongé d'un cran. Retape maintenant la même commande, depuis Documents :"], ["a", "cd Documents"], ["e", "bash: cd: Documents: No such file or directory"], ["i", "Normal : tu es déjà dedans. Après cd .., la même commande remarche."]]},
@@ -926,7 +924,7 @@ Fin du script`]]},
  "creer-venv#0": {out:[["i", "Rien ne s'affiche : le prompt revient, c'est tout. C'est normal."]]},
  "creer-venv#1": {out:[["o", c`./  ../  .venv/  data/  notebooks/  README.md  src/`]]},
  "activer-venv#0": {out:[["o", c`(.venv) $`], ["i", "(.venv) apparaît au début de la ligne : l'environnement est actif."]]},
- "activer-venv#3": {out:[["o", c`/c/Users/.../Documents/collecte/.venv/Scripts/python.exe`], ["i", "Le chemin passe par ton projet. Après deactivate, il repart vers le Python global (AppData)."]]},
+ "activer-venv#2": {out:[["o", c`/c/Users/.../Documents/collecte/.venv/Scripts/python.exe`], ["i", "Le chemin passe par ton projet. Après deactivate, il repart vers le Python global (AppData)."]]},
  "pip#0": {ctx:"# juste après l'activation", out:[["o", c`Package    Version
 ---------- -------
 pip        24.0
