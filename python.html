@@ -441,7 +441,7 @@ header.top{background-image:radial-gradient(rgba(255,255,255,.12) 1.2px,transpar
   </div>
 </footer>
 
-<script>/*SEE*/window.SEE={"lambda": [["pandas-nettoyage.html", "lambda", "La même chose en une ligne (lambda)", "Pandas"]], "creer-fonction": [["pandas-nettoyage.html", "apply", "Appliquer sa propre fonction (apply)", "Pandas"]], "split-join": [["pandas-nettoyage.html", "str-split", "Plusieurs valeurs dans une case : split + explode", "Pandas"]], "methodes-chaine": [["pandas-nettoyage.html", "str-base", "Espaces, majuscules, caractères à remplacer", "Pandas"]], "and-or-not": [["pandas-nettoyage.html", "filtre-plusieurs", "Combiner plusieurs conditions", "Pandas"]], "creer-dict": [["pandas-nettoyage.html", "map-replace", "Remplacer des valeurs", "Pandas"]], "trier-liste": [["pandas-nettoyage.html", "trier", "Trier", "Pandas"]], "set-doublons": [["pandas-nettoyage.html", "doublons-compter", "Compter et voir les doublons", "Pandas"]], "types-base": [["pandas-nettoyage.html", "types", "Comprendre les types de colonnes", "Pandas"]], "convertir": [["pandas-nettoyage.html", "astype", "Changer le type d'une colonne", "Pandas"]], "importer": [["pandas-nettoyage.html", "importer", "Importer pandas", "Pandas"]], "lire-erreur": [["git.html", "debogueur", "Le débogueur en trois gestes", "Git & VS Code"]], "print-debug": [["git.html", "debogueur", "Le débogueur en trois gestes", "Git & VS Code"]], "creer-module": [["git.html", "lancer-script", "Exécuter un script Python", "Git & VS Code"]], "flake8": [["git.html", "pip", "Installer et regarder ses bibliothèques", "Git & VS Code"]], "catalogue-erreurs": [["git.html", "gd-trois", "Les trois vérifications qui tranchent", "Git & VS Code"]]};/*/SEE*/</script>
+<script>/*SEE*/window.SEE={"lambda": [["pandas-nettoyage.html", "lambda", "La même chose en une ligne (lambda)", "Pandas"]], "creer-fonction": [["pandas-nettoyage.html", "apply", "Appliquer sa propre fonction (apply)", "Pandas"]], "split-join": [["pandas-nettoyage.html", "str-split", "Plusieurs valeurs dans une case : split + explode", "Pandas"]], "methodes-chaine": [["pandas-nettoyage.html", "str-base", "Espaces, majuscules, caractères à remplacer", "Pandas"]], "and-or-not": [["pandas-nettoyage.html", "filtre-plusieurs", "Combiner plusieurs conditions", "Pandas"]], "creer-dict": [["pandas-nettoyage.html", "map-replace", "Remplacer des valeurs", "Pandas"]], "trier-liste": [["pandas-nettoyage.html", "trier", "Trier", "Pandas"]], "set-doublons": [["pandas-nettoyage.html", "doublons-compter", "Compter et voir les doublons", "Pandas"]], "types-base": [["pandas-nettoyage.html", "types", "Comprendre les types de colonnes", "Pandas"]], "convertir": [["pandas-nettoyage.html", "astype", "Changer le type d'une colonne", "Pandas"]], "importer": [["pandas-nettoyage.html", "importer", "Importer pandas", "Pandas"]], "lire-erreur": [["git.html", "debogueur", "Le débogueur en trois gestes", "Git & VS Code"]], "print-debug": [["git.html", "debogueur", "Le débogueur en trois gestes", "Git & VS Code"]], "creer-module": [["git.html", "lancer-script", "Exécuter un script Python", "Git & VS Code"]], "flake8": [["git.html", "pip", "Installer et regarder ses bibliothèques", "Git & VS Code"]], "catalogue-erreurs": [["git.html", "gd-trois", "Les trois vérifications qui tranchent", "Git & VS Code"]], "parcourir-liste": [["ml.html", "stop-words", "Retirer les mots vides et la ponctuation", "Machine Learning"]]};/*/SEE*/</script>
 <script>
 {
 const c = String.raw;
@@ -3303,7 +3303,7 @@ function loadF(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } 
 function saveF(f){ mem = f; try { localStorage.setItem(KEY, JSON.stringify(f)); } catch (e) {} }
 const memoA = document.querySelector('.pdfm a[href*="pdf/memo-"]');
 const MEMO = memoA ? memoA.getAttribute("href").match(/memo-([a-z]+)/)[1] : "memo";
-const PAGE = {python: "python.html", pandas: "pandas-nettoyage.html", git: "git.html"}[MEMO] || location.pathname.split("/").pop();
+const PAGE = {python: "python.html", pandas: "pandas-nettoyage.html", git: "git.html", ml: "ml.html"}[MEMO] || location.pathname.split("/").pop();
 const TITLE = document.querySelector(".top h1") ? document.querySelector(".top h1").textContent.trim() : document.title;
 const STAR = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
 const k = (id) => PAGE + "#" + id;
@@ -3422,7 +3422,7 @@ if (rows && !tocEl.querySelector(".tpdf")) tocEl.insertAdjacentHTML("beforeend",
 
 /* ---------- Voir aussi ---------- */
 const SEE = window.SEE || {};
-const MC = {"python.html": "var(--blue)", "pandas-nettoyage.html": "var(--teal)", "git.html": "var(--orange)"};
+const MC = {"python.html": "var(--blue)", "pandas-nettoyage.html": "var(--teal)", "git.html": "var(--orange)", "ml.html": "#c0306a"};
 const LINK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
 Object.keys(SEE).forEach((id) => {
   const cd = document.getElementById(id); if (!cd || cd.querySelector(".see")) return;

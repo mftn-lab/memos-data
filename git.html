@@ -1415,7 +1415,7 @@ function loadF(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } 
 function saveF(f){ mem = f; try { localStorage.setItem(KEY, JSON.stringify(f)); } catch (e) {} }
 const memoA = document.querySelector('.pdfm a[href*="pdf/memo-"]');
 const MEMO = memoA ? memoA.getAttribute("href").match(/memo-([a-z]+)/)[1] : "memo";
-const PAGE = {python: "python.html", pandas: "pandas-nettoyage.html", git: "git.html"}[MEMO] || location.pathname.split("/").pop();
+const PAGE = {python: "python.html", pandas: "pandas-nettoyage.html", git: "git.html", ml: "ml.html"}[MEMO] || location.pathname.split("/").pop();
 const TITLE = document.querySelector(".top h1") ? document.querySelector(".top h1").textContent.trim() : document.title;
 const STAR = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
 const k = (id) => PAGE + "#" + id;
@@ -1534,7 +1534,7 @@ if (rows && !tocEl.querySelector(".tpdf")) tocEl.insertAdjacentHTML("beforeend",
 
 /* ---------- Voir aussi ---------- */
 const SEE = window.SEE || {};
-const MC = {"python.html": "var(--blue)", "pandas-nettoyage.html": "var(--teal)", "git.html": "var(--orange)"};
+const MC = {"python.html": "var(--blue)", "pandas-nettoyage.html": "var(--teal)", "git.html": "var(--orange)", "ml.html": "#c0306a"};
 const LINK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
 Object.keys(SEE).forEach((id) => {
   const cd = document.getElementById(id); if (!cd || cd.querySelector(".see")) return;

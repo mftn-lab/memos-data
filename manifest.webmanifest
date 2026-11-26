@@ -2,7 +2,7 @@
   "name": "Mémos Data Analyst",
   "short_name": "Mémos Data",
   "lang": "fr",
-  "description": "Mes fiches mémo du bootcamp Data Analyst : Python, Pandas, Terminal, Git et GitHub.",
+  "description": "Mes fiches mémo du bootcamp Data Analyst : Python, Pandas, Terminal, Git et GitHub, Machine Learning.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -38,6 +38,10 @@
     {
       "name": "Terminal, Git et GitHub",
       "url": "./git.html"
+    },
+    {
+      "name": "Machine Learning",
+      "url": "./ml.html"
     },
     {
       "name": "Réviser",

@@ -15,6 +15,7 @@ Chaque fiche donne le code ligne par ligne, avec une phrase simple pour dire ce 
 | SQL (MySQL) | modéliser, créer, interroger, joindre | à venir |
 | Terminal, VS Code, Git et GitHub | terminal, VS Code, environnement virtuel, Git en local, branches et conflits, GitHub, travail en équipe | ✅ disponible |
 | Graphiques | df.plot, Matplotlib, Seaborn, lire un graphique | à venir |
+| Machine Learning | démarche commune, train / test, encodage, mise à l'échelle, régression, classification (logistique, arbres, forêts, k-NN), métriques, similarité, K-means, NLP | ✅ disponible (complété au fil du module) |
 
 ## Ce qu'on trouve sur le site
 
@@ -25,13 +26,14 @@ Chaque fiche donne le code ligne par ligne, avec une phrase simple pour dire ce 
 - des encadrés **Pourquoi ?**, **Astuce** et **Piège**, et des liens **Voir aussi** entre les fiches qui se répondent ;
 - une **étoile** pour mettre une fiche en favori, et le filtre **Favoris** ;
 - des mémos **PDF** à télécharger, en version courte (le code, les astuces, les pièges) ou complète (avec les « Pourquoi »), pour tout le mémo ou une seule partie ;
+- Machine Learning : des cartes **Comprendre** (l'idée en mots simples, une image, un schéma, le vocabulaire) ; chaque schéma s'agrandit d'un clic ;
 - un mode clair et sombre, lisible sur téléphone.
 
 **Sur l'accueil**
 - une recherche dans tous les mémos à la fois ;
 - **Reprendre** : retour à la dernière fiche lue ;
 - **Mes favoris**, avec leur PDF (fiches complètes) et une sauvegarde dans un fichier pour les retrouver sur un autre appareil ;
-- **Révision** : une question d'oral par fiche (277), la réponse, « Je savais » ou « À revoir », et le suivi de la progression.
+- **Révision** : une question d'oral par fiche (377), la réponse, « Je savais » ou « À revoir », et le suivi de la progression.
 
 ## Technique
 
